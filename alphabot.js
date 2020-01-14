@@ -132,7 +132,7 @@ function process(message) {
 		if (f[0] == name) { // default has already been set
 		    var prevRole = parseInt(f[1]);
 		    if (prevRole == role) {
-			message.channel.send('You had already set that as your default role.');
+			message.channel.send('You had already set that as your default role ' + symbols[role]);
 			return;
 		    } else { // update
 			defaults[i] = name + ' ' + role;
@@ -140,7 +140,7 @@ function process(message) {
 			fs.writeFile('roles.log', defaults.join('\n'), (err) => {
 			    if (err) throw err;
 			});			
-			message.channel.send('Your default role has been updated to ' + descr[role] + '.' + symbols[role]);
+			message.channel.send('Your default role has been updated to ' + descr[role] + ' ' + symbols[role]);
 			break;
 		    } 
 		}
