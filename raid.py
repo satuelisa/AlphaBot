@@ -8,7 +8,8 @@ default = 'https://support.discordapp.com/hc/user_images/l12c7vKVRCd-XLIdDkLUDg.
 defIcon = None
 color = {0: '#999999', 1: '#00ee00', 2: '#0000cc', 3: '#dd0000'}
 healer = Image.open('healer.png')
-icon = {3: healer}
+damage = Image.open('damage.png')
+icon = {1: damage, 3: healer}
 
 urls = []
 role = []
