@@ -8,6 +8,8 @@ client.on("ready", () => {
 
 'use strict';
 
+const debugMode = false;
+
 const { spawnSync } = require('child_process');
 
 const separator = ' # ';
@@ -157,7 +159,6 @@ function process(message) {
 	var name = message.member.user.tag.split('#')[0];
 	var role = roleSelection(text);
 	var defRole = currentDefault(name);
-	console.log(name, role, defRole);
 	if (role == 0) {
 	    role = defRole; // use default whenever none is given
 	}
@@ -166,9 +167,12 @@ function process(message) {
 		if (prevRole == role) {
 		    message.channel.send('You had already set that as your default role ' + symbols[role]);
 		    return;
-		} 
+		}
+		var defaults = fs.readFileSync('roles.log').toString().trim().split('\n').filter(Boolean);
 		if (defRole != 0 && role != defRole) { // replace old default
-		    var defaults = fs.readFileSync('roles.log').toString().trim().split('\n').filter(Boolean);
+		    if (debugMode) {
+			console.log('default update');
+		    }
 		    var i = 0;
 		    for (; i < defaults.length; i++) {
 			var f = defaults[i].split(' ');
@@ -183,10 +187,13 @@ function process(message) {
 		    }
 		}
 		if (role != 0) {
-		    fs.writeFile('roles.log', defaults + '\n' + name + ' ' + role, (err) => {
+		    if (debugMode) {
+			console.log('default append');
+		    }
+		    fs.writeFile('roles.log', defaults.join('\n') + '\n' + name + ' ' + role, (err) => {
 			if (err) throw err;
 		    });
-		    message.channel.send('Default role for ' + name + ' is set ' + descr[role] + ' ' + symbols[role]);
+		    message.channel.send('Default role for ' + name + ' set ' + descr[role] + ' ' + symbols[role]);
 		    return;
 		}
 	    } else { // !default was called with no role specified
@@ -197,7 +204,7 @@ function process(message) {
 		message.channel.send('You should specify which role to set as your default: **d**amage, **s**upport/**u**tility, **h**ealer, or **f**lexible.');
 		return;
 	    }
-	} else { // response or raid listing
+	} else { // response or raid listing (other raid commands than default)
 	    var raid = loadLogs();
 	    var date = new Date();
 	    var weekDay = date.getDay();
@@ -211,6 +218,9 @@ function process(message) {
 	    var specDate = daySpec(text);
 	    if (specDate != -1) {
 		requestedDate = specDate;
+	    }
+	    if (debugMode) {
+		console.log(name, role, defRole, specDate);
 	    }
 	    var resp = raid[requestedDate];
 	    if (text[1] == 'r') { // raid listing requested
@@ -226,35 +236,49 @@ function process(message) {
 		return;
 	    } else { // a new response has been given with !signup
 		var status = 0;
-		if (text.startsWith('!s')) { // signup
+		if (text[1] == 's') { // signup
 		    status = 1;
-		} else if (text.startsWith('!m')) { // maybe
+		} else if (text[1] == 'm') { // maybe
 		    status = 2;
-		} else if (text.startsWith('!d')) { // decline
+		} else if (text[1] == 'd') { // decline
 		    status = 3;
 		} else {
+		    if (debugMode) {
+			console.log(text);
+		    }
 		    return;
 		}
-		if (status != 0) {
+		if (status != 0) { // a valid response
 		    var day = dayNames[requestedDate];
 		    var user = message.member.user;
-		    var userData = [status, role, user.tag, user.avatarURL].join(separator);
-		    var pos = resp.indexOf(userData);
+		    var data = [status, role, user.tag, user.avatarURL];
+		    var repr = data.join(separator);
+		    var pos = resp.indexOf(repr);
 		    var prevRole = 0;
 		    if (pos != -1) {
 			var prevData = resp[pos].split(separator);
 			prevRole = parseInt(prevData[1]);
+			if (debugMode) {
+			    console.log(name, prevRole);
+			}
 		    }
 		    if (role !=0 && prevRole == role) { // no file update necessary
+			if (debugMode) {
+			    console.log('response already set');
+			}
 			message.channel.send(reply(status, role, day));
 			return;
-			
 		    }
 		    if (role == 0 && prevRole != 0) {
-			role = prevRole;
+			role = prevRole; // retaining previous role
+			data[1] = role;
+			repr = data.join(separator);
 		    }
-		    if (pos != 1) { // update the sign-up info
-			resp[pos] = userData;
+		    if (pos != -1) { // update existing sign-up info
+			if (debugMode) {
+			    console.log('update response');
+			}
+			resp[pos] = repr;
 			message.channel.send(reply(status, role, day));
 			// rewrite the file with the updated info
 			fs.writeFile(filename(requestedDate), resp.join('\n') + '\n', (err) => {
@@ -262,6 +286,9 @@ function process(message) {
 			});
 			return;
 		    } else { // append a new response
+			if (debugMode) {
+			    console.log('append response');
+			}
 			var nameText = confirm[status]; 
 			if (status == 1 || status == 2) {
 			    nameText += ' ' + descr[role];
@@ -272,14 +299,14 @@ function process(message) {
 			    .setDescription("Thank you for letting us know! " + symbols[role]);
 			message.channel.send(embed);
 			if (specDate == -1) { // no date was specified
-			    message.channel.send('You have signed up for *next raid* which is on ' + day + ' ;to specify a date, include one of Mon Wed Sat Sun in your command.');
+			    message.channel.send('You have signed up for *next raid* which is on ' + day + ' ; to specify a date, include one of Mon Wed Sat Sun in your command.');
 			} 
 			if (role == 0) {
 			    message.channel.send(roleInfo);			    
 			}
-			resp.push(userData);
+			resp.push(repr);
 			resp = resp.sort();			
-			fs.appendFile(filename(requestedDate), userData + '\n', (err) => {
+			fs.appendFile(filename(requestedDate), repr + '\n', (err) => {
 			    if (err) throw err;
 			});
 			message.channel.send(listing(dayNames[requestedDate], resp));
@@ -294,8 +321,10 @@ function process(message) {
 client.on("message", (message) => {
     if (message.content.startsWith('!')) {
 	process(message);
+    } else if (message.content.includes('alpaca')) { // for Ags
+	message.channel.send(':llama:');
     }
+
 });
 var ID = fs.readFileSync('token.txt').toString().trim();
 client.login(ID);
-
