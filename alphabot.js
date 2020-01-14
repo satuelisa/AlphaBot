@@ -31,7 +31,7 @@ function filename(d) {
 function reply(status, role, day) {
     var r = 'You are *' + confirm[status] + '*';
     if (status != 3 && role > 0) {
-	r += ' ' + descr[role] + ' ';
+	r += ' ' + descr[role];
     }
     return r + ' for ' + day + ' ' + symbols[role];
 }
