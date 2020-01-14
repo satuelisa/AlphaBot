@@ -151,6 +151,18 @@ function listing(day, resp) {
     return list + '\nType *!hustle* for instructions on how to sign up or alter your response.';
 }
 
+function alpaca(message) {
+    var text = message.content.toLowerCase();
+    var n = (text.match(/alpaca/g) || []).length;
+    if (n > 0) {
+	var a = '';
+	for (var i = 0; i < n; i++) {
+	    a += ':llama:';
+	}
+	message.channel.send(a);
+    }
+}
+
 function process(message) {
     var text = message.content.toLowerCase();
     if (text.startsWith('!h')) {
@@ -321,10 +333,9 @@ function process(message) {
 client.on("message", (message) => {
     if (message.content.startsWith('!')) {
 	process(message);
-    } else if (message.content.includes('alpaca')) { // for Ags
-	message.channel.send(':llama:');
+    } else {
+	alpaca(message); // for Ags
     }
-
 });
 var ID = fs.readFileSync('token.txt').toString().trim();
 client.login(ID);
