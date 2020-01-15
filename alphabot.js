@@ -12,28 +12,30 @@ const debugMode = false;
 const { spawnSync } = require('child_process');
 const separator = ' # ';
 const roleInfo ='*!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). You can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.';
-const dateInfo = ' By default, you will be responding to the next raid; you can use *Mon Wed Sat Sun* to specify a date. ';
+const dateInfo = ' By default, you will be responding to the next raid; you can use *Mon Wed Sat Sun* to specify a date. You can also include the words *late* or *early* to indicate if you will be joining late or leaving early (or even both).';
 const help = 'Available commands:\n__!**s**ignup__ if you will attend the next raid\n!__**m**aybe__ if you might be able to attend\n!__**d**ecline__ if you will not make it\n\Optionally, ' + roleInfo + dateInfo + '\nUse __!**h**ustle__ to see this help text and __!**r**aid__ to just view the sign-ups. If anything seems broken or unpleasant, just tag *satuelisa* and express your concerns. <:Agswarrior:552592567875928064>'; 
 
-const symbols = {0: ':confused:', 1: '<:damage:666756787550027776>', 2: ':shield:', 3: '<:healer:666430033245503489>', 4: ':recycle:', 5: ':frowning2:'};
+const symbols = {0: ':confused:', 1: '<:damage:667107746868625458>', 2: '<:support:667107765872754738>', 3: '<:healer:667107717567217678>', 4: ':recycle:', 5: ':frowning2:'};
 const descr = {0: 'for an unspecified role', 1: 'as a damage dealer', 2: 'as a support/utility provider', 3: 'as a healer', 4: 'for a flexible spot'};
+const timeDescr = {0: '', 1: ' *(joining late, leaving early)*', 2: ' *(joining late)*', 3: ' *(leaving early)*'};
 const confirm = {1: 'confirmed', 2: 'possible', 3: 'unavailable'};
 const raidNights = [0, 1, 3, 6]; // Sun Mon Wed Sat
 const nextRaid = {0: 1, 1: 3, 2: 3, 3: 3, 4: 6, 5: 6, 6: 0};
 const dayNames = {0: 'Sunday', 1: 'Monday', 3: 'Wednesday', 6: 'Saturday'};
 const stopWords = ["for", "as", "a", "an", "the", "of", "raid", "up", "tonight", "today", "yo", "me", "week", "sign", "up", "gift", "gods", "to", "please"];
 const prefixList = ["mon", "sun", "sat", "wed"];
+const indices = {'status': 0, 'role': 1, 'timing': 2, 'name': 3, 'url': 4, 'defName': 0, 'defRole': 1};
 
 function filename(d) {
     return 'alphabot_' +  d + '.log';
 }
 
-function reply(status, role, day) {
+function reply(status, role, timing, day) {
     var r = 'You are *' + confirm[status] + '*';
     if (status != 3 && role > 0) {
 	r += ' ' + descr[role];
     }
-    return r + ' for ' + day + ' ' + symbols[role];
+    return r + ' for ' + day + timeDescr[timing] + ' ' + symbols[role];
 }
 
 function daySpec(text) {
@@ -90,8 +92,8 @@ function currentDefault(name) {
     var defaults = fs.readFileSync('roles.log').toString().trim().split('\n').filter(Boolean);
     for (var i = 0; i < defaults.length; i++) {
 	var f = defaults[i].split(' ');
-	if (f[0] == name) { // default has already been set
-	    return parseInt(f[1]);
+	if (f[indices['defName']] == name) { // default has already been set 
+	    return parseInt(f[indices['defRole']]); 
 	}
     }
     return 0; // unspecified
@@ -100,21 +102,24 @@ function currentDefault(name) {
 function currentRole(name, resp) {
     for (var i = 0; i < resp.length; i++) {
 	var f = resp[i].split(separator);
-	if (f[0] == name) { 
-	    return parseInt(f[1]);
+	if (f[indices['name']] == name) { 
+	    return parseInt(f[indices['role']]);
 	}
     }
     return 0; // unspecified
 }
 
-function updateRole(data, status, role, requestedDate, resp) {
-    var name = data[2];
+function updateRole(data, requestedDate, resp) {
+    var name = data[indices['name']];
+    var status = data[indices['status']];
+    var role = data[indices['role']];
+    var timing = data[indices['timing']];
     if (debugMode) {
 	console.log('checking', name, 'for', requestedDate);
     }
     for (var i = 0; i < resp.length; i++) {
 	var f = resp[i].split(separator);
-	if (f[2] == name) {
+	if (f[indices['name']] == name) {
 	    if (debugMode) {
 		console.log('match of', name, 'for', requestedDate);
 	    }	    
@@ -140,9 +145,10 @@ function listing(day, resp) {
     var prev = 0;
     for (r in resp) {
 	var userData = resp[r].split(separator);
-	var status = parseInt(userData[0]);
-	var role = parseInt(userData[1]);
-	var name = userData[2].split('#')[0];
+	var status = parseInt(userData[indices['status']]);
+	var role = parseInt(userData[indices['role']]);
+	var timing = parseInt(userData[indices['timing']]);
+	var name = userData[indices['name']].split('#')[0]; // skip the Discord ID number 
 	var prefix = '';
 	if (status != prev) {
 	    var firstYes = true;
@@ -175,7 +181,7 @@ function listing(day, resp) {
 	    role = 5;
 	    break;
 	}
-	list += prefix + symbols[role] + '  ' + name + '\n';
+	list += prefix + symbols[role] + '  ' + name + timeDescr[timing] + '\n';
     }
     return list + '\nType *!hustle* for instructions on how to sign up or alter your response.';
 }
@@ -197,7 +203,7 @@ function process(message) {
     if (text.startsWith('!h')) {
 	message.channel.send(help);
     } else if (text.startsWith('!') && 'dsmdr'.includes(text[1])) {
-	var name = message.member.user.tag.split('#')[0];
+	var name = message.member.user.tag.split('#')[0]; // skip the Discord ID number
 	var role = roleSelection(text);
 	var defRole = currentDefault(name);
 	var useDef = false;
@@ -222,8 +228,8 @@ function process(message) {
 		    var i = 0;
 		    for (; i < defaults.length; i++) {
 			var f = defaults[i].split(' ');
-			if (f[0] == name) { // entry to replace
-			    defaults[i] = name + ' ' + role;
+			if (f[indices['defName']] == name) { // entry to replace
+			    defaults[i] = name + ' ' + role; // DEFAULT FILE SYNTAX: <name> <role>
 			    fs.writeFile('roles.log', defaults.join('\n'), (err) => {
 				if (err) throw err;
 			    });			
@@ -281,6 +287,14 @@ function process(message) {
 		return;
 	    } else { // a new response has been given with !signup
 		var status = 0;
+		var timing = 0;
+		if (text.includes('late') && text.includes('early')) {
+		    timing = 1;
+		} else if (text.includes('late')) {
+		    timing = 2;
+		} else if (text.includes('early')) {
+		    timing = 3;
+		}
 		if (text[1] == 's') { // signup
 		    status = 1;
 		} else if (text[1] == 'm') { // maybe
@@ -296,13 +310,13 @@ function process(message) {
 		if (status != 0) { // a valid response
 		    var day = dayNames[requestedDate];
 		    var user = message.member.user;
-		    var name = user.tag.split('#')[0];
+		    var name = user.tag.split('#')[0]; // skip the Discord ID number
 		    if (role == 0) {
 			role = currentRole(user, raid[requestedDate]); // check if one is set
 		    }
-		    var data = [status, role, user.tag, user.avatarURL];
-		    if (updateRole(data, status, role, requestedDate, raid[requestedDate])) {
-			message.channel.send(reply(status, role, day));
+		    var data = [status, role, timing, user.tag, user.avatarURL]; // RESPONSE FILE SYNTAX 
+		    if (updateRole(data, requestedDate, raid[requestedDate])) {
+			message.channel.send(reply(status, role, timing, day));
 			return;
 		    } else { // a new signup
 			if (debugMode) {
