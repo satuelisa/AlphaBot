@@ -10,7 +10,8 @@ color = {0: '#999999', 1: '#00ee00', 2: '#0000cc', 3: '#dd0000'}
 damage = Image.open('damage.png')
 support = Image.open('support.png')
 healer = Image.open('healer.png')
-icon = {1: damage, 2: support, 3: healer}
+flexible = Image.open('flexible.png')
+icon = {1: damage, 2: support, 3: healer, 4: flexible}
 
 urls = []
 role = []
