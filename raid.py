@@ -7,6 +7,7 @@ separator = ' # '
 default = 'https://support.discordapp.com/hc/user_images/l12c7vKVRCd-XLIdDkLUDg.png'
 defIcon = None
 color = {0: '#999999', 1: '#00ee00', 2: '#0000cc', 3: '#dd0000'}
+cross = [color[3]]
 damage = Image.open('damage.png')
 support = Image.open('support.png')
 healer = Image.open('healer.png')
@@ -68,7 +69,10 @@ x = m
 y = m
 col = 0
 for s in status:
-    canvas.rectangle((x, y, x + size, y + size), outline = s, width = w)     
+    canvas.rectangle((x, y, x + size, y + size), outline = s, width = w)
+    if s in cross:
+        canvas.line((x, y, x + size, y + size), fill = s, width = w)
+        canvas.line((x + size, y, x, y + size), fill = s, width = w)
     x += size + m
     col += 1
     if col == dim:
