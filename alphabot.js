@@ -152,7 +152,7 @@ function addResponse(data, day, message, thanks) {
     raid[day].push(data.join(separator));
     if (thanks) {
     	ack(data, day, message);
-	message.channel.send(listing(day), true);
+	message.channel.send(listing(day, true));
     }
     return;
 }
@@ -372,6 +372,9 @@ function process(message) {
 		if (text[1] == 's') { // signup
 		    status = 1;
 		} else if (text[1] == 'm') { // maybe
+		    if (debugMode) {
+                        console.log('maybe');
+                    }
 		    status = 2;
 		} else if (text[1] == 'd') { // decline
 		    status = 3;
