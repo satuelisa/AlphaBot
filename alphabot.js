@@ -8,34 +8,47 @@ client.on("ready", () => {
 
 'use strict';
 
-const debugMode = false;
+var raid = {};
+const debugMode = true;
 const { spawnSync } = require('child_process');
 const separator = ' # ';
-const roleInfo ='*!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). You can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.';
-const dateInfo = ' By default, you will be responding to the next raid; you can use *Mon Wed Sat Sun* to specify a date. You can also include the words *late* or *early* to indicate if you will be joining late or leaving early (or even both).';
-const help = 'Available commands:\n__!**s**ignup__ if you will attend the next raid\n!__**m**aybe__ if you might be able to attend\n!__**d**ecline__ if you will not make it\n\Optionally, ' + roleInfo + dateInfo + '\nUse __!**h**ustle__ to see this help text and __!**r**aid__ to just view the sign-ups. If anything seems broken or unpleasant, just tag *satuelisa* and express your concerns. <:Agswarrior:552592567875928064>'; 
+const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed).\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n';
+const dateInfo = '\nBy default, you will be responding to the next raid; you can use *Mon Wed Sat Sun* to specify a date, whereas using *all* or *week* refers to the next four raids.\n';
+const earlyLate = '\nYou can also include the words *late* or *early* to indicate if you will be joining late or leaving early (or even both).\n';
+const feedback = '\nIf anything seems broken or unpleasant, just tag *satuelisa* and express your concerns. <:Agswarrior:552592567875928064>'; 
+const options = roleInfo + earlyLate + dateInfo + '\nUse __!**h**ustle__ to see this help text and __!**r**aid__ to just view the sign-ups.';
+const help = '**Available commands:**\n__!**s**ignup__ if you will attend the next raid\n!__**m**aybe__ if you might be able to attend\n!__**d**ecline__ if you will not make it\n' + options;
 
 const symbols = {0: ':confused:', 1: '<:damage:667107746868625458>', 2: '<:support:667107765872754738>', 3: '<:healer:667107717567217678>', 4: '<:flexible:667163606210707467>', 5: ':frowning2:'};
 const descr = {0: 'for an unspecified role', 1: 'as a damage dealer', 2: 'as a support/utility provider', 3: 'as a healer', 4: 'for a flexible spot'};
 const timeDescr = {0: '', 1: ' :hourglass: *(joining late, leaving early)*', 2: ' :hourglass: *(joining late)*', 3: ' :hourglass: *(leaving early)*'};
 const confirm = {1: 'confirmed', 2: 'possible', 3: 'unavailable'};
-const raidNights = [0, 1, 3, 6]; // Sun Mon Wed Sat
+const raidNights = [1, 3, 6, 0]; // Mon Wed Sat Sun
 const nextRaid = {0: 1, 1: 3, 2: 3, 3: 3, 4: 6, 5: 6, 6: 0};
-const dayNames = {0: 'Sunday', 1: 'Monday', 3: 'Wednesday', 6: 'Saturday'};
-const stopWords = ["for", "as", "a", "an", "the", "of", "raid", "up", "tonight", "today", "yo", "me", "week", "sign", "up", "gift", "gods", "to", "please"];
-const prefixList = ["mon", "sun", "sat", "wed"];
+const dayNames = {0: 'Sunday', 1: 'Monday', 3: 'Wednesday', 6: 'Saturday', 8: 'the next four raids'};
+const ALL = 8;
+const stopWords = ["for", "as", "a", "an", "the", "of", "raid", "up", "tonight", "today", "yo", "me", "sign", "up", "gift", "gods", "to", "please"];
+const prefixList = ["mon", "sun", "sat", "wed", "all", "week"];
 const indices = {'status': 0, 'role': 1, 'timing': 2, 'name': 3, 'url': 4, 'defName': 0, 'defRole': 1};
+
+loadLogs();
 
 function filename(d) {
     return 'alphabot_' +  d + '.log';
 }
 
-function reply(status, role, timing, day) {
+function reply(data, day) {
+    var status = data[indices['status']];
+    var role = data[indices['role']];
+    var timing = data[indices['timing']];
     var r = 'You are *' + confirm[status] + '*';
+    if (debugMode) {
+	console.log('reply for', day);
+    }
     if (status != 3 && role > 0) {
 	r += ' ' + descr[role];
     }
-    return r + ' for ' + day + timeDescr[timing] + ' ' + symbols[role];
+    return r + ' for ' + dayNames[day]  + timeDescr[timing] + ' ' + symbols[role];
 }
 
 function daySpec(text) {
@@ -47,17 +60,18 @@ function daySpec(text) {
 	return 6;
     } else if (text.includes(' sun')) {
 	return 0;
+    } else if (text.includes(' all') || text.includes(' week')) {
+	return ALL;
     }
     return -1; // none specified
 }
 
-function loadLogs() {
-    var raid = {};
+function loadLogs() { // update a global storage
     for (var i = 0; i < raidNights.length; i++) {
 	var rn = raidNights[i];
 	raid[rn] = fs.readFileSync(filename(rn)).toString().trim().split('\n').filter(Boolean).sort();
     }
-    return raid;
+    return;
 }
 
 function roleSelection(text) {
@@ -99,7 +113,8 @@ function currentDefault(name) {
     return 0; // unspecified
 }
 
-function currentRole(name, resp) {
+function currentRole(name, day) {
+    var resp = raid[day];
     for (var i = 0; i < resp.length; i++) {
 	var f = resp[i].split(separator);
 	if (f[indices['name']] == name) { 
@@ -109,22 +124,56 @@ function currentRole(name, resp) {
     return 0; // unspecified
 }
 
-function updateRole(data, requestedDate, resp) {
+function ack(data, day, message) {
+    var status = data[indices['status']];
+    var role = data[indices['role']];
+    var a = confirm[status]; 
+    if (status == 1 || status == 2) {
+	a += ' ' + descr[role];
+    }
+    var embed = new Discord.RichEmbed()
+	.setTitle("Alpha Squad RSVP for " + dayNames[day])
+	.setAuthor(a, message.author.avatarURL)
+	.setDescription("Thank you for letting us know! " + symbols[role]);
+    message.channel.send(embed);
+    return;
+}
+
+function addResponse(data, day, message, thanks) {
+    if (debugMode) {
+	console.log('new response for', day);
+    }
+    if (data[indices['role']] == 0) {
+	message.channel.send(roleInfo);			    
+    }
+    fs.appendFile(filename(day), data.join(separator) + '\n', (err) => {
+	if (err) throw err;
+    });
+    raid[day].push(data.join(separator));
+    if (thanks) {
+    	ack(data, day, message);
+	message.channel.send(listing(day), true);
+    }
+    return;
+}
+
+function updateRole(data, day) {
+    var resp = raid[day];
     var name = data[indices['name']];
     var status = data[indices['status']];
     var role = data[indices['role']];
     var timing = data[indices['timing']];
     if (debugMode) {
-	console.log('checking', name, 'for', requestedDate);
+	console.log('checking', name, 'for', day);
     }
     for (var i = 0; i < resp.length; i++) {
 	var f = resp[i].split(separator);
 	if (f[indices['name']] == name) {
 	    if (debugMode) {
-		console.log('match of', name, 'for', requestedDate);
+		console.log('match of', name, 'for', day);
 	    }	    
 	    resp[i] = data.join(separator); // rewrite entry and file
-	    fs.writeFile(filename(requestedDate), resp.join('\n') + '\n', (err) => { 
+	    fs.writeFile(filename(day), resp.join('\n') + '\n', (err) => { 
 		if (err) throw err;
 	    });
 	    return true;
@@ -133,14 +182,20 @@ function updateRole(data, requestedDate, resp) {
     return false; // no match
 }
     
-function listing(day, resp) {
+function listing(day, help) {
+    if (debugMode) {
+        console.log('listing for', day);
+    }
+    var resp = raid[day].sort();
     var singular = '';
     var plural = 's';
+    var count = resp.length;
     if (resp.length == 1) {
 	plural = '';
-	singular = 'a ';
+	singular = 'one';
+	count = '';
     }
-    var list = 'We have ' + singular +  resp.length + ' response' + plural + ' for **' + day + '** thus far.\n';
+    var list = 'For **' + dayNames[day] + '**, we have ' + singular +  count + ' response' + plural + ':\n'; 
     var i = 1;
     var prev = 0;
     for (r in resp) {
@@ -159,7 +214,7 @@ function listing(day, resp) {
 	switch (status) {
 	case 1: // attendee
 	    if (firstYes) {
-		list += '\n**Attending:**\n';
+		list += '__Attending:__\n';
 		firstYes = false;
 	    }
 	    prefix = i + '. ';
@@ -167,14 +222,14 @@ function listing(day, resp) {
 	    break;
 	case 2: // maybe
 	    if (firstMaybe) {
-		list += '\n**Possibly attending:**\n';
+		list += '__Possibly attending:__\n';
 		firstMaybe = false;
 	    }	    
 	    prefix = '? ';
 	    break;
 	case 3: // declined
 	    if (firstNo) {
-		list += '\n**Unable to attend:**\n';
+		list += '__Unable to attend:__\n';
 		firstNo = false;
 	    }	    
 	    name = '~~' + name + '~~'; // crossed out
@@ -183,7 +238,10 @@ function listing(day, resp) {
 	}
 	list += prefix + symbols[role] + '  ' + name + timeDescr[timing] + '\n';
     }
-    return list + '\nType *!hustle* for instructions on how to sign up or alter your response.';
+    if (help) {
+	list += '\nType *!hustle* for instructions on how to sign up or alter your response.';
+    }
+    return list;
 }
 
 function alpaca(message) {
@@ -196,6 +254,22 @@ function alpaca(message) {
 	}
 	message.channel.send(a);
     }
+}
+
+function listRaid(day) {
+    if (raid[day].length == 0) {
+	return '*Nobody* has responded for **' + dayNames[day] + '**  :frowning2:';
+    } else {
+	return listing(day, false);
+    }
+}
+
+function collage(day) {
+    const redo = spawnSync('python3', ['raid.py', day]);
+    let embed = new Discord.RichEmbed(); 
+    embed.setTitle("Alpha Squad RSVP for " + dayNames[day])
+    embed.setImage('https://elisa.dyndns-web.com/eso/raid_' + day + '.png?nocache=' + new Date().getTime()); // no cache
+    return embed;
 }
 
 function process(message) {
@@ -257,7 +331,7 @@ function process(message) {
 		return;
 	    }
 	} else { // response or raid listing (other raid commands than default)
-	    var raid = loadLogs();
+	    loadLogs();
 	    var date = new Date();
 	    var weekDay = date.getDay();
 	    if (raidNights.includes(weekDay)) {
@@ -265,25 +339,25 @@ function process(message) {
 		    weekDay = (weekDay - 1) % 7; // sign up for today
 		}
 	    }
-	    var requestedDate = nextRaid[weekDay]; // default is next raid
-	    var day = dayNames[requestedDate];
+	    var day = nextRaid[weekDay]; // default is next raid
 	    var specDate = daySpec(text);
 	    if (specDate != -1) {
-		requestedDate = specDate;
+		day = specDate;
 	    }
 	    if (debugMode) {
 		console.log(name, role, defRole, specDate);
 	    }
 	    if (text[1] == 'r') { // raid listing requested
-		if (raid[requestedDate].length == 0) {
-		    message.channel.send('*Nobody has responded for ' + dayNames[requestedDate] + '*  :frowning2:');
-		    return;
+		if (day != ALL) {
+		    message.channel.send(collage(day));
+		    message.channel.send(listRaid(day));
+		} else { // all week requested
+		    var r = 'Showing all responses.\n';
+		    for (var i = 0; i < raidNights.length; i++) {
+			r += listRaid(raidNights[i]);
+		    }
+		    message.channel.send(r);
 		}
-		message.channel.send(listing(dayNames[requestedDate], raid[requestedDate]));
-		const redo = spawnSync ('python3', ['raid.py', requestedDate]);
-		let embed = new Discord.RichEmbed();
-		embed.setImage('https://elisa.dyndns-web.com/eso/raid_' + requestedDate + '.png?nocache=' + new Date().getTime()); // no cache
-		message.channel.send(embed);
 		return;
 	    } else { // a new response has been given with !signup
 		var status = 0;
@@ -308,41 +382,33 @@ function process(message) {
 		    return;
 		}
 		if (status != 0) { // a valid response
-		    var day = dayNames[requestedDate];
 		    var user = message.member.user;
 		    var name = user.tag.split('#')[0]; // skip the Discord ID number
 		    if (role == 0) {
-			role = currentRole(user, raid[requestedDate]); // check if one is set
+			role = currentRole(user, day); // check if one is set
 		    }
-		    var data = [status, role, timing, user.tag, user.avatarURL]; // RESPONSE FILE SYNTAX 
-		    if (updateRole(data, requestedDate, raid[requestedDate])) {
-			message.channel.send(reply(status, role, timing, day));
-			return;
-		    } else { // a new signup
+		    var data = [status, role, timing, user.tag, user.avatarURL]; // RESPONSE FILE SYNTAX
+		    if (day != ALL) { // one-day response
+			if (updateRole(data, day)) { // an update on an existing response
+			    message.channel.send(reply(data, day));
+			} else { // a new response
+			    addResponse(data, day, message, true);
+			}
+		    } else { // response for all raids
 			if (debugMode) {
-			    console.log('new response');
+			    console.log('weekly response');
+			}			
+			for (var i = 0; i < raidNights.length; i++) {
+			    var rn = raidNights[i];
+			    if (!updateRole(data, rn)) { // update if exists
+				addResponse(data, rn, message, false); // add if it does not
+			    }
 			}
-			var nameText = confirm[status]; 
-			if (status == 1 || status == 2) {
-			    nameText += ' ' + descr[role];
-			}
-			var embed = new Discord.RichEmbed()
-			    .setTitle("Alpha Squad RSVP for " + day)
-			    .setAuthor(nameText, message.author.avatarURL)
-			    .setDescription("Thank you for letting us know! " + symbols[role]);
-			message.channel.send(embed);
-			if (specDate == -1) { // no date was specified
-			    message.channel.send('You have signed up for *next raid* which is on ' + day + ' ; to specify a date, include one of Mon Wed Sat Sun in your command.');
-			} 
-			if (role == 0) {
-			    message.channel.send(roleInfo);			    
-			}
-			fs.appendFile(filename(requestedDate), data.join(separator) + '\n', (err) => {
-			    if (err) throw err;
-			});
-			raid[requestedDate].push(data.join(separator));
-			message.channel.send(listing(dayNames[requestedDate], raid[requestedDate].sort()));
-			return;
+			ack(data, day, message); // thank the user
+			message.channel.send(reply(data, day));	// confirm the response
+		    }
+		    if (specDate == -1) { // no date was specified
+			message.channel.send('You have signed up for *next raid* which is on ' + dayNames[day] + '; to specify a date, include one of Mon Wed Sat Sun in your command.');
 		    }
 		}
 	    }
