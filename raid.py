@@ -32,7 +32,7 @@ with open(filename) as data:
             status.append(color[int(fields[0])])
             role.append(icon.get(int(fields[1]), None))
             orig = fields[-1].split('?')[0] # URL is the last field
-            if 'null' not in orig and 'http' in orig:
+            if 'http' in orig:
                 urls.append(f'{orig}?size={size}')
             else:
                 urls.append(None)

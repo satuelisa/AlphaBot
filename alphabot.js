@@ -2,14 +2,17 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 const fs = require('fs');
 
+let raid  = {};
+let guild = undefined;
+
 client.on("ready", () => {
-  console.log("hustle");
+    guild = client.guilds.get('191716294943440897');
+    console.log(guild.name);
 });
 
 'use strict';
 
-var raid = {};
-const debugMode = true;
+const debugMode = false;
 const { spawnSync } = require('child_process');
 const separator = ' # ';
 const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed).\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n';
@@ -20,7 +23,7 @@ const options = roleInfo + earlyLate + dateInfo + '\nUse __!**h**ustle__ to see 
 const help = '**Available commands:**\n__!**s**ignup__ if you will attend the next raid\n!__**m**aybe__ if you might be able to attend\n!__**d**ecline__ if you will not make it\n' + options;
 
 const symbols = {0: ':confused:', 1: '<:damage:667107746868625458>', 2: '<:support:667107765872754738>', 3: '<:healer:667107717567217678>', 4: '<:flexible:667163606210707467>', 5: ':frowning2:'};
-const descr = {0: 'for an unspecified role', 1: 'as a damage dealer', 2: 'as a support/utility provider', 3: 'as a healer', 4: 'for a flexible spot'};
+const descr = {0: 'as an unspecified role', 1: 'as a damage dealer', 2: 'as a support/utility provider', 3: 'as a healer', 4: 'as a flexible spot'};
 const timeDescr = {0: '', 1: ' :hourglass: *(joining late, leaving early)*', 2: ' :hourglass: *(joining late)*', 3: ' :hourglass: *(leaving early)*'};
 const confirm = {1: 'confirmed', 2: 'possible', 3: 'unavailable'};
 const raidNights = [1, 3, 6, 0]; // Mon Wed Sat Sun
@@ -29,7 +32,7 @@ const dayNames = {0: 'Sunday', 1: 'Monday', 3: 'Wednesday', 6: 'Saturday', 8: 't
 const ALL = 8;
 const stopWords = ["for", "as", "a", "an", "the", "of", "raid", "up", "tonight", "today", "yo", "me", "sign", "up", "gift", "gods", "to", "please"];
 const prefixList = ["mon", "sun", "sat", "wed", "all", "week"];
-const indices = {'status': 0, 'role': 1, 'timing': 2, 'name': 3, 'url': 4, 'defName': 0, 'defRole': 1};
+const indices = {'status': 0, 'role': 1, 'timing': 2, 'name': 3, 'nick': 4, 'url': 5, 'defName': 0, 'defRole': 1};
 
 loadLogs();
 
@@ -127,7 +130,7 @@ function currentRole(name, day) {
 function ack(data, day, message) {
     var status = data[indices['status']];
     var role = data[indices['role']];
-    var a = confirm[status]; 
+    var a = data[indices['nick']] + ' ' + confirm[status]; 
     if (status == 1 || status == 2) {
 	a += ' ' + descr[role];
     }
@@ -203,7 +206,7 @@ function listing(day, help) {
 	var status = parseInt(userData[indices['status']]);
 	var role = parseInt(userData[indices['role']]);
 	var timing = parseInt(userData[indices['timing']]);
-	var name = userData[indices['name']].split('#')[0]; // skip the Discord ID number 
+	var nickname = userData[indices['nick']];
 	var prefix = '';
 	if (status != prev) {
 	    var firstYes = true;
@@ -232,11 +235,11 @@ function listing(day, help) {
 		list += '__Unable to attend:__\n';
 		firstNo = false;
 	    }	    
-	    name = '~~' + name + '~~'; // crossed out
+	    nickname = '~~' + nickname + '~~'; // crossed out
 	    role = 5;
 	    break;
 	}
-	list += prefix + symbols[role] + '  ' + name + timeDescr[timing] + '\n';
+	list += prefix + symbols[role] + '  ' + nickname + timeDescr[timing] + '\n';
     }
     if (help) {
 	list += '\nType *!hustle* for instructions on how to sign up or alter your response.';
@@ -274,10 +277,20 @@ function collage(day) {
 
 function process(message) {
     var text = message.content.toLowerCase();
+    if (message.channel.name != 'alpha-signup') {
+	message.channel.send('I have been confined to the <#667529156212293664> channel. Please talk to me there.')
+	return;
+    }
     if (text.startsWith('!h')) {
 	message.channel.send(help);
     } else if (text.startsWith('!') && 'dsmdr'.includes(text[1])) {
-	var name = message.member.user.tag.split('#')[0]; // skip the Discord ID number
+	var user = message.member.user;
+	var name = user.tag;
+	let member = guild.member(message.author);
+	let nickname = member ? member.displayName : undefined;
+	if (nickname == undefined) {
+	    nickname = name.split('#')[0]; // skip the Discord ID number when making a default nickname
+	}
 	var role = roleSelection(text);
 	var defRole = currentDefault(name);
 	var useDef = false;
@@ -307,7 +320,7 @@ function process(message) {
 			    fs.writeFile('roles.log', defaults.join('\n'), (err) => {
 				if (err) throw err;
 			    });			
-			    message.channel.send('Default role for ' + name + ' has been updated to ' + descr[role] + ' ' + symbols[role]);
+			    message.channel.send('Default role for ' + nickname + ' has been updated to ' + descr[role] + ' ' + symbols[role]);
 			    return;
 			}
 		    }
@@ -319,7 +332,7 @@ function process(message) {
 		    fs.writeFile('roles.log', defaults.join('\n') + '\n' + name + ' ' + role, (err) => {
 			if (err) throw err;
 		    });
-		    message.channel.send('Default role for ' + name + ' set ' + descr[role] + ' ' + symbols[role]);
+		    message.channel.send('Default role for ' + nickname + ' set ' + descr[role] + ' ' + symbols[role]);
 		    return;
 		}
 	    } else { // !default was called with no role specified
@@ -385,12 +398,14 @@ function process(message) {
 		    return;
 		}
 		if (status != 0) { // a valid response
-		    var user = message.member.user;
-		    var name = user.tag.split('#')[0]; // skip the Discord ID number
 		    if (role == 0) {
 			role = currentRole(user, day); // check if one is set
 		    }
-		    var data = [status, role, timing, user.tag, user.avatarURL]; // RESPONSE FILE SYNTAX
+		    var url = user.avatarURL;
+		    if (url == undefined) {
+			url = "undefined";
+		    }
+		    var data = [status, role, timing, name, nickname, url]; // RESPONSE FILE SYNTAX
 		    if (day != ALL) { // one-day response
 			if (updateRole(data, day)) { // an update on an existing response
 			    message.channel.send(reply(data, day));
@@ -418,6 +433,7 @@ function process(message) {
 	}
     }
 }
+
 
 client.on("message", (message) => {
     if (message.content.startsWith('!')) {
