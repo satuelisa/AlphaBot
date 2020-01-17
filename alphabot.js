@@ -277,12 +277,15 @@ function collage(day) {
 
 function process(message) {
     var text = message.content.toLowerCase();
-    if (message.channel.name != 'alpha-signup') {
-	message.channel.send('I have been confined to the <#667529156212293664> channel. Please talk to me there.')
+    var channel = message.channel;
+    if (!channel.name.includes('alpha')) { // ignore other channels
+	return;
+    } else if (channel.name != 'alpha-signup') {
+	channel.send('I have been confined to the <#667529156212293664> channel. Please talk to me there.')
 	return;
     }
     if (text.startsWith('!h')) {
-	message.channel.send(help);
+	channel.send(help);
     } else if (text.startsWith('!') && 'dsmdr'.includes(text[1])) {
 	var user = message.member.user;
 	var name = user.tag;
@@ -304,7 +307,7 @@ function process(message) {
 	if (text.startsWith('!def')) { // default step requested with !default or !def
 	    if (role != 0) {
 		if (!useDef && defRole == role) {
-		    message.channel.send('You had already set that as your default role ' + symbols[role]);
+		    channel.send('You had already set that as your default role ' + symbols[role]);
 		    return;
 		}
 		var defaults = fs.readFileSync('roles.log').toString().trim().split('\n').filter(Boolean);
@@ -320,7 +323,7 @@ function process(message) {
 			    fs.writeFile('roles.log', defaults.join('\n'), (err) => {
 				if (err) throw err;
 			    });			
-			    message.channel.send('Default role for ' + nickname + ' has been updated to ' + descr[role] + ' ' + symbols[role]);
+			    channel.send('Default role for ' + nickname + ' has been updated to ' + descr[role] + ' ' + symbols[role]);
 			    return;
 			}
 		    }
@@ -332,15 +335,15 @@ function process(message) {
 		    fs.writeFile('roles.log', defaults.join('\n') + '\n' + name + ' ' + role, (err) => {
 			if (err) throw err;
 		    });
-		    message.channel.send('Default role for ' + nickname + ' set ' + descr[role] + ' ' + symbols[role]);
+		    channel.send('Default role for ' + nickname + ' set ' + descr[role] + ' ' + symbols[role]);
 		    return;
 		}
 	    } else { // !default was called with no role specified
 		if (defRole != 0) {
-		    message.channel.send('Your default is currently set ' + descr[role] + ' ' + symbols[role]);
+		    channel.send('Your default is currently set ' + descr[role] + ' ' + symbols[role]);
 		    return; // nothing more to do
 		} 
-		message.channel.send('You should specify which role to set as your default: **d**amage, **s**upport/**u**tility, **h**ealer, or **f**lexible.');
+		channel.send('You should specify which role to set as your default: **d**amage, **s**upport/**u**tility, **h**ealer, or **f**lexible.');
 		return;
 	    }
 	} else { // response or raid listing (other raid commands than default)
@@ -362,14 +365,14 @@ function process(message) {
 	    }
 	    if (text[1] == 'r') { // raid listing requested
 		if (day != ALL) {
-		    message.channel.send(collage(day));
-		    message.channel.send(listRaid(day));
+		    channel.send(collage(day));
+		    channel.send(listRaid(day));
 		} else { // all week requested
 		    var r = 'Showing all responses.\n';
 		    for (var i = 0; i < raidNights.length; i++) {
 			r += listRaid(raidNights[i]);
 		    }
-		    message.channel.send(r);
+		    channel.send(r);
 		}
 		return;
 	    } else { // a new response has been given with !signup
@@ -408,7 +411,7 @@ function process(message) {
 		    var data = [status, role, timing, name, nickname, url]; // RESPONSE FILE SYNTAX
 		    if (day != ALL) { // one-day response
 			if (updateRole(data, day)) { // an update on an existing response
-			    message.channel.send(reply(data, day));
+			    channel.send(reply(data, day));
 			} else { // a new response
 			    addResponse(data, day, message, true);
 			}
@@ -423,10 +426,10 @@ function process(message) {
 			    }
 			}
 			ack(data, day, message); // thank the user
-			message.channel.send(reply(data, day));	// confirm the response
+			channel.send(reply(data, day));	// confirm the response
 		    }
 		    if (specDate == -1) { // no date was specified
-			message.channel.send('You have signed up for *next raid* which is on ' + dayNames[day] + '; to specify a date, include one of Mon Wed Sat Sun in your command.');
+			channel.send('You have signed up for *next raid* which is on ' + dayNames[day] + '; to specify a date, include one of Mon Wed Sat Sun in your command.');
 		    }
 		}
 	    }
