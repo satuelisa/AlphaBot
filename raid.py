@@ -60,7 +60,7 @@ for response in data:
     if r is not None: # icon to overlay
         target.paste(r, (x + offset, y + offset), r)
     if not response['onTime']:
-        target.paste(time, (x + 4, y + offset - 3), time)        
+        target.paste(time, (x, y + 29), time)        
     x += size + m
     col += 1
     if col == dim:

@@ -24,7 +24,10 @@ const help = '**Available commands:**\n__!**s**ignup__ if you will attend the ne
 
 const symbols = {0: ':confused:', 1: '<:damage:667107746868625458>', 2: '<:support:667107765872754738>', 3: '<:healer:667107717567217678>', 4: '<:flexible:667163606210707467>', 5: ':frowning2:'};
 const descr = {0: 'as an unspecified role', 1: 'as a damage dealer', 2: 'as a support/utility provider', 3: 'as a healer', 4: 'as a flexible spot'};
-const timeDescr = {0: '', 1: ' :hourglass: *(joining late, leaving early)*', 2: ' :hourglass: *(joining late)*', 3: ' :hourglass: *(leaving early)*'};
+const timeDescr = {0: '',
+		   1: ' <:time:668215308674400293> *(joining late, leaving early)*',
+		   2: ' <:time:668215308674400293> *(joining late)*',
+		   3: ' <:time:668215308674400293>  *(leaving early)*'};
 const confirm = {1: 'confirmed', 2: 'possible', 3: 'unavailable'};
 const raidNights = [1, 3, 6, 0]; // Mon Wed Sat Sun
 const nextRaid = {0: 1, 1: 3, 2: 3, 3: 3, 4: 6, 5: 6, 6: 0};
