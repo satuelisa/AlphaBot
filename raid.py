@@ -12,38 +12,41 @@ damage = Image.open('damage.png')
 support = Image.open('support.png')
 healer = Image.open('healer.png')
 flexible = Image.open('flexible.png')
+time = Image.open('time.png')
 icon = {1: damage, 2: support, 3: healer, 4: flexible}
 
-urls = []
-role = []
-status = []
+data = []
 size = 64
 m = 8
-offset = size - 35
+offset = size - 27
+
 
 from sys import argv
 date = argv[1]
 filename = f'alphabot_{date}.log'
 
-with open(filename) as data:
-    for line in data:
+with open(filename) as responses:
+    for line in responses:
         fields = line.split(separator)
         if len(fields) > 2: 
-            status.append(color[int(fields[0])])
-            role.append(icon.get(int(fields[1]), None))
-            orig = fields[-1].split('?')[0] # URL is the last field
-            if 'http' in orig:
-                urls.append(f'{orig}?size={size}')
+            status = color[int(fields[0])]
+            role = icon.get(int(fields[1]), None)
+            onTime = int(fields[2]) == 0
+            avatar = fields[-1].split('?')[0] # URL is the last field
+            if 'http' in avatar:
+                avatar = f'{avatar}?size={size}'
             else:
-                urls.append(None)
-n = len(urls)
+                avatar = None
+            data.append({'status': status, 'role': role, 'onTime': onTime, 'avatar': avatar})
+n = len(data)
 dim = int(ceil(sqrt(n)))
 d = (dim + 1) * m + dim * size
 target = Image.new('RGB', (d, d))
 x = m
 y = m
 col = 0
-for source in urls:
+for response in data:
+    source = response['avatar']
     if source is None:
         if defIcon is None:
             resp = requests.get(default)
@@ -53,9 +56,11 @@ for source in urls:
         resp = requests.get(source)
         img = Image.open(BytesIO(resp.content))
         target.paste(img, (x, y))
-    r = role.pop(0)
+    r = response['role']
     if r is not None: # icon to overlay
         target.paste(r, (x + offset, y + offset), r)
+    if not response['onTime']:
+        target.paste(time, (x + 4, y + offset - 3), time)        
     x += size + m
     col += 1
     if col == dim:
@@ -68,7 +73,8 @@ w = 3
 x = m
 y = m
 col = 0
-for s in status:
+for response in data:
+    s = response['status']
     canvas.rectangle((x, y, x + size, y + size), outline = s, width = w)
     if s in cross:
         canvas.line((x, y, x + size, y + size), fill = s, width = w)
