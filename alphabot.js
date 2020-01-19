@@ -12,7 +12,7 @@ client.on("ready", () => {
 
 'use strict';
 
-const debugMode = false;
+const debugMode = true;
 const { spawnSync } = require('child_process');
 const separator = ' # ';
 const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed).\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n';
@@ -44,7 +44,7 @@ function filename(d) {
 }
 
 
-function raidDate(text) {
+function raidDate(specDate) {
     var date = new Date();
     var weekDay = date.getDay();
     if (raidNights.includes(weekDay)) {
@@ -53,7 +53,6 @@ function raidDate(text) {
 	}
     }
     var day = nextRaid[weekDay]; // default is next raid
-    var specDate = daySpec(text);
     if (specDate != -1) {
 	day = specDate;
     }
@@ -140,6 +139,9 @@ function currentDefault(name) {
 }
 
 function currentRole(name, day) {
+    if (debugMode) {
+	console.log('checking current role', name, day);
+    }
     var resp = raid[day];
     for (var i = 0; i < resp.length; i++) {
 	var f = resp[i].split(separator);
@@ -373,8 +375,9 @@ function process(message) {
 	    loadLogs();
 	    if (debugMode) {
 		console.log(name, role, defRole);
-	    }	    
-	    var day = raidDate(text);
+	    }
+	    var specDate = daySpec(text);
+	    var day = raidDate(specDate);
 	    if (text[1] == 'r') { // raid listing requested
 		if (day != ALL) {
 		    channel.send(collage(day));
