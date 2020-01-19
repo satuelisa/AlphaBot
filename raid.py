@@ -41,7 +41,7 @@ with open(filename) as responses:
 n = len(data)
 dim = int(ceil(sqrt(n)))
 d = (dim + 1) * m + dim * size
-target = Image.new('RGB', (d, d))
+target = Image.new('RGBA', (d, d), (255, 0, 0, 0))
 x = m
 y = m
 col = 0
