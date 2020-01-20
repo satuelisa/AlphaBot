@@ -160,8 +160,8 @@ function ack(data, day, message) {
 	a += ' ' + descr[role];
     }
     var embed = new Discord.RichEmbed()
-	.setTitle("Alpha Squad RSVP for " + dayNames[day])
-	.setAuthor(a, message.author.avatarURL)
+	.setTitle(a)
+	.setAuthor("Alpha Squad RSVP for " + dayNames[day], message.author.avatarURL)
 	.setDescription("Thank you for letting us know! " + symbols[role]);
     message.channel.send(embed);
     return;
