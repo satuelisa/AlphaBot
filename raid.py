@@ -29,9 +29,9 @@ if n == 0:
     quit()
 dim = int(ceil(sqrt(n)))
 center = w // 2
-top = 220
+top = 170
 rw = None
-size = (w - 150) // dim
+size = (w - 180) // dim
 m = size // 10 # margin
 i = 2 * m + 10
 iconSize = (i, i)
