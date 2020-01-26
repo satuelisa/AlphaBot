@@ -441,7 +441,7 @@ function process(message) {
 			channel.send(reply(data, day));	// confirm the response
 		    }
 		    if (specDate == -1) { // no date was specified
-			channel.send('You have signed up for *next raid* which is on ' + dayNames[day] + '; to specify a date, include one of Mon Wed Sat Sun in your command.');
+			channel.send('You have responded for the *next raid* which is on ' + dayNames[day] + '; to specify a date, include one of Mon Wed Sat Sun in your command.');
 		    }
 		}
 	    }
