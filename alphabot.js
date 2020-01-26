@@ -12,7 +12,7 @@ client.on("ready", () => {
 
 'use strict';
 
-const debugMode = true;
+const debugMode = false;
 const { spawnSync } = require('child_process');
 const separator = ' # ';
 const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed).\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n';
@@ -413,8 +413,8 @@ function process(message) {
 		    return;
 		}
 		if (status != 0) { // a valid response
-		    if (role == 0) {
-			role = currentRole(user, day); // check if one is set
+		    if (role == 0 && day != ALL) {
+			role = currentRole(name, day); // check if one is set
 		    }
 		    var url = user.avatarURL;
 		    if (url == undefined) {
