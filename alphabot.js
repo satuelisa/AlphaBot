@@ -1,3 +1,4 @@
+const Canvas = require('canvas');
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const fs = require('fs');
@@ -12,7 +13,7 @@ client.on("ready", () => {
 
 'use strict';
 
-const debugMode = false;
+const debugMode = true;
 const { spawnSync } = require('child_process');
 const separator = ' # ';
 const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed).\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n';
@@ -36,6 +37,9 @@ const ALL = 8;
 const stopWords = ["for", "as", "a", "an", "the", "of", "raid", "up", "tonight", "today", "yo", "me", "sign", "up", "gift", "gods", "to", "please"];
 const prefixList = ["mon", "sun", "sat", "wed", "all", "week"];
 const indices = {'status': 0, 'role': 1, 'timing': 2, 'name': 3, 'nick': 4, 'url': 5, 'defName': 0, 'defRole': 1};
+const roleIcons = {1: 'dmg.png', 2: 'sup.png', 3: 'heal.png', 4: 'flex.png'};
+const style = {0: '#999999', 1: '#00ee00', 2: '#0000cc', 3: '#dd0000'};
+const timeIcon = 'hourglass.png';
 
 loadLogs();
 
@@ -152,18 +156,78 @@ function currentRole(name, day) {
     return 0; // unspecified
 }
 
-function ack(data, day, message) {
+// helper method from https://discordjs.guide/popular-topics/canvas.html#adding-in-text
+const applyText = (canvas, text, spare) => {
+    const ctx = canvas.getContext('2d');
+    let fontSize = 70;
+    do {
+	ctx.font = `${fontSize -= 5}px sans-serif`;
+    } while (ctx.measureText(text).width > spare);
+    return ctx.font;
+};
+
+async function ack(data, day, message) {
+    var name = data[indices['nick']];
+    if (debugMode) {
+	console.log('thanking', name);
+    }    
     var status = data[indices['status']];
     var role = data[indices['role']];
-    var a = data[indices['nick']] + ' ' + confirm[status]; 
+    var url = data[indices['url']];
+    var text = name + '\n' + confirm[status]; 
     if (status == 1 || status == 2) {
-	a += ' ' + descr[role];
+	text += '\n' + descr[role];
     }
-    var embed = new Discord.RichEmbed()
-	.setTitle(a)
-	.setAuthor("Alpha Squad RSVP for " + dayNames[day], message.author.avatarURL)
-	.setDescription("Thank you for letting us know! " + symbols[role]);
-    message.channel.send(embed);
+    if (debugMode) {
+	console.log(text);
+    }
+    const height = 443; 
+    const width = 613; // Math.round(1.618 * height);
+    const canvas = Canvas.createCanvas(width, height);
+    const margin = 80;
+    const ctx = canvas.getContext('2d');
+    const background = await Canvas.loadImage('./confirm.png');
+    const avatarSize = 128;
+    const iconSize = 128;
+    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    if (url != undefined) {
+	url = url.split('?')[0] + '?size=' + avatarSize;
+	if (debugMode) {
+	    console.log(url);
+	}
+	const avatar = await Canvas.loadImage(url);
+	ctx.drawImage(avatar, margin, margin, avatarSize, avatarSize);
+    }
+    ctx.strokeStyle = style[status];
+    ctx.lineWidth = 8;
+    ctx.strokeRect(margin, margin, avatarSize, avatarSize);
+    if (role > 0) {
+	var icon = roleIcons[role];
+	if (debugMode) {
+	    console.log(icon);
+	}	
+	const roleIcon = await Canvas.loadImage('./' + icon);
+	const d = iconSize + margin;
+    	ctx.drawImage(roleIcon, margin, height - d, iconSize, iconSize);
+    }
+    const offset = 1.5 * margin;
+    const busy = offset + avatarSize;
+    const available = width - busy - margin;
+    ctx.font = applyText(canvas, text, available);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(text, busy, offset);
+    if (data[indices['timing']] > 0) {
+	const ti = await Canvas.loadImage('./' + timeIcon);
+	const d = iconSize + margin;
+	ctx.drawImage(ti, width - d, height - d, iconSize, iconSize);
+    }
+    const bg = new Discord.Attachment(canvas.toBuffer(), 'ack.png');
+    message.channel.send('Thank you for responding!', bg);
+//    var embed = new Discord.RichEmbed()
+//	.setTitle(a)
+//	.setAuthor("Alpha Squad RSVP for " + dayNames[day], message.author.avatarURL)
+//	.setDescription("Thank you for letting us know! " + symbols[role]);
+//    message.channel.send(embed);
     return;
 }
 
@@ -179,8 +243,8 @@ function addResponse(data, day, message, thanks) {
     });
     raid[day].push(data.join(separator));
     if (thanks) {
-    	ack(data, day, message);
 	message.channel.send(listing(day, true));
+    	ack(data, day, message);
     }
     return;
 }
@@ -198,7 +262,7 @@ function updateRole(data, day) {
 	var f = resp[i].split(separator);
 	if (f[indices['name']] == name) {
 	    if (debugMode) {
-		console.log('match of', name, 'for', day);
+		console.log('match of', name, 'for', day, '\n', f);
 	    }	    
 	    resp[i] = data.join(separator); // rewrite entry and file
 	    fs.writeFile(filename(day), resp.join('\n') + '\n', (err) => { 
@@ -308,6 +372,9 @@ function process(message) {
     } else if (channel.name != 'alpha-signup') {
 	channel.send('I have been confined to the <#667529156212293664> channel. Please talk to me there.')
 	return;
+    }
+    if (text.includes('!clear')) {
+	return; // that is for another bot
     }
     if (text.startsWith('!h')) {
 	channel.send(help);
@@ -437,8 +504,8 @@ function process(message) {
 				addResponse(data, rn, message, false); // add if it does not
 			    }
 			}
-			ack(data, day, message); // thank the user
 			channel.send(reply(data, day));	// confirm the response
+			ack(data, day, message); // thank the user
 		    }
 		    if (specDate == -1) { // no date was specified
 			channel.send('You have responded for the *next raid* which is on ' + dayNames[day] + '; to specify a date, include one of Mon Wed Sat Sun in your command.');
