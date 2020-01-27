@@ -13,7 +13,7 @@ client.on("ready", () => {
 
 'use strict';
 
-const debugMode = true;
+const debugMode = false;
 const { spawnSync } = require('child_process');
 const separator = ' # ';
 const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed).\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n';
@@ -97,6 +97,16 @@ async function collage(channel, resp, day) {
 	ctx.drawImage(avatar, x, y, as, as);
 	ctx.strokeStyle = style[status];
 	ctx.lineWidth = lw;
+	if (status == 3) { // unavailable
+	    ctx.beginPath();
+	    ctx.moveTo(x, y);
+	    ctx.lineTo(x + as, y + as);
+	    ctx.stroke();
+	    ctx.beginPath();
+	    ctx.moveTo(x + as, y);
+	    ctx.lineTo(x, y + as);
+	    ctx.stroke();
+	}
 	ctx.strokeRect(x, y, as, as);
 	if (role > 0) {
 	    var icon = roleIcons[role];
