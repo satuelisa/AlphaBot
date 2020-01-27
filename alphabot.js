@@ -54,7 +54,7 @@ loadLogs();
 //    return embed;
 //}
 
-async function collage(channel, resp, day) {
+async function collage(channel, resp, day, text) {
     var n = resp.length;
     if (n == 0) {
 	return;
@@ -129,7 +129,7 @@ async function collage(channel, resp, day) {
 	}
     }
     const bg = new Discord.Attachment(canvas.toBuffer(), 'raid_' + day + '.png');
-    channel.send('Current responses for ' + dayNames[day], bg);
+    channel.send(text, bg);
     return;
 }
 
@@ -255,7 +255,7 @@ const applyText = (canvas, text, spare) => {
     return ctx.font;
 };
 
-async function ack(data, day, message) {
+async function ack(data, day, message, msg) {
     var name = data[indices['nick']];
     if (debugMode) {
 	console.log('thanking', name);
@@ -271,13 +271,13 @@ async function ack(data, day, message) {
 	console.log(text);
     }
     const height = 443; 
-    const width = 613; // Math.round(1.618 * height);
+    const width = 613;
     const canvas = Canvas.createCanvas(width, height);
     const margin = 80;
     const ctx = canvas.getContext('2d');
     const background = await Canvas.loadImage('./confirm.png');
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-    if (url != undefined) {
+    if (!url.includes('undefined')) {
 	url = url.split('?')[0] + '?size=' + avatarSize;
 	if (debugMode) {
 	    console.log(url);
@@ -308,8 +308,8 @@ async function ack(data, day, message) {
 	const d = iconSize + margin;
 	ctx.drawImage(ti, width - d, height - d, iconSize, iconSize);
     }
-    const bg = new Discord.Attachment(canvas.toBuffer(), 'ack_' + day + '_' + url + '.png');
-    message.channel.send('Thank you for responding!', bg);
+    const bg = new Discord.Attachment(canvas.toBuffer(), 'ack_' + day + '_' + name.replace(' ', '') + '.png');
+    message.channel.send(msg, bg);
 //    var embed = new Discord.RichEmbed()
 //	.setTitle(a)
 //	.setAuthor("Alpha Squad RSVP for " + dayNames[day], message.author.avatarURL)
@@ -322,16 +322,16 @@ function addResponse(data, day, message, thanks) {
     if (debugMode) {
 	console.log('new response for', day);
     }
+    var appendix = '';
     if (data[indices['role']] == 0) {
-	message.channel.send(roleInfo);			    
+	appendix = '\n' + roleInfo;
     }
     fs.appendFile(filename(day), data.join(separator) + '\n', (err) => {
 	if (err) throw err;
     });
     raid[day].push(data.join(separator));
     if (thanks) {
-	listing(message.channel, day, false, false);
-    	ack(data, day, message);
+    	ack(data, day, message, listing(undefined, day, false, false) + appendix);
     }
     return;
 }
@@ -366,9 +366,6 @@ function listing(channel, day, draw) {
         console.log('listing for', day);
     }
     var resp = raid[day].sort();
-    if (draw) {
-	collage(channel, resp, day);
-    }
     var singular = '';
     var plural = 's';
     var count = resp.length;
@@ -420,6 +417,10 @@ function listing(channel, day, draw) {
 	}
 	list += prefix + symbols[role] + '  ' + nickname + timeDescr[timing] + '\n';
     }
+    if (draw) {
+	collage(channel, resp, day, list);
+	return;
+    } 
     return list;
 }
 
@@ -571,6 +572,11 @@ function process(message) {
 			url = "undefined";
 		    }
 		    var data = [status, role, timing, name, nickname, url]; // RESPONSE FILE SYNTAX
+		    var appendix = '';
+		    if (specDate == -1) { // no date was specified
+			appendix = '\nYou have responded for the *next raid* which is on ' + dayNames[day] + '; to specify a date, include one of Mon Wed Sat Sun in your command.';
+		    }
+		    
 		    if (day != ALL) { // one-day response
 			if (updateRole(data, day)) { // an update on an existing response
 			    channel.send(reply(data, day));
@@ -587,11 +593,7 @@ function process(message) {
 				addResponse(data, rn, message, false); // add if it does not
 			    }
 			}
-			channel.send(reply(data, day));	// confirm the response
-			ack(data, day, message); // thank the user
-		    }
-		    if (specDate == -1) { // no date was specified
-			channel.send('You have responded for the *next raid* which is on ' + dayNames[day] + '; to specify a date, include one of Mon Wed Sat Sun in your command.');
+			ack(data, day, message, reply(data, day) + appendix); // thank the user
 		    }
 		}
 	    }
