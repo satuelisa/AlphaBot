@@ -40,13 +40,92 @@ const indices = {'status': 0, 'role': 1, 'timing': 2, 'name': 3, 'nick': 4, 'url
 const roleIcons = {1: 'dmg.png', 2: 'sup.png', 3: 'heal.png', 4: 'flex.png'};
 const style = {0: '#999999', 1: '#00ee00', 2: '#0000cc', 3: '#dd0000'};
 const timeIcon = 'hourglass.png';
+const avatarSize = 128;
+const iconSize = 128;
+const defaultIcon = 'https://support.discordapp.com/hc/user_images/l12c7vKVRCd-XLIdDkLUDg.png';
 
 loadLogs();
+
+//function collage(day) {
+//    const redo = spawnSync('python3', ['raid.py', day]);
+//    let embed = new Discord.RichEmbed(); 
+//    embed.setTitle("Alpha Squad RSVP for " + dayNames[day])
+//    embed.setImage('https://elisa.dyndns-web.com/eso/raid_' + day + '.png?nocache=' + new Date().getTime()); // no cache
+//    return embed;
+//}
+
+async function collage(channel, resp, day) {
+    var n = resp.length;
+    if (n == 0) {
+	return;
+    }
+    if (debugMode) {
+	console.log('preparing collage');
+    }
+    const w = 402; 
+    const h = 434; 
+    const canvas = Canvas.createCanvas(w, h);
+    const ctx = canvas.getContext('2d');
+    const background = await Canvas.loadImage('./scroll.png');
+    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);    
+    const dim = Math.ceil(Math.sqrt(n));
+    const center = w / 2
+    const top = 170;
+    const as = Math.round((w - 180) / dim);
+    const m = Math.round(as / 10) // margin
+    const is = 2 * m + 10;
+    const rw = dim * as + (dim + 1) * m;
+    const lw = Math.round(m / 2);
+    const offset = as - is - 2 * lw;
+    const start = Math.round(center - rw / 2 + m);
+    var x = start;
+    var y = top;
+    var col = 0;
+    for (r in resp) {
+	var userData = resp[r].split(separator);
+	var status = parseInt(userData[indices['status']]);
+	var role = parseInt(userData[indices['role']]);
+	var timing = parseInt(userData[indices['timing']]);
+	var nickname = userData[indices['nick']];
+	var url = userData[indices['url']];
+	if (url.includes('undefined')) {
+	    url = defaultIcon;
+	} else {
+	    url = url.split('?')[0] + '?size=' + iconSize;
+	}
+	const avatar = await Canvas.loadImage(url);
+	ctx.drawImage(avatar, x, y, as, as);
+	ctx.strokeStyle = style[status];
+	ctx.lineWidth = lw;
+	ctx.strokeRect(x, y, as, as);
+	if (role > 0) {
+	    var icon = roleIcons[role];
+	    if (debugMode) {
+		console.log(icon);
+	    }	
+	    const roleIcon = await Canvas.loadImage('./' + icon);
+	    ctx.drawImage(roleIcon, x + offset, y + offset, is, is);
+	}
+	if (timing > 0) {
+	    const ti = await Canvas.loadImage('./' + timeIcon);
+	    ctx.drawImage(ti, x + 2 * lw, y + offset, is, is);
+	}
+	x += as + m;
+	col += 1;
+	if (col == dim) {
+            y += as + m;
+            x = start;
+            col = 0;
+	}
+    }
+    const bg = new Discord.Attachment(canvas.toBuffer(), 'raid_' + day + '.png');
+    channel.send('Current responses for ' + dayNames[day], bg);
+    return;
+}
 
 function filename(d) {
     return 'alphabot_' +  d + '.log';
 }
-
 
 function raidDate(specDate) {
     var date = new Date();
@@ -187,8 +266,6 @@ async function ack(data, day, message) {
     const margin = 80;
     const ctx = canvas.getContext('2d');
     const background = await Canvas.loadImage('./confirm.png');
-    const avatarSize = 128;
-    const iconSize = 128;
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
     if (url != undefined) {
 	url = url.split('?')[0] + '?size=' + avatarSize;
@@ -221,7 +298,7 @@ async function ack(data, day, message) {
 	const d = iconSize + margin;
 	ctx.drawImage(ti, width - d, height - d, iconSize, iconSize);
     }
-    const bg = new Discord.Attachment(canvas.toBuffer(), 'ack.png');
+    const bg = new Discord.Attachment(canvas.toBuffer(), 'ack_' + day + '_' + url + '.png');
     message.channel.send('Thank you for responding!', bg);
 //    var embed = new Discord.RichEmbed()
 //	.setTitle(a)
@@ -243,7 +320,7 @@ function addResponse(data, day, message, thanks) {
     });
     raid[day].push(data.join(separator));
     if (thanks) {
-	message.channel.send(listing(day, true));
+	listing(message.channel, day, false, false);
     	ack(data, day, message);
     }
     return;
@@ -274,11 +351,14 @@ function updateRole(data, day) {
     return false; // no match
 }
     
-function listing(day, help) {
+function listing(channel, day, draw) {
     if (debugMode) {
         console.log('listing for', day);
     }
     var resp = raid[day].sort();
+    if (draw) {
+	collage(channel, resp, day);
+    }
     var singular = '';
     var plural = 's';
     var count = resp.length;
@@ -330,9 +410,6 @@ function listing(day, help) {
 	}
 	list += prefix + symbols[role] + '  ' + nickname + timeDescr[timing] + '\n';
     }
-    if (help) {
-	list += '\nType *!hustle* for instructions on how to sign up or alter your response.';
-    }
     return list;
 }
 
@@ -348,20 +425,17 @@ function alpaca(message) {
     }
 }
 
-function listRaid(day) {
+function listRaid(channel, day, draw) {
+    var text = undefined;
     if (raid[day].length == 0) {
-	return '*Nobody* has responded for **' + dayNames[day] + '**  :frowning2:';
+	text = '*Nobody* has responded for **' + dayNames[day] + '**  :frowning2:';
     } else {
-	return listing(day, false);
+	text = listing(channel, day, draw);
     }
-}
-
-function collage(day) {
-    const redo = spawnSync('python3', ['raid.py', day]);
-    let embed = new Discord.RichEmbed(); 
-    embed.setTitle("Alpha Squad RSVP for " + dayNames[day])
-    embed.setImage('https://elisa.dyndns-web.com/eso/raid_' + day + '.png?nocache=' + new Date().getTime()); // no cache
-    return embed;
+    if (channel != undefined || text != undefined) {
+	channel.send(text);
+    } 
+    return text;
 }
 
 function process(message) {
@@ -447,12 +521,11 @@ function process(message) {
 	    var day = raidDate(specDate);
 	    if (text[1] == 'r') { // raid listing requested
 		if (day != ALL) {
-		    channel.send(collage(day));
-		    channel.send(listRaid(day));
+		    listRaid(channel, day, true);
 		} else { // all week requested
 		    var r = 'Showing all responses.\n';
 		    for (var i = 0; i < raidNights.length; i++) {
-			r += listRaid(raidNights[i]);
+			r += listRaid(undefined, raidNights[i], false);
 		    }
 		    channel.send(r);
 		}
