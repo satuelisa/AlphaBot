@@ -24,7 +24,7 @@ const options = roleInfo + earlyLate + dateInfo + '\nUse __!**h**ustle__ to see 
 const help = '**Available commands:**\n__!**s**ignup__ if you will attend the next raid\n!__**m**aybe__ if you might be able to attend\n!__**d**ecline__ if you will not make it\n' + options;
 
 const symbols = {0: ':confused:', 1: '<:damage:667107746868625458>', 2: '<:support:667107765872754738>', 3: '<:healer:667107717567217678>', 4: '<:flexible:667163606210707467>', 5: ':frowning2:'};
-const descr = {0: 'as an unspecified role', 1: 'as a damage dealer', 2: 'as a support/utility provider', 3: 'as a healer', 4: 'as a flexible spot'};
+const descr = {0: 'as an unspecified role', 1: 'as a damage dealer', 2: 'as a support', 3: 'as a healer', 4: 'as a flexible spot'};
 const timeDescr = {0: '',
 		   1: ' <:time:668502892432457736> *(joining late, leaving early)* ',
 		   2: ' <:time:668502892432457736> *(joining late)* ',
@@ -308,17 +308,19 @@ async function ack(data, day, message, msg) {
     } catch (e) {
 	console.log('confirm', e);
     }
-    if (!url.includes('undefined')) {
+    if (url.includes('undefined')) {
+	url = defaultIcon;
+    } else {
 	url = url.split('?')[0] + '?size=' + avatarSize;
-	if (debugMode) {
-	    console.log(url);
-	}
-	try {
-	    const avatar = await Canvas.loadImage(url);
-	    ctx.drawImage(avatar, margin, margin, avatarSize, avatarSize);
-	} catch (e) {
-	    console.log('avatar', e);
-	}
+    }	
+    if (debugMode) {
+	console.log(url);
+    }
+    try {
+	const avatar = await Canvas.loadImage(url);
+	ctx.drawImage(avatar, margin, margin, avatarSize, avatarSize);
+    } catch (e) {
+	console.log('avatar', e);
     }
     ctx.strokeStyle = style[status];
     ctx.lineWidth = 8;
