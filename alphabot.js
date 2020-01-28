@@ -66,8 +66,12 @@ async function collage(channel, resp, day, text) {
     const h = 434; 
     const canvas = Canvas.createCanvas(w, h);
     const ctx = canvas.getContext('2d');
-    const background = await Canvas.loadImage('./scroll.png');
-    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);    
+    try {
+	const background = await Canvas.loadImage('./scroll.png');
+	ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    } catch (e) {
+	console.log('bg', e);
+    }
     const dim = Math.ceil(Math.sqrt(n));
     const center = w / 2
     const top = 170;
@@ -93,8 +97,15 @@ async function collage(channel, resp, day, text) {
 	} else {
 	    url = url.split('?')[0] + '?size=' + iconSize;
 	}
-	const avatar = await Canvas.loadImage(url);
-	ctx.drawImage(avatar, x, y, as, as);
+	if (debugMode) {
+	    console.log(nickname, 'avatar', url);
+	}
+	try {
+	    const avatar = await Canvas.loadImage(url);
+	    ctx.drawImage(avatar, x, y, as, as);
+	} catch (e) {
+	    console.log('avatar icon', e);
+	}
 	ctx.strokeStyle = style[status];
 	ctx.lineWidth = lw;
 	if (status == 3) { // unavailable
@@ -111,14 +122,26 @@ async function collage(channel, resp, day, text) {
 	if (role > 0) {
 	    var icon = roleIcons[role];
 	    if (debugMode) {
-		console.log(icon);
-	    }	
-	    const roleIcon = await Canvas.loadImage('./' + icon);
-	    ctx.drawImage(roleIcon, x + offset, y + offset, is, is);
+		console.log(nickname, 'role', icon);
+	    }
+	    try {
+		const roleIcon = await Canvas.loadImage('./' + icon);
+		ctx.drawImage(roleIcon, x + offset, y + offset, is, is);
+	    } catch(e) {
+		console.log('role icon', e);
+	    }
 	}
 	if (timing > 0) {
-	    const ti = await Canvas.loadImage('./' + timeIcon);
-	    ctx.drawImage(ti, x + 2 * lw, y + offset, is, is);
+	    if (debugMode) {
+		console.log(nickname, 'time');
+	    }
+	    try {
+		const ti = await Canvas.loadImage('./' + timeIcon);
+		ctx.drawImage(ti, x + 2 * lw, y + offset, is, is);
+	    } catch(e) {
+		console.log('time icon', e);
+	    }
+		
 	}
 	x += as + m;
 	col += 1;
@@ -129,7 +152,11 @@ async function collage(channel, resp, day, text) {
 	}
     }
     const bg = new Discord.Attachment(canvas.toBuffer(), 'raid_' + day + '.png');
-    channel.send(text, bg);
+    if (bg != undefined) {
+	channel.send(text, bg);
+    } else {
+	channel.send(text);
+    }
     return;
 }
 
@@ -275,15 +302,23 @@ async function ack(data, day, message, msg) {
     const canvas = Canvas.createCanvas(width, height);
     const margin = 80;
     const ctx = canvas.getContext('2d');
-    const background = await Canvas.loadImage('./confirm.png');
-    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    try {
+	const background = await Canvas.loadImage('./confirm.png');
+	ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    } catch (e) {
+	console.log('confirm', e);
+    }
     if (!url.includes('undefined')) {
 	url = url.split('?')[0] + '?size=' + avatarSize;
 	if (debugMode) {
 	    console.log(url);
 	}
-	const avatar = await Canvas.loadImage(url);
-	ctx.drawImage(avatar, margin, margin, avatarSize, avatarSize);
+	try {
+	    const avatar = await Canvas.loadImage(url);
+	    ctx.drawImage(avatar, margin, margin, avatarSize, avatarSize);
+	} catch (e) {
+	    console.log('avatar', e);
+	}
     }
     ctx.strokeStyle = style[status];
     ctx.lineWidth = 8;
@@ -292,10 +327,14 @@ async function ack(data, day, message, msg) {
 	var icon = roleIcons[role];
 	if (debugMode) {
 	    console.log(icon);
-	}	
-	const roleIcon = await Canvas.loadImage('./' + icon);
-	const d = iconSize + margin;
-    	ctx.drawImage(roleIcon, margin, height - d, iconSize, iconSize);
+	}
+	try {
+	    const roleIcon = await Canvas.loadImage('./' + icon);
+	    const d = iconSize + margin;
+    	    ctx.drawImage(roleIcon, margin, height - d, iconSize, iconSize);
+	} catch (e) {
+	    console.log('role', e);
+	}
     }
     const offset = 1.5 * margin;
     const busy = offset + avatarSize;
@@ -304,12 +343,20 @@ async function ack(data, day, message, msg) {
     ctx.fillStyle = '#ffffff';
     ctx.fillText(text, busy, offset);
     if (data[indices['timing']] > 0) {
-	const ti = await Canvas.loadImage('./' + timeIcon);
-	const d = iconSize + margin;
-	ctx.drawImage(ti, width - d, height - d, iconSize, iconSize);
+	try {
+	    const ti = await Canvas.loadImage('./' + timeIcon);
+	    const d = iconSize + margin;
+	    ctx.drawImage(ti, width - d, height - d, iconSize, iconSize);
+	} catch (e) {
+	    console.log('time', e);
+	}
     }
     const bg = new Discord.Attachment(canvas.toBuffer(), 'ack_' + day + '_' + name.replace(' ', '') + '.png');
-    message.channel.send(msg, bg);
+    if (bg != undefined) {
+	message.channel.send(msg, bg);
+    } else {
+	message.channel.send(msg);
+    }
 //    var embed = new Discord.RichEmbed()
 //	.setTitle(a)
 //	.setAuthor("Alpha Squad RSVP for " + dayNames[day], message.author.avatarURL)
@@ -443,7 +490,8 @@ function listRaid(channel, day, draw) {
     } else {
 	text = listing(channel, day, draw);
     }
-    if (channel != undefined || text != undefined) {
+    if (!draw && channel != undefined && text != undefined) {
+	console.log(channel, text);
 	channel.send(text);
     } 
     return text;
