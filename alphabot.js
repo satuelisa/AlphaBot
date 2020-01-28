@@ -40,9 +40,9 @@ const indices = {'status': 0, 'role': 1, 'timing': 2, 'name': 3, 'nick': 4, 'url
 const roleIcons = {1: 'dmg.png', 2: 'sup.png', 3: 'heal.png', 4: 'flex.png'};
 const style = {0: '#999999', 1: '#00ee00', 2: '#0000cc', 3: '#dd0000'};
 const timeIcon = 'hourglass.png';
-const avatarSize = 128;
+const avatarSize = 64;
 const iconSize = 128;
-const defaultIcon = 'https://support.discordapp.com/hc/user_images/l12c7vKVRCd-XLIdDkLUDg.png';
+const defaultAvatar = 'https://support.discordapp.com/hc/user_images/l12c7vKVRCd-XLIdDkLUDg.png';
 
 loadLogs();
 
@@ -93,9 +93,9 @@ async function collage(channel, resp, day, text) {
 	var nickname = userData[indices['nick']];
 	var url = userData[indices['url']];
 	if (url.includes('undefined')) {
-	    url = defaultIcon;
+	    url = defaultAvatar;
 	} else {
-	    url = url.split('?')[0] + '?size=' + iconSize;
+	    url = url.split('?')[0] + '?size=' + avatarSize;
 	}
 	if (debugMode) {
 	    console.log(nickname, 'avatar', url);
@@ -273,12 +273,12 @@ function currentRole(name, day) {
 }
 
 // helper method from https://discordjs.guide/popular-topics/canvas.html#adding-in-text
-const applyText = (canvas, text, spare) => {
+const applyText = (canvas, text, available) => {
     const ctx = canvas.getContext('2d');
     let fontSize = 70;
     do {
-	ctx.font = `${fontSize -= 5}px sans-serif`;
-    } while (ctx.measureText(text).width > spare);
+	ctx.font = `${fontSize -= 5}px sans serif`;
+    } while (ctx.measureText(text).width >= available);
     return ctx.font;
 };
 
@@ -297,10 +297,12 @@ async function ack(data, day, message, msg) {
     if (debugMode) {
 	console.log(text);
     }
-    const height = 443; 
-    const width = 613;
+    const height = 229; 
+    const width = 320;
     const canvas = Canvas.createCanvas(width, height);
-    const margin = 80;
+    const margin = 40;
+    const is = avatarSize; // icon size
+    const ts = is - 10; // hourglass size
     const ctx = canvas.getContext('2d');
     try {
 	const background = await Canvas.loadImage('./confirm.png');
@@ -309,7 +311,7 @@ async function ack(data, day, message, msg) {
 	console.log('confirm', e);
     }
     if (url.includes('undefined')) {
-	url = defaultIcon;
+	url = defaultAvatar;
     } else {
 	url = url.split('?')[0] + '?size=' + avatarSize;
     }	
@@ -323,7 +325,7 @@ async function ack(data, day, message, msg) {
 	console.log('avatar', e);
     }
     ctx.strokeStyle = style[status];
-    ctx.lineWidth = 8;
+    ctx.lineWidth = 5;
     ctx.strokeRect(margin, margin, avatarSize, avatarSize);
     if (role > 0) {
 	var icon = roleIcons[role];
@@ -332,23 +334,22 @@ async function ack(data, day, message, msg) {
 	}
 	try {
 	    const roleIcon = await Canvas.loadImage('./' + icon);
-	    const d = iconSize + margin;
-    	    ctx.drawImage(roleIcon, margin, height - d, iconSize, iconSize);
+	    const d = is + margin;
+    	    ctx.drawImage(roleIcon, margin, height - d, is, is);
 	} catch (e) {
 	    console.log('role', e);
 	}
     }
     const offset = 1.5 * margin;
     const busy = offset + avatarSize;
-    const available = width - busy - margin;
-    ctx.font = applyText(canvas, text, available);
+    ctx.font = applyText(canvas, text, width - busy - margin);
     ctx.fillStyle = '#ffffff';
     ctx.fillText(text, busy, offset);
     if (data[indices['timing']] > 0) {
 	try {
 	    const ti = await Canvas.loadImage('./' + timeIcon);
-	    const d = iconSize + margin;
-	    ctx.drawImage(ti, width - d, height - d, iconSize, iconSize);
+	    const d = ts + margin;
+	    ctx.drawImage(ti, width - d - margin / 2, height - d, ts, ts);
 	} catch (e) {
 	    console.log('time', e);
 	}
