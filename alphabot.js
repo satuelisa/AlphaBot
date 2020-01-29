@@ -294,6 +294,9 @@ async function ack(data, day, message, msg) {
     if (status == 1 || status == 2) {
 	text += '\n' + descr[role];
     }
+    if (day != 8) {
+	text += '\nfor ' + dayNames[day]; 
+    }
     if (debugMode) {
 	console.log(text);
     }
