@@ -13,7 +13,7 @@ client.on("ready", () => {
 
 'use strict';
 
-const debugMode = false;
+const debugMode = true;
 const { spawnSync } = require('child_process');
 const separator = ' # ';
 const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed).\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n';
@@ -23,7 +23,11 @@ const feedback = '\nIf anything seems broken or unpleasant, just tag *satuelisa*
 const options = roleInfo + earlyLate + dateInfo + '\nUse __!**h**ustle__ to see this help text and __!**r**aid__ to just view the sign-ups.';
 const help = '**Available commands:**\n__!**s**ignup__ if you will attend the next raid\n!__**m**aybe__ if you might be able to attend\n!__**d**ecline__ if you will not make it\n' + options;
 
-const symbols = {0: ':confused:', 1: '<:damage:667107746868625458>', 2: '<:support:667107765872754738>', 3: '<:healer:667107717567217678>', 4: '<:flexible:667163606210707467>', 5: ':frowning2:'};
+const symbols = {0: ':confused:', 1: '<:damage:667107746868625458>',
+		 2: '<:support:667107765872754738>',
+		 3: '<:healer:667107717567217678>',
+		 4: '<:flexible:667163606210707467>',
+		 5: '<:noshow:672955199379341312>'}; // unavailable
 const descr = {0: 'as an unspecified role', 1: 'as a damage dealer', 2: 'as a support', 3: 'as a healer', 4: 'as a flexible spot'};
 const timeDescr = {0: '',
 		   1: ' <:time:668502892432457736> *(joining late, leaving early)* ',
@@ -104,7 +108,7 @@ async function collage(channel, resp, day, text) {
 	    const avatar = await Canvas.loadImage(url);
 	    ctx.drawImage(avatar, x, y, as, as);
 	} catch (e) {
-	    console.log('avatar icon', e);
+	    console.log('skipping an avatar icon', e);
 	}
 	ctx.strokeStyle = style[status];
 	ctx.lineWidth = lw;
@@ -128,7 +132,7 @@ async function collage(channel, resp, day, text) {
 		const roleIcon = await Canvas.loadImage('./' + icon);
 		ctx.drawImage(roleIcon, x + offset, y + offset, is, is);
 	    } catch(e) {
-		console.log('role icon', e);
+		console.log('skipping a role icon', e);
 	    }
 	}
 	if (timing > 0) {
@@ -139,7 +143,7 @@ async function collage(channel, resp, day, text) {
 		const ti = await Canvas.loadImage('./' + timeIcon);
 		ctx.drawImage(ti, x + 2 * lw, y + offset, is, is);
 	    } catch(e) {
-		console.log('time icon', e);
+		console.log('skipping a time icon', e);
 	    }
 		
 	}
@@ -282,7 +286,7 @@ const applyText = (canvas, text, available) => {
     return ctx.font;
 };
 
-async function ack(data, day, message, msg) {
+async function ack(draw, data, day, message, msg) {
     var name = data[indices['nick']];
     if (debugMode) {
 	console.log('thanking', name);
@@ -300,78 +304,80 @@ async function ack(data, day, message, msg) {
     if (debugMode) {
 	console.log(text);
     }
-    const height = 229; 
-    const width = 320;
-    const canvas = Canvas.createCanvas(width, height);
-    const margin = 40;
-    const is = avatarSize; // icon size
-    const ts = is - 10; // hourglass size
-    const ctx = canvas.getContext('2d');
-    try {
-	const background = await Canvas.loadImage('./confirm.png');
-	ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-    } catch (e) {
-	console.log('confirm', e);
-    }
-    if (url.includes('undefined')) {
-	url = defaultAvatar;
-    } else {
-	url = url.split('?')[0] + '?size=' + avatarSize;
-    }	
-    if (debugMode) {
-	console.log(url);
-    }
-    try {
-	const avatar = await Canvas.loadImage(url);
-	ctx.drawImage(avatar, margin, margin, avatarSize, avatarSize);
-    } catch (e) {
-	console.log('avatar', e);
-    }
-    ctx.strokeStyle = style[status];
-    ctx.lineWidth = 5;
-    ctx.strokeRect(margin, margin, avatarSize, avatarSize);
-    if (role > 0) {
-	var icon = roleIcons[role];
+    if (draw) {
+	const height = 229; 
+	const width = 320;
+	const canvas = Canvas.createCanvas(width, height);
+	const margin = 40;
+	const is = avatarSize; // icon size
+	const ts = is - 10; // hourglass size
+	const ctx = canvas.getContext('2d');
+	try {
+	    const background = await Canvas.loadImage('./confirm.png');
+	    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+	} catch (e) {
+	    console.log('skipping confirmation bg', e);
+	}
+	if (url.includes('undefined')) {
+	    url = defaultAvatar;
+	} else {
+	    url = url.split('?')[0] + '?size=' + avatarSize;
+	}	
 	if (debugMode) {
-	    console.log(icon);
+	    console.log(url);
 	}
 	try {
-	    const roleIcon = await Canvas.loadImage('./' + icon);
-	    const d = is + margin;
-    	    ctx.drawImage(roleIcon, margin, height - d, is, is);
+	    const avatar = await Canvas.loadImage(url);
+	    ctx.drawImage(avatar, margin, margin, avatarSize, avatarSize);
 	} catch (e) {
-	    console.log('role', e);
+	    console.log('skipping confirmation avatar', e);
+	}
+	ctx.strokeStyle = style[status];
+	ctx.lineWidth = 5;
+	ctx.strokeRect(margin, margin, avatarSize, avatarSize);
+	if (role > 0) {
+	    var icon = roleIcons[role];
+	    if (debugMode) {
+		console.log(icon);
+	    }
+	    try {
+		const roleIcon = await Canvas.loadImage('./' + icon);
+		const d = is + margin;
+    		ctx.drawImage(roleIcon, margin, height - d, is, is);
+	    } catch (e) {
+		console.log('skipping conf role icon', e);
+	    }
+	}
+	const offset = 1.5 * margin;
+	const busy = offset + avatarSize;
+	ctx.font = applyText(canvas, text, width - busy - margin);
+	ctx.fillStyle = '#ffffff';
+	ctx.fillText(text, busy, offset);
+	if (data[indices['timing']] > 0) {
+	    try {
+		const ti = await Canvas.loadImage('./' + timeIcon);
+		const d = ts + margin;
+		ctx.drawImage(ti, width - d - margin / 2, height - d, ts, ts);
+	    } catch (e) {
+		console.log('skipping conf time icon', e);
+	    }
+	}
+	const bg = new Discord.Attachment(canvas.toBuffer(), 'ack_' + day + '_' + name.replace(' ', '') + '.png');
+	if (bg != undefined) {
+	    message.channel.send(msg, bg);
+	    return;
 	}
     }
-    const offset = 1.5 * margin;
-    const busy = offset + avatarSize;
-    ctx.font = applyText(canvas, text, width - busy - margin);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(text, busy, offset);
-    if (data[indices['timing']] > 0) {
-	try {
-	    const ti = await Canvas.loadImage('./' + timeIcon);
-	    const d = ts + margin;
-	    ctx.drawImage(ti, width - d - margin / 2, height - d, ts, ts);
-	} catch (e) {
-	    console.log('time', e);
-	}
-    }
-    const bg = new Discord.Attachment(canvas.toBuffer(), 'ack_' + day + '_' + name.replace(' ', '') + '.png');
-    if (bg != undefined) {
-	message.channel.send(msg, bg);
-    } else {
-	message.channel.send(msg);
-    }
-//    var embed = new Discord.RichEmbed()
-//	.setTitle(a)
-//	.setAuthor("Alpha Squad RSVP for " + dayNames[day], message.author.avatarURL)
-//	.setDescription("Thank you for letting us know! " + symbols[role]);
-//    message.channel.send(embed);
+    message.channel.send(msg);
+    //    var embed = new Discord.RichEmbed()
+    //	.setTitle(a)
+    //	.setAuthor("Alpha Squad RSVP for " + dayNames[day], message.author.avatarURL)
+    //	.setDescription("Thank you for letting us know! " + symbols[role]);
+    //    message.channel.send(embed);
     return;
 }
 
-function addResponse(data, day, message, thanks) {
+function addResponse(data, day, message, thanks, draw) {
     if (debugMode) {
 	console.log('new response for', day);
     }
@@ -384,7 +390,7 @@ function addResponse(data, day, message, thanks) {
     });
     raid[day].push(data.join(separator));
     if (thanks) {
-    	ack(data, day, message, listing(undefined, day, false, false) + appendix);
+    	ack(draw, data, day, message, listing(undefined, day, false, false) + appendix);
     }
     return;
 }
@@ -517,7 +523,14 @@ function process(message) {
     }
     if (text.startsWith('!h')) {
 	channel.send(help);
-    } else if (text.startsWith('!') && 'dsmdr'.includes(text[1])) {
+    } else if (text.startsWith('!') && 'dsmdr'.includes(text[1])) {	
+	var draw = true;
+	if (text.includes(' text')) {
+	    if (debugMode) {
+		console.log('turning off graphics')
+	    }
+	    draw = false;
+	}
 	var user = message.member.user;
 	var name = user.tag;
 	let member = guild.member(message.author);
@@ -585,8 +598,11 @@ function process(message) {
 	    var specDate = daySpec(text);
 	    var day = raidDate(specDate);
 	    if (text[1] == 'r') { // raid listing requested
+		if (debugMode) {
+		    console.log('listing requested');
+		}
 		if (day != ALL) {
-		    listRaid(channel, day, true);
+		    listRaid(channel, day, draw);
 		} else { // all week requested
 		    var r = 'Showing all responses.\n';
 		    for (var i = 0; i < raidNights.length; i++) {
@@ -635,7 +651,7 @@ function process(message) {
 			if (updateRole(data, day)) { // an update on an existing response
 			    channel.send(reply(data, day));
 			} else { // a new response
-			    addResponse(data, day, message, true);
+			    addResponse(data, day, message, true, draw);
 			}
 		    } else { // response for all raids
 			if (debugMode) {
@@ -644,10 +660,10 @@ function process(message) {
 			for (var i = 0; i < raidNights.length; i++) {
 			    var rn = raidNights[i];
 			    if (!updateRole(data, rn)) { // update if exists
-				addResponse(data, rn, message, false); // add if it does not
+				addResponse(data, rn, message, false, false); // add if it does not
 			    }
 			}
-			ack(data, day, message, reply(data, day) + appendix); // thank the user
+			ack(draw, data, day, message, reply(data, day) + appendix); // thank the user
 		    }
 		}
 	    }
