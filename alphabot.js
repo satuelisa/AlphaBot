@@ -27,7 +27,7 @@ const symbols = {0: ':confused:', 1: '<:damage:667107746868625458>',
 		 2: '<:support:667107765872754738>',
 		 3: '<:healer:667107717567217678>',
 		 4: '<:flexible:667163606210707467>',
-		 5: '<:noshow:672955199379341312>'}; // unavailable
+		 5: '<:noshow:673312038986055702>'}; // unavailable
 const descr = {0: 'as an unspecified role', 1: 'as a damage dealer', 2: 'as a support', 3: 'as a healer', 4: 'as a flexible spot'};
 const timeDescr = {0: '',
 		   1: ' <:time:668502892432457736> *(joining late, leaving early)* ',
