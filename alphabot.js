@@ -43,7 +43,7 @@ const toonRss = {' ma': 1, // magicka
 		 ' st': 2, // stamina
 		 ' hy': 3}; // hybrid
 const rssNames = {0: '', 1: 'magicka', 2: 'stamina', 3: 'hybrid'};
-const toonRole = {' da': 1, ' dp': 1, // dps
+const toonRole = {' da': 1, ' dp': 1, ' dm': 1, // dps
 		  ' su': 2, ' u': 2, // support
 		  ' he': 3, // heals
 		  ' mu': 4} // multiple
@@ -409,7 +409,7 @@ function addResponse(data, day, message, thanks, draw) {
     if (data[indices['role']] == 0) {
 	appendix = '\n' + roleInfo;
     }
-    fs.appendFile(filename(day), data.join(separator) + '\n', (err) => {
+    fs.appendFileSync(filename(day), '\n' + data.join(separator) + '\n', (err) => {
 	if (err) throw err;
     });
     raid[day].push(data.join(separator));
@@ -435,7 +435,7 @@ function updateRole(data, day) {
 		console.log('match of', name, 'for', day, '\n', f);
 	    }	    
 	    resp[i] = data.join(separator); // rewrite entry and file
-	    fs.writeFile(filename(day), resp.join('\n') + '\n', (err) => { 
+	    fs.writeFileSync(filename(day), resp.join('\n') + '\n', (err) => { 
 		if (err) throw err;
 	    });
 	    return true;
@@ -593,7 +593,7 @@ function manageToons(name, nickname, channel, text) {
 	}
 	data = [name, nickname, tc, tr, tf]; // join data
 	channel.send(nickname + ' has defined a ' +  rssNames[tr] + ' ' + classNames[tc] + ' ' + roleNames[tf]);
-	fs.appendFile('toons.log', data.join(separator) + '\n', (err) => {
+	fs.appendFileSync('toons.log', '\n' + data.join(separator) + '\n', (err) => {
 	    if (err) throw err;
 	});
 	return;
@@ -604,7 +604,7 @@ function manageToons(name, nickname, channel, text) {
 	console.log('toon listing')
 	var toons = fs.readFileSync('toons.log').toString().trim().split('\n').filter(Boolean).sort();
 	toons = removeDuplicates(toons);
-	fs.writeFile('toons.log', toons.join('\n'), (err) => {
+	fs.writeFileSync('toons.log', toons.join('\n') + '\n', (err) => {
 	    if (err) throw err;
 	});			
 	var msg = '**The presently registered Alpha toons are**:\n';
@@ -638,7 +638,7 @@ function manageDefaults(name, nickname, useDef, defRole, role, channel) {
 		var f = defaults[i].split(' ');
 		if (f[indices['defName']] == name) { // entry to replace
 		    defaults[i] = name + ' ' + role; // DEFAULT FILE SYNTAX: <name> <role>
-		    fs.writeFile('roles.log', defaults.join('\n'), (err) => {
+		    fs.writeFileSync('roles.log', defaults.join('\n')  + '\n', (err) => {
 			if (err) throw err;
 		    });			
 		    channel.send('Default role for ' + nickname + ' has been updated as a ' + descr[role] + ' ' + symbols[role]);
@@ -650,7 +650,7 @@ function manageDefaults(name, nickname, useDef, defRole, role, channel) {
 	    if (debugMode) {
 		console.log('default append');
 	    }
-	    fs.writeFile('roles.log', defaults.join('\n') + '\n' + name + ' ' + role, (err) => {
+	    fs.writeFileSync('roles.log', defaults.join('\n') + '\n' + name + ' ' + role, (err) => {
 		if (err) throw err;
 	    });
 	    channel.send('Default role for ' + nickname + ' set as a ' + descr[role] + ' ' + symbols[role]);
