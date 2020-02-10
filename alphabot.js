@@ -28,7 +28,27 @@ const symbols = {0: ':confused:', 1: '<:damage:667107746868625458>',
 		 3: '<:healer:667107717567217678>',
 		 4: '<:flexible:667163606210707467>',
 		 5: '<:noshow:674053654067806208>'}; // unavailable
-const descr = {0: 'as an unspecified role', 1: 'as a damage dealer', 2: 'as a support', 3: 'as a healer', 4: 'as a flexible spot'};
+const descr = {0: 'surprise role', 1: 'damage dealer', 2: 'support', 3: 'healer', 4: 'flexible spot'};
+// <TOON SPECS>
+const toonClass= {' t': 1, // templar
+		  ' so': 2, // sorcerer,
+		  ' dr': 3, // dragonknight
+		  ' dk': 3, // dragonknight
+		  ' nb': 4, // nightblade
+		  ' ni': 4, // nightblade
+		  ' ne': 5, // necromancer
+		  ' w': 6} // warden
+const classNames = {0: '', 1: 'templar', 2: 'sorcerer', 3: 'dragonknight', 4: 'nightblade', 5: 'necromancer', 6: 'warden'};
+const toonRss = {' ma': 1, // magicka
+		 ' st': 2, // stamina
+		 ' hy': 3}; // hybrid
+const rssNames = {0: '', 1: 'magicka', 2: 'stamina', 3: 'hybrid'};
+const toonRole = {' da': 1, ' dp': 1, // dps
+		  ' su': 2, ' u': 2, // support
+		  ' he': 3, // heals
+		  ' mu': 4} // multiple
+const roleNames = {0: '', 1: 'damage dealer', 2: 'support/utility', 3: 'healer', 4: 'multitask'}
+// </ TOON SPECS>
 const timeDescr = {0: '',
 		   1: ' <:time:668502892432457736> *(joining late, leaving early)* ',
 		   2: ' <:time:668502892432457736> *(joining late)* ',
@@ -49,6 +69,10 @@ const iconSize = 128;
 const defaultAvatar = 'https://support.discordapp.com/hc/user_images/l12c7vKVRCd-XLIdDkLUDg.png';
 
 loadLogs();
+
+function removeDuplicates(array) {
+  return array.filter((a, b) => array.indexOf(a) === b)
+};
 
 //function collage(day) {
 //    const redo = spawnSync('python3', ['raid.py', day]);
@@ -195,7 +219,7 @@ function reply(data, day) {
 	console.log('reply for', day);
     }
     if (status != 3 && role > 0) {
-	r += ' ' + descr[role];
+	r += ' as a ' + descr[role];
     }
     return r + ' for ' + dayNames[day]  + timeDescr[timing] + ' ' + symbols[role];
 }
@@ -296,7 +320,7 @@ async function ack(draw, data, day, message, msg) {
     var url = data[indices['url']];
     var text = name + '\n' + confirm[status]; 
     if (status == 1 || status == 2) {
-	text += '\n' + descr[role];
+	text += '\nas a ' + descr[role];
     }
     if (day != 8) {
 	text += '\nfor ' + dayNames[day]; 
@@ -509,6 +533,139 @@ function listRaid(channel, day, draw) {
     return text;
 }
 
+function manageToons(name, nickname, channel, text) {
+    if (text.includes(' help')) {
+	channel.send('Writing just **!toon** will print out a list of the registered toons.\n' +
+		     'To define a new toon, use **!toon add <class> <rss> <role>** where\n' +
+		     '**class** is one of: *templar*, *sorc*, *DK*, *NB*, *warden*, or *necro*;\n' +
+		     '**rss** is one of: *magicka*, *stamina*, or *hybrid*;\n' +
+		     '**role** is one of: *damage*, *support*, *healer*, or *multitask.\n' + 
+		     'I recognize many ways to type each role, resource type, and role.');
+	return;
+    } if (text.includes(' add')) {
+	var tc = 0; // parse class
+	for (let entry of Object.entries(toonClass)) {
+	    let className = entry[0];
+	    let classID = entry[1];
+	    if (debugMode) {
+		console.log(className, classID);
+	    }
+	    if (text.includes(className)) {
+		tc = classID;
+		break;
+	    }
+	}
+	if (tc == 0) {
+	    channel.send('I am sorry, but I did not understand what the class for this toon is (templar, sorc, DK, NB, warden, or necro).');
+	    return;
+	}
+	var tr = 0; // parse primary resource
+	for (let entry of Object.entries(toonRss)) {
+            let rssName = entry[0];
+            let rssID = entry[1];
+	    if (debugMode) {
+		console.log(rssName, rssID);
+	    }	    
+            if (text.includes(rssName)) {
+                tr = rssID;
+                break;
+            }
+        }
+	if (tr == 0) { 
+	    channel.send('I am sorry, but I did not understand what the build for this toon is (magicka, stamina, or hybrid).');
+	    return;
+	}
+	var tf = 0; // parse function
+	for (let entry of Object.entries(toonRole)) {
+            let roleName = entry[0];
+            let roleID = entry[1];
+	    if (debugMode) {
+		console.log(roleName, roleID);
+	    }	    
+            if (text.includes(roleName)) {
+                tf = roleID;
+                break;
+            }
+        }
+	if (tf == 0) {
+	    channel.send('I am sorry, but I did not understand what the role for this toon is (damage, support, heals, or multitask).');
+	    return;
+	}
+	data = [name, nickname, tc, tr, tf]; // join data
+	channel.send(nickname + ' has defined a ' +  rssNames[tr] + ' ' + classNames[tc] + ' ' + roleNames[tf]);
+	fs.appendFile('toons.log', data.join(separator) + '\n', (err) => {
+	    if (err) throw err;
+	});
+	return;
+    } else if (text.includes(' del') || text.includes(' rem')) { // delete / remove a toon template
+	channel.send('My mom has not taught me how to delete toons yet. She will, though, when she has the time.');
+	return; // IMPLEMENTATION PENDING
+    } else { // listing
+	console.log('toon listing')
+	var toons = fs.readFileSync('toons.log').toString().trim().split('\n').filter(Boolean).sort();
+	toons = removeDuplicates(toons);
+	fs.writeFile('toons.log', toons.join('\n'), (err) => {
+	    if (err) throw err;
+	});			
+	var msg = '**The presently registered Alpha toons are**:\n';
+	for (var i = 0; i < toons.length; i++) {
+	    var f = toons[i].split(separator);
+	    var rn = f[0]; // username
+	    var nn = f[1]; // nickname
+	    var tc = parseInt(f[2]);
+	    var tr = parseInt(f[3]);
+	    var tf = parseInt(f[4]);
+	    msg += '*' + nn + '* has a ' + rssNames[tr] + ' ' + classNames[tc] + ' ' +  roleNames[tf] + '\n';
+	}
+	channel.send(msg);
+    }
+    return;
+}
+
+function manageDefaults(name, nickname, useDef, defRole, role, channel) {
+    if (role != 0) {
+	if (!useDef && defRole == role) {
+	    channel.send('You had already set that as your default role ' + symbols[role]);
+	    return;
+	}
+	var defaults = fs.readFileSync('roles.log').toString().trim().split('\n').filter(Boolean);
+	if (defRole != 0 && role != defRole) { // replace old default
+	    if (debugMode) {
+		console.log('default update');
+	    }
+	    var i = 0;
+	    for (; i < defaults.length; i++) {
+		var f = defaults[i].split(' ');
+		if (f[indices['defName']] == name) { // entry to replace
+		    defaults[i] = name + ' ' + role; // DEFAULT FILE SYNTAX: <name> <role>
+		    fs.writeFile('roles.log', defaults.join('\n'), (err) => {
+			if (err) throw err;
+		    });			
+		    channel.send('Default role for ' + nickname + ' has been updated as a ' + descr[role] + ' ' + symbols[role]);
+		    return;
+		}
+	    }
+	}
+	if (role != 0) {
+	    if (debugMode) {
+		console.log('default append');
+	    }
+	    fs.writeFile('roles.log', defaults.join('\n') + '\n' + name + ' ' + role, (err) => {
+		if (err) throw err;
+	    });
+	    channel.send('Default role for ' + nickname + ' set as a ' + descr[role] + ' ' + symbols[role]);
+	    return;
+	}
+    } else { // !default was called with no role specified
+	if (defRole != 0) {
+	    channel.send('Your default is currently set as a ' + descr[role] + ' ' + symbols[role]);
+	    return; // nothing more to do
+	} 
+	channel.send('You should specify which role to set as your default: **d**amage, **s**upport/**u**tility, **h**ealer, or **f**lexible.');
+	return;
+    }
+}
+
 function process(message) {
     var text = message.content.toLowerCase();
     var channel = message.channel;
@@ -523,7 +680,7 @@ function process(message) {
     }
     if (text.startsWith('!h')) {
 	channel.send(help);
-    } else if (text.startsWith('!') && 'dsmdr'.includes(text[1])) {	
+    } else if (text.startsWith('!') && 'dsmrt'.includes(text[1])) {	
 	var draw = true;
 	if (text.includes(' text')) {
 	    if (debugMode) {
@@ -548,48 +705,13 @@ function process(message) {
 	    useDef = true;
 	    role = defRole; // use default whenever none is given
 	}
+	if (debugMode) {
+	    console.log(text);
+	}
 	if (text.startsWith('!def')) { // default step requested with !default or !def
-	    if (role != 0) {
-		if (!useDef && defRole == role) {
-		    channel.send('You had already set that as your default role ' + symbols[role]);
-		    return;
-		}
-		var defaults = fs.readFileSync('roles.log').toString().trim().split('\n').filter(Boolean);
-		if (defRole != 0 && role != defRole) { // replace old default
-		    if (debugMode) {
-			console.log('default update');
-		    }
-		    var i = 0;
-		    for (; i < defaults.length; i++) {
-			var f = defaults[i].split(' ');
-			if (f[indices['defName']] == name) { // entry to replace
-			    defaults[i] = name + ' ' + role; // DEFAULT FILE SYNTAX: <name> <role>
-			    fs.writeFile('roles.log', defaults.join('\n'), (err) => {
-				if (err) throw err;
-			    });			
-			    channel.send('Default role for ' + nickname + ' has been updated to ' + descr[role] + ' ' + symbols[role]);
-			    return;
-			}
-		    }
-		}
-		if (role != 0) {
-		    if (debugMode) {
-			console.log('default append');
-		    }
-		    fs.writeFile('roles.log', defaults.join('\n') + '\n' + name + ' ' + role, (err) => {
-			if (err) throw err;
-		    });
-		    channel.send('Default role for ' + nickname + ' set ' + descr[role] + ' ' + symbols[role]);
-		    return;
-		}
-	    } else { // !default was called with no role specified
-		if (defRole != 0) {
-		    channel.send('Your default is currently set ' + descr[role] + ' ' + symbols[role]);
-		    return; // nothing more to do
-		} 
-		channel.send('You should specify which role to set as your default: **d**amage, **s**upport/**u**tility, **h**ealer, or **f**lexible.');
-		return;
-	    }
+	    manageDefaults(name, nickname, useDef, defRole, role, channel);
+	} else if (text.startsWith('!toon')) { // register a toon definition
+	    manageToons(name, nickname, channel, text);
 	} else { // response or raid listing (other raid commands than default)
 	    loadLogs();
 	    if (debugMode) {
