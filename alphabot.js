@@ -17,7 +17,7 @@ const debugMode = true;
 const { spawnSync } = require('child_process');
 const separator = ' # ';
 const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed).\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n';
-const dateInfo = '\nBy default, you will be responding to the next raid; you can use *Mon Wed Sat Sun* to specify a date, whereas using *all* or *week* refers to the next four raids.\n';
+const dateInfo = '\nBy default, you will be responding to the next raid; you can use *Mon Fri Sat* to specify a date, whereas using *all* or *week* refers to the next four raids.\n';
 const earlyLate = '\nYou can also include the words *late* or *early* to indicate if you will be joining late or leaving early (or even both).\n';
 const feedback = '\nIf anything seems broken or unpleasant, just tag *satuelisa* and express your concerns. <:Agswarrior:552592567875928064>'; 
 const options = roleInfo + earlyLate + dateInfo + '\nUse __!**h**ustle__ to see this help text and __!**r**aid__ to just view the sign-ups.';
@@ -54,12 +54,12 @@ const timeDescr = {0: '',
 		   2: ' <:time:668502892432457736> *(joining late)* ',
 		   3: ' <:time:668502892432457736>  *(leaving early)* '};
 const confirm = {1: 'confirmed', 2: 'possible', 3: 'unavailable'};
-const raidNights = [1, 3, 6, 0]; // Mon Wed Sat Sun
-const nextRaid = {0: 1, 1: 3, 2: 3, 3: 3, 4: 6, 5: 6, 6: 0};
-const dayNames = {0: 'Sunday', 1: 'Monday', 3: 'Wednesday', 6: 'Saturday', 8: 'the next four raids'};
+const raidNights = [1, 5, 6]; // Mon Fri Sat 
+const nextRaid = {0: 1, 1: 5, 2: 5, 3: 5, 4: 5, 5: 6, 6: 1};
+const dayNames = {1: 'Monday', 5: 'Friday', 6: 'Saturday', 8: 'the next three raids'};
 const ALL = 8;
 const stopWords = ["for", "as", "a", "an", "the", "of", "raid", "up", "tonight", "today", "yo", "me", "sign", "up", "gift", "gods", "to", "please"];
-const prefixList = ["mon", "sun", "sat", "wed", "all", "week"];
+const prefixList = ["mon", "fri", "sat", "all", "week"];
 const indices = {'status': 0, 'role': 1, 'timing': 2, 'name': 3, 'nick': 4, 'url': 5, 'defName': 0, 'defRole': 1};
 const roleIcons = {1: 'dmg.png', 2: 'sup.png', 3: 'heal.png', 4: 'flex.png'};
 const style = {0: '#999999', 1: '#00ee00', 2: '#0000cc', 3: '#dd0000'};
@@ -227,12 +227,10 @@ function reply(data, day) {
 function daySpec(text) {
     if (text.includes(' mon')) {
 	return 1;
-    } else if (text.includes(' wed')) {
-	return 3;
+    } else if (text.includes(' fri')) {
+	return 5;
     } else if (text.includes(' sat')) {
 	return 6;
-    } else if (text.includes(' sun')) {
-	return 0;
     } else if (text.includes(' all') || text.includes(' week')) {
 	return ALL;
     }
@@ -766,7 +764,7 @@ function process(message) {
 		    var data = [status, role, timing, name, nickname, url]; // RESPONSE FILE SYNTAX
 		    var appendix = '';
 		    if (specDate == -1) { // no date was specified
-			appendix = '\nYou have responded for the *next raid* which is on ' + dayNames[day] + '; to specify a date, include one of Mon Wed Sat Sun in your command.';
+			appendix = '\nYou have responded for the *next raid* which is on ' + dayNames[day] + '; to specify a date, include one of Mon Fri Sat in your command.';
 		    }
 		    
 		    if (day != ALL) { // one-day response
