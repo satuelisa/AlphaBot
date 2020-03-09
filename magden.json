@@ -76,7 +76,7 @@
 	}
     },
     "rotation": {
-	"blue betty": [1, 26, 51],
+	"blue betty": [0, 26, 55],
 	"radiating regeneration": [ 2, 12, 22, 32, 42, 52 ],
 	"expansive frost cloak": [ 1, 21, 41 ],
 	"proximity detonation": [ 3, 13, 23, 33, 43 ],
@@ -201,11 +201,11 @@
 		    "when": "start", 
 		    "damage": 6755
 		},
+		"duration": 10,
 		"debuffs": [
 		    {
 			"kind": "mangle",
-			"type": "minor",
-			"duration": 10
+			"type": "minor"
 		    }
 		]
 	    }
@@ -407,13 +407,15 @@
 	},
 	"winter's embrace": {
 	    "frozen armor": {
-		"buffs": {
-		    "kind": "increase",
-		    "resistance": [ "physical", "spell" ],
-		    "amount": 500,
-		    "proc": "slot",
-		    "multiplier": "count"
-		}
+		"buffs": [
+		    {
+			"kind": "increase",
+			"resistance": [ "physical", "spell" ],
+			"amount": 500,
+			"proc": "slot",
+			"multiplier": "count"
+		    }
+		]
 	    }
 	},
 	"animal companions": {
@@ -473,14 +475,23 @@
 	    "continuous attack": {
 		"buffs": [
 		    {
+			"proc": "near keep",
 			"kind": "increase",
 			"damage": [ "weapon", "spell" ],		
 			"amount": 0.1,
 			"duration": 600			
 		    },
 		    {
-			"kind": "recovery",
-			"resource": [ "magicka", "stamina" ],
+			"proc": "near keep",
+			"kind": "increase",
+			"recovery": "magicka",
+			"amount": 0.05,
+			"duration": 600			
+		    },
+		    {
+			"proc": "near keep",
+			"kind": "increase",
+			"recovery": "stamina",
 			"amount": 0.05,
 			"duration": 600			
 		    }
