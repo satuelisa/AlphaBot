@@ -1,0 +1,492 @@
+{
+    "pool": {
+	"magicka": 34868,
+	"health": 19937,
+	"stamina": 11952
+    },
+    "recovery": {
+	"magicka": 1671,
+	"health":  321,
+	"stamina": 535
+    },
+    "resistance": {
+	"spell": 15181,
+	"physical": 11056,
+	"critical": 2728
+    },
+    "attack": {
+	"spell": {
+	    "damage": 1823,
+	    "critical": 0.427
+	},
+	"weapon": {
+	    "damage": 1585,
+	    "critical": 0.137
+	}
+    },
+    "equipped": {
+	"front": {
+	    "weapon": "destruction staff",
+	    "skills": {
+		"first": "deep fissure",
+		"second": "bird of prey",
+		"third": "race against time",
+		"fourth": "pulsar",
+		"fifth": "blue betty",
+		"ultimate": "northern storm"
+	    }
+	},
+	"back": {
+	    "weapon": "restoration staff",
+	    "skills": {
+		"first": "expansive frost cloak",
+		"second": "radiating regeneration",
+		"third": "proximity detonation",
+		"fourth": "arctic blast",
+		"fifth": "inner light",
+		"ultimate": "northern storm"
+	    }
+	},
+	"potion": "essence of immovability"
+    },
+    "potions": {
+	"essence of immovability": {
+	    "restore": {
+		"health": 10945,
+		"magicka": 7528
+	    },
+	    "buffs": [
+		{
+		    "kind": "immune",
+		    "type": "disabling effects",
+		    "duration": 10.4
+		},
+		{
+		    "kind": "fortitude",
+		    "type": "major",
+		    "duration": 47.6
+		},
+		{
+		    "kind": "intellect",
+		    "type": "major",
+		    "duration": 47.6
+		}
+	    ],
+	    "cooldown": 45
+	}
+    },
+    "rotation": {
+	"blue betty": [1, 26, 51],
+	"radiating regeneration": [ 2, 12, 22, 32, 42, 52 ],
+	"expansive frost cloak": [ 1, 21, 41 ],
+	"proximity detonation": [ 3, 13, 23, 33, 43 ],
+	"arctic blast": [ 11, 21, 31, 41, 51 ],
+	"race against time": [ 5, 9, 15, 19, 25, 29, 35, 39, 45, 49 ],
+	"bird of prey": [ 4, 14, 24, 34, 44, 54 ],
+	"deep fissure": [ 8, 18, 28, 38, 48 ],
+	"pulsar": [ 10, 20, 30, 40, 50 ],
+	"potion": 10
+
+    },
+    "debuffs": {
+	"mangle": {
+	    "minor": {
+		"target": "health",
+		"amount": 0.1
+	    }
+	}
+    },
+    "buffs": {
+	"intellect": {
+	    "target": {
+		"recovery": "magicka"
+	    },
+	    "major": 0.3
+	},
+	"fortitude": {
+	    "target": {
+		"recovery": "health"
+	    },
+	    "major": 0.2,
+	    "minor": 0.1
+	},
+	"prophecy": {
+	    "target": {
+		"critical": "spell"
+	    },
+	    "major": 0.1,
+	    "minor": 0.06
+	},
+	"resolve": {
+	    "target": {
+		"resistance": [ "spell", "physical" ]
+	    },
+	    "major": 5280
+	},
+	"brutality": {
+	    "target": {
+		"damage": "weapon"
+	    },
+	    "major": 0.2,
+	    "minor": 0.1
+	},
+	"sorcery": {
+	    "target": {
+		"damage": "spell"
+	    },
+	    "major": 0.2,
+	    "minor": 0.1
+	},
+	"force": {
+	    "target": {
+		"damage": "critical"
+	    },
+	    "major": 0.2,
+	    "minor": 0.1
+	},
+	"expedition": {
+	    "major": 0.3,
+	    "target": {
+		"speed": "movement"
+	    }
+	},
+	"beserk": {	
+	    "target": {
+		"damage": "done"
+	    },
+	    "minor": 0.08
+	}
+    },
+    "skills": {
+	"assault": {
+	    "proximity detonation": {
+		"cost": 2702,
+		"cast": 0,
+		"resource": "magicka",
+		"duration": 8,
+		"effect": {
+		    "when": "end", 		    
+		    "damage": 5198
+		}
+	    }
+	},
+	"psijic order": {
+	    "race against time": {
+		"cost": 2386,
+		"resource": "magicka",
+		"cast": 0,
+		"target": "self",
+		"when": "start",
+		"buffs": [
+		    {
+			"kind": "expedition", 
+			"type": "major",
+			"duration": 4
+		    },
+		    {
+		    	"kind": "force",
+			"type": "minor",
+			"duration": 12
+		    }
+		]
+	    }
+	},
+	"destruction staff": {
+	    "pulsar": {
+		"cost": 2808,
+		"resource": "magicka",
+		"cast": 0,
+		"target": "area",
+		"effect": {
+		    "when": "start", 
+		    "damage": 6755
+		},
+		"debuffs": [
+		    {
+			"kind": "mangle",
+			"type": "minor",
+			"duration": 10
+		    }
+		]
+	    }
+	},
+	"restoration staff": {
+	    "radiating regeneration": {
+		"cost": 2160,
+		"resource": "magicka",
+		"effect": {
+		    "when": "start",
+		    "HoT": {
+			"amount": 16176,
+			"every": 1,
+			"unit": "total"
+		    }
+		},
+		"duration": 10,
+		"cast": 0,
+		"target": "area"
+	    }
+	},
+	"mages' guild": {
+	    "shooting star": {
+		"cost": 170,
+		"resource": "ultimate",
+		"effect": {
+		    "when": "start",
+		    "damage": 11748,
+		    "DoT": {
+			"amount": 3354,
+			"every": 1,
+			"unit": "tick"
+		    }
+		},
+		"duration": 13
+	    },
+	    "inner light": {
+		"cost": 0,
+		"cast": 0,
+		"target": "area",
+		"duration": 5,
+		"buffs": [
+		    {
+			"kind": "prophecy",
+			"type": "major",
+			"duration": "slot"
+		    },
+		    {
+			"increase": {
+			    "target": "magicka",
+			    "amount": 0.05
+			},
+			"duration": "slot"
+		    }
+		]
+	    }
+	},
+	"animal companions": {
+	    "deep fissure": {
+		"cast": 0,
+		"target": "area",
+		"cost": 1944,
+		"resource": "magicka",
+		"duration": 3,
+		"effect": {
+		    "when": "end", 
+	    	    "damage": 12267
+		},
+		"debuffs": [
+		    {
+			"kind": "breach",
+			"type": "major"
+		    }
+		]
+	    },
+	    "blue betty": {
+		"cost": 1000,
+		"resource": "magicka",
+		"cast": 0,
+		"target": "self",
+		"duration": 25,
+		"buffs": [
+		    {
+			"kind": "brutality", 
+			"type": "major"
+		    },
+		    {
+			"kind":  "sorcery",
+			"type": "major"
+		    },
+		    {
+			"kind": "restore",
+			"resource": "magicka",
+			"every": 1, 
+			"amount":  4992,
+			"unit": "total"
+		    }
+		],
+		"effect": {
+		    "when": "start", 
+		    "purge": {
+			"every": 5,
+			"amount": 1,
+			"unit": "tick"
+		    }
+		}
+	    },
+	    "bird of prey": {
+		"cast": 0,
+		"target": "self",
+		"duration": 6,
+		"cost": 1260,
+		"resource": "magicka",
+		"buffs": [
+		    {
+			"kind": "expedition",
+			"type": "major"
+		    },
+		    {
+			"kind": "beserk",
+			"type": "minor"
+		    }
+		]
+	    }
+	},
+	"winter's embrace": {
+	    "northern storm": {
+		"cast": 0,
+		"cost": 200,
+		"resource": "ultimate",
+		"duration": 8,
+		"buffs" : [
+		    {
+			"kind": "protection",
+			"type": "major"
+		    },
+		    {
+			"kind": "increase",
+			"resource": "magicka",
+			"amount": 0.15
+		    }
+		],
+		"effect": {
+		    "when": "start", 		    
+		    "DoT": {
+			"amount": 3937,
+			"every": 1,
+			"unit": "tick"
+		    }
+		}
+	    },
+	    "arctic blast": {
+		"cast": 0,
+		"target": "area",
+		"cost": 3240,
+		"resource": "magicka",
+		"duration": 5,
+		"effect": {
+		    "when": "start", 		    
+		    "heal": 4418,
+		    "HoT": {
+			"amount": 530,
+			"every": 1,
+			"unit": "tick"
+		    },
+		    "DoT": {
+			"amount": 1688,
+			"every": 1,
+			"unit": "tick"
+		    }
+		}
+	    },
+	    "expansive frost cloak": {
+		"cast": 0,
+		"target": "area",
+		"duration": 20,
+		"cost": 1944,
+		"resource": "magicka",
+		"buffs": [
+		    {
+			"kind": "resolve",
+			"type": "major"
+		    }
+		]		
+	    }
+	}	    
+    },
+    "passives": {
+	"support": {
+	    "magicka aid": {
+		"buffs": [
+		    { "kind": "increase",
+		      "recovery": "magicka",
+		      "amount": 0.05,
+		      "multiplier": "count"
+		    }
+		]
+	    }
+	},
+	"winter's embrace": {
+	    "frozen armor": {
+		"buffs": {
+		    "kind": "increase",
+		    "resistance": [ "physical", "spell" ],
+		    "amount": 500,
+		    "proc": "slot",
+		    "multiplier": "count"
+		}
+	    }
+	},
+	"animal companions": {
+	    "bond with nature": {
+		"buffs": [
+		    {
+			"proc": "end",
+			"kind": "restore",
+			"resource": "health",
+			"amount": 1260
+		    }
+		]
+	    },
+	    "savage beast": {
+		"buffs": [
+		    {
+			"proc": "start",
+			"kind": "restore",
+			"resource": "ultimate",
+			"amount": 4,
+			"req": "combat",
+			"cooldown": 8
+		    }
+		]
+	    },
+	    "flourish": {
+		"buffs": [
+		    {
+			"proc": "slot", 
+			"kind": "increase",
+			"recovery": "magicka",
+			"amount": 0.12,
+			"multiplier": "unique"
+		    },
+		    {
+			"proc": "slot", 
+			"kind": "increase",
+			"recovery": "stamina",
+			"amount": 0.12,
+			"multiplier": "unique"
+		    }
+		]
+	    },
+	    "advanced species": {
+		"buffs": [
+		    {
+			"proc": "slot",
+			"kind": "increase",
+			"damage": "done",
+			"amount": 0.02,
+			"multiplier": "count"
+		    }
+		]
+	    }
+	},
+	"assault": {
+	    "continuous attack": {
+		"buffs": [
+		    {
+			"kind": "increase",
+			"damage": [ "weapon", "spell" ],		
+			"amount": 0.1,
+			"duration": 600			
+		    },
+		    {
+			"kind": "recovery",
+			"resource": [ "magicka", "stamina" ],
+			"amount": 0.05,
+			"duration": 600			
+		    }
+		]
+	    }
+	}
+    }
+}	    
+	   
