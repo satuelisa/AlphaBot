@@ -173,6 +173,7 @@ async function collage(channel, resp, day, text) {
 	var timing = parseInt(userData[indices['timing']]);
 	var nickname = userData[indices['nick']];
 	var url = userData[indices['url']];
+	console.log(url);
 	if (url.includes('undefined')) {
 	    url = defaultAvatar;
 	} else {
@@ -256,7 +257,7 @@ async function collage(channel, resp, day, text) {
             col = 0;
 	}
     }
-    const bg = new Discord.Attachment(canvas.toBuffer(), 'raid_' + day + '.png');
+    const bg = new Discord.MessageAttachment(canvas.toBuffer(), 'raid_' + day + '.png');
     if (bg != undefined) {
 	channel.send(text, bg);
     } else {
@@ -551,7 +552,7 @@ async function ack(draw, data, day, message, msg) {
 		console.log('skipping conf time icon', e);
 	    }
 	}
-	const bg = new Discord.Attachment(canvas.toBuffer(), 'ack_' + day + '_' + name.replace(' ', '') + '.png');
+	const bg = new Discord.MessageAttachment(canvas.toBuffer(), 'ack_' + day + '_' + name.replace(' ', '') + '.png');
 	if (bg != undefined) {
 	    message.channel.send(msg, bg);
 	    return;
@@ -896,9 +897,11 @@ function process(message) {
 	    }
 	    draw = false;
 	}
-	var user = message.member.user;
-	var name = user.tag;
+	let user = message.member.user;
+	let name = user.tag;
 	let member = guild.member(message.author);
+	let avatarURL = message.author.displayAvatarURL().replace('.webp', '.png')
+	console.log(avatarURL);
 	let nickname = member ? member.displayName : undefined;
 	if (nickname == undefined) {
 	    nickname = name.split('#')[0]; // skip the Discord ID number when making a default nickname
@@ -979,7 +982,7 @@ function process(message) {
 		    if (curr['role'] == 0 && day != ALL) {
 			curr = currentStatus(name, day); // check if one is set
 		    }
-		    var url = user.avatarURL;
+		    var url = avatarURL;
 		    if (url == undefined) {
 			url = "undefined";
 		    }
