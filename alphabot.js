@@ -7,7 +7,7 @@ let raid  = {};
 let guild = undefined;
 
 client.on("ready", () => {
-    guild = client.guilds.get('191716294943440897');
+    guild = client.guilds.cache.get('191716294943440897');
     console.log(guild.name);
 });
 
@@ -16,7 +16,7 @@ client.on("ready", () => {
 const debugMode = true;
 const { spawnSync } = require('child_process');
 const separator = ' # ';
-const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). Also class (templar, DK, etc.) and primare resource (magicka or stamina) can be specified.\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n';
+const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). Also class (templar, DK, etc.) and primary resource (magicka or stamina) can be specified.\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n';
 const dateInfo = '\nBy default, you will be responding to the next raid; you can use *Mon Fri Sat* to specify a date, whereas using *all* or *week* refers to the next four raids.\n';
 const earlyLate = '\nYou can also include the words *late* or *early* to indicate if you will be joining late or leaving early (or even both).\n';
 const feedback = '\nIf anything seems broken or unpleasant, just tag *satuelisa* and express your concerns. <:Agswarrior:552592567875928064>'; 
@@ -28,9 +28,9 @@ const symbols = {0: ':confused:', 1: '<:damage:667107746868625458>',
 		 3: '<:healer:667107717567217678>',
 		 4: '<:flexible:667163606210707467>',
 		 5: '<:noshow:674053654067806208>'}; // unavailable
-const roleDescr = {0: 'surprise role', 1: 'damage dealer', 2: 'support', 3: 'healer', 4: 'flexible spot'};
-const classDescr = {0: '', 1: 'templar ', 2: 'sorcerer ', 3: 'dragonknight ', 4: 'nightblade ', 5: 'necromancer ', 6: 'warden '};
-const rssDescr = {0: '', 1: 'magicka ', 2: 'stamina '}
+const roleDescr = {0: 'surprise role', 1: 'damage', 2: 'support', 3: 'healer', 4: 'flexible spot'};
+const classDescr = {0: '', 1: 'templar ', 2: 'sorc ', 3: 'DK ', 4: 'NB ', 5: 'necro ', 6: 'warden '};
+const rssDescr = {0: '', 1: 'mag ', 2: 'stam '}
 
 // <TOON SPECS>
 const toonClass= {' t': 1, // templar
@@ -297,10 +297,10 @@ function reply(data, day) {
     if (debugMode) {
 	console.log('reply for', day);
     }
-    if (status != 3 && role > 0) {
-	r += ' as a ' + rssDescr[rID] + classDescr[cID] + roleDescr[role];
+    if (status != 3) {
+	r += ' as ' + rssDescr[rID] + classDescr[cID] + roleDescr[role];
     }
-    return r + ' for ' + dayNames[day]  + timeDescr[timing] + ' ' + symbols[role];
+    return r + ' for ' + dayNames[day]  + timeDescr[timing] + ' ' + symbols[role] + ', ' + data[indices['nick']] + '!';
 } 
 
 function daySpec(text) {
@@ -310,7 +310,7 @@ function daySpec(text) {
 	return 5;
     } else if (text.includes(' sat')) {
 	return 6;
-    } else if (text.includes(' all') || text.includes(' week') || text.includes(' w') || text.includes(' a')) {
+    } else if (text.includes(' all') || text.includes(' week') || (text.includes(' w') && !text.includes('wa')) || text.includes(' a')) {
 	return ALL;
     }
     return -1; // none specified
@@ -337,9 +337,9 @@ function roleSelection(text) {
 		}
 	    }
 	    if (!skip) {
-		if (spec.startsWith('d')) { // damage, dps, deeps, dmg
+		if (spec.startsWith('d') && !spec.includes('dk')) { // damage, dps, deeps, dmg
 		    return 1;
-		} else if (spec.startsWith('s') || spec.startsWith('u')) { // support, utility
+		} else if ((spec.startsWith('s') || spec.startsWith('u')) && !spec.startsWith('st')) { // support, utility
 		    return 2;
 		} else if (spec.startsWith('h')) { // healer, heals, healing
 		    return 3;
@@ -442,9 +442,9 @@ function currentStatus(name, day) {
 // helper method from https://discordjs.guide/popular-topics/canvas.html#adding-in-text
 const applyText = (canvas, text, available) => {
     const ctx = canvas.getContext('2d');
-    let fontSize = 70;
+    let fontSize = 50;
     do {
-	ctx.font = `${fontSize -= 5}px sans serif`;
+	ctx.font = `${fontSize -= 2}px sans serif`;
     } while (ctx.measureText(text).width >= available);
     return ctx.font;
 };
@@ -461,7 +461,7 @@ async function ack(draw, data, day, message, msg) {
     var url = data[indices['url']];
     var text = name + '\n' + confirm[status]; 
     if (status == 1 || status == 2) {
-	text += '\n as a ' + rssDescr[rID] + classDescr[cID] + roleDescr[role];	
+	text += ' as\n' + rssDescr[rID] + classDescr[cID] + roleDescr[role];	
     }
     if (day != 8) {
 	text += '\nfor ' + dayNames[day]; 
@@ -530,9 +530,9 @@ async function ack(draw, data, day, message, msg) {
 		console.log(icon);
 	    }
 	    try {
-		const roleIcon = await Canvas.loadImage('./' + icon);
+		const classIcon = await Canvas.loadImage('./' + icon);
 		const d = is + margin;
-    		ctx.drawImage(classIcon, margin, d, is, is);
+    		ctx.drawImage(classIcon, width / 3, height - d + 10, is, is);
 	    } catch (e) {
 		console.log('skipping conf class icon', e);
 	    }
@@ -571,7 +571,7 @@ function addResponse(data, day, message, thanks, draw) {
 	console.log('new response for', day);
     }
     var appendix = '';
-    if (data[indices['role']] == 0) {
+    if (data[indices['status']] !=3 && data[indices['role']] == 0) { 
 	appendix = '\n' + roleInfo;
     }
     fs.appendFileSync(filename(day), '\n' + data.join(separator) + '\n', (err) => {
@@ -838,7 +838,7 @@ function manageDefaults(name, nickname, defs, curr, channel) {
 		fs.writeFileSync('roles.log', defaults.join('\n')  + '\n', (err) => {
 		    if (err) throw err;
 		});
-		channel.send('Default role for ' + nickname + ' has been updated as a ' + repl);
+		channel.send('Default role for ' + nickname + ' has been updated as ' + repl);
 		return;
 	    }
 	} 
@@ -848,7 +848,7 @@ function manageDefaults(name, nickname, defs, curr, channel) {
 	fs.writeFileSync('roles.log', defaults.join('\n') + '\n' + name + ' ' + curr['role'] + ' ' + curr['rss'] + ' ' + curr['class'], (err) => {
 	    if (err) throw err;
 	});
-	channel.send('Default for ' + nickname + ' set as a ' + repl);
+	channel.send('Default for ' + nickname + ' set as ' + repl);
 	return;
     } else { // !default was called with no role specified
 	if (defs['role'] != 0) {
@@ -866,7 +866,7 @@ function manageDefaults(name, nickname, defs, curr, channel) {
 		break;
 	    }
 	    set += ' ' + symbols[defs['role']] + ' ' + source[defs['class']];
-	    channel.send('Your default is set as a ' + set);
+	    channel.send('Your default is set as ' + set);
 	    return; // nothing more to do
 	} 
 	channel.send('You should specify which role to set as your default: **d**amage, **s**upport/**u**tility, **h**ealer, or **f**lexible.');
@@ -942,13 +942,13 @@ function process(message) {
 		    }
 		    curr['role'] = defs['role']; // use default whenever none is given
 		}
-		if (curr['rss'] == 0) {
+		if (curr['role'] == defs['role'] && curr['rss'] == 0) {
 		    if (debugMode) {
 			console.log('Using default rss');
 		    }
 		    curr['rss'] = defs['rss']; // use default whenever none is given
 		}
-		if (curr['class'] == 0) {
+		if (curr['role'] == defs['role'] && curr['rss'] == defs['rss'] && curr['class'] == 0) {
 		    if (debugMode) {
 			console.log('Using default class');
 		    }
