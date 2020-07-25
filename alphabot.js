@@ -116,7 +116,7 @@ const style = {0: '#999999', 1: '#00ee00', 2: '#0000cc', 3: '#dd0000'};
 const timeIcon = 'hourglass.png';
 const avatarSize = 64;
 const iconSize = 128;
-const defaultAvatar = 'https://support.discordapp.com/hc/user_images/l12c7vKVRCd-XLIdDkLUDg.png';
+const defaultAvatar = 'https://supporst.discordapp.com/hc/user_images/l12c7vKVRCd-XLIdDkLUDg.png';
 
 loadLogs();
 
@@ -875,6 +875,77 @@ function manageDefaults(name, nickname, defs, curr, channel) {
     }
 }
 
+function signupForSlot(nick, day, slot, clear) {
+    // data = [status, curr['role'], curr['rss'], curr['class'], timing, name, nickname, url]; // RESPONSE FILE SYNTAX
+    var available = fs.readFileSync('slots.txt').toString().trim().split('\n').filter(Boolean);
+    var taken = fs.readFileSync('slots_' + day + '.log').toString().trim().split('\n').filter(Boolean);
+    var mapping = {};
+    var n = 0;
+    var rewrite = false;
+    var resp = '';
+    var prev = '';
+    for (let i = 0; i < taken.length; i++) {
+	let fields = taken[i].split(" ");
+	if (fields.length > 1) {
+	    if (!(fields[0] in mapping)) {
+		if (fields[1] == nick) {
+		    if (slot != 0 || clear) {
+			if (!clear) {
+			    return 'You are already signed up. Please use *!signup slot clear* to eliminate the existing sign-up first.';
+			} else {
+			    rewrite = true;
+			    taken[i] = '';
+			    prev = i;
+			}
+		    }
+		}
+		mapping[fields[0]] = fields[1];
+		n += 1;
+	    }
+	}
+    }
+    console.log(mapping, n);
+    if (rewrite) {
+	fs.writeFileSync('slots_' + day + '.log', taken.join('\n') + '\n', (err) => { 
+	    if (err) throw err;
+	});
+	return 'Your sign-up for slot ' + (prev + 1) + ' has been cleared, ' + nick;
+    }
+    var show = 0;
+    if (n < 8) {
+	show = 8;
+    } else if (n < 12) {
+	show = 12;
+    } else if (n < 16) {
+	show = 16;
+    } else {
+	show = available.length;
+    }
+    if (slot < 1) { // display slots
+	resp = 'The raid slots for ' + dayNames[day] + ' are:\n\n';
+	for (let i = 1; i <= show; i++) {
+	    let is = i + '';
+	    resp += is + '. ' + available[i];
+	    if (i in mapping) {
+		resp += ' **' + mapping[is] + '**';
+	    } else {
+		resp += ' *available*';
+	    }
+	    resp += '\n';
+	}
+	return resp;
+    } else {
+	if (slot in available) {
+	    fs.appendFileSync('slots_' + day + '.log', slot + ' ' + nick + '\n', (err) => {
+		if (err) throw err;
+	    });
+	    return 'You are now signed up for slot ' + slot + ', ' + nick + ' :slight_smile:';
+	} else {
+	    return 'That slot is already taken :cry:';
+	}
+    }
+}
+
 function process(message) {
     var text = message.content.toLowerCase();
     var channel = message.channel;
@@ -993,6 +1064,11 @@ function process(message) {
 		    }
 		    
 		    if (day != ALL) { // one-day response
+			if (text.includes('slot')) {
+			    var slot = parseInt(text.substring(text.indexOf('slot') + 4)) || 0;
+			    channel.send(signupForSlot(nickname, day, slot, text.includes('clear')));
+			    return;
+			} 
 			if (updateStatus(data, day)) { // an update on an existing response
 			    channel.send(reply(data, day));
 			} else { // a new response
