@@ -1,0 +1,20 @@
+Healer Templar Gossamer Remembrance Nova
+MagDPS Warden Harmony VD/CA Burst HOTs
+MagSupport Sorc Offensive Purger Streak Orbs
+MagDPS DK Harmony VD/CA Shifting Lockdowns
+StamDPS Necro/Warden AOE & Execute BoneShield Vigor
+MagSupport Sorc Defensive Purger SiegeShield
+Healer Templar Transmutation Remembrance Nova
+MagDPS Necro Harmony VD/CA Hulk HOTs
+MagDPS Warden Harmony VD/CA AOE HOTs
+MagDPS Necro Harmony VD/CA AOE HOTs
+Healer Necro Olorime Graveyard Totem Grasp
+Sorc/Warden Rapids/Debuffs Negate/Sleet BoneShield Vigor
+Healer Templar/Necro
+SupportSorc Negate HOTs (RR/Vigor)
+MagDPS NB/DK/WardenHarmony VD AOE HOTs
+StamDPS	Necro/Warden Burst Dawnbreaker AOE & Execute BoneShield	Vigor
+Healer Templar/NB/Necro	Gossamer/Transmutation Remembrance HOTs
+MagSupport Sorc/DK Negate/Standard Purge/Orbs/Lockdowns	HOTs
+MagDPS NB/DK/Necro Harmony VD AOE HOTs
+MagDPS NB/DK/Necro Harmony VD AOE HOTs
