@@ -880,7 +880,7 @@ function signupForSlot(nick, day, slot, clear) {
     var available = fs.readFileSync('slots.txt').toString().trim().split('\n').filter(Boolean);
     var taken = fs.readFileSync('slots_' + day + '.log').toString().trim().split('\n').filter(Boolean);
     var mapping = {};
-    var n = 0;
+    var high = 0;
     var rewrite = false;
     var resp = '';
     var prev = '';
@@ -900,11 +900,13 @@ function signupForSlot(nick, day, slot, clear) {
 		    }
 		}
 		mapping[fields[0]] = fields[1];
-		n += 1;
+		let pos = parseInt(fields[0]) - 1;
+		if (pos > high) {
+		    high = pos;
+		}
 	    }
 	}
     }
-    console.log(mapping, n);
     if (rewrite) {
 	fs.writeFileSync('slots_' + day + '.log', taken.join('\n') + '\n', (err) => { 
 	    if (err) throw err;
@@ -912,11 +914,11 @@ function signupForSlot(nick, day, slot, clear) {
 	return 'Your sign-up for slot ' + (prev + 1) + ' has been cleared, ' + nick;
     }
     var show = 0;
-    if (n < 8) {
+    if (high < 8) {
 	show = 8;
-    } else if (n < 12) {
+    } else if (high < 12) {
 	show = 12;
-    } else if (n < 16) {
+    } else if (high < 16) {
 	show = 16;
     } else {
 	show = available.length;
