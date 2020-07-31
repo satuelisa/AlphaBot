@@ -16,7 +16,7 @@ client.on("ready", () => {
 const debugMode = true;
 const { spawnSync } = require('child_process');
 const separator = ' # ';
-const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). Also class (templar, DK, etc.) and primary resource (magicka or stamina) can be specified.\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n';
+const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). Also class (templar, DK, etc.) and primary resource (magicka or stamina) can be specified. You can also write a custom specification indicating any sets, skills, or ultimates you would like to mention by enclosing them in parenthesis.\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n';
 const dateInfo = '\nBy default, you will be responding to the next raid; you can use *Mon Fri Sat* to specify a date, whereas using *all* or *week* refers to the next four raids.\n';
 const earlyLate = '\nYou can also include the words *late* or *early* to indicate if you will be joining late or leaving early (or even both).\n';
 const feedback = '\nIf anything seems broken or unpleasant, just tag *satuelisa* and express your concerns. <:Agswarrior:552592567875928064>'; 
@@ -108,9 +108,9 @@ const prefixList = ["mon", "fri", "sat", "all", "week"];
 const indices = {'status': 0, 'role': 1,
 		 'resource': 2, 'class': 3,
 		 'timing': 4, 'name': 5,
-		 'nick': 6, 'url': 7, 
+		 'nick': 6, 'url': 7, 'specs': 8,
 		 'defName': 0, 'defRole': 1,
-		 'defRss': 2, 'defClass': 3};
+		 'defRss': 2, 'defClass': 3, 'defSpecs': 4};
 const roleIcons = {1: 'dmg.png', 2: 'sup.png', 3: 'heal.png', 4: 'flex.png'};
 const style = {0: '#999999', 1: '#00ee00', 2: '#0000cc', 3: '#dd0000'};
 const timeIcon = 'hourglass.png';
@@ -131,6 +131,16 @@ function removeDuplicates(array) {
 //    embed.setImage('https://elisa.dyndns-web.com/eso/raid_' + day + '.png?nocache=' + new Date().getTime()); // no cache
 //    return embed;
 //}
+
+function formatSpecs(specs) {
+    if (specs == undefined) {
+	specs = '';
+    }
+    if (specs.length > 0) {
+	specs = ' (' + specs + ') ';
+    }
+    return specs;
+}
 
 async function collage(channel, resp, day, text) {
     var n = resp.length;
@@ -173,6 +183,9 @@ async function collage(channel, resp, day, text) {
 	var timing = parseInt(userData[indices['timing']]);
 	var nickname = userData[indices['nick']];
 	var url = userData[indices['url']];
+	if (userData.length > indices['specs']) {
+	    specs = userData[indices['specs']];
+	}
 	console.log(url);
 	if (url.includes('undefined')) {
 	    url = defaultAvatar;
@@ -295,13 +308,14 @@ function reply(data, day) {
     var rID = data[indices['resource']];
     var timing = data[indices['timing']];
     var r = 'You are *' + confirm[status] + '*';
+    var specs = formatSpecs(data[indices['specs']]);
     if (debugMode) {
 	console.log('reply for', day);
     }
     if (status != 3) {
 	r += ' as ' + rssDescr[rID] + classDescr[cID] + roleDescr[role];
     }
-    return r + ' for ' + dayNames[day]  + timeDescr[timing] + ' ' + symbols[role] + ', ' + data[indices['nick']] + '!';
+    return r + specs + ' for ' + dayNames[day]  + timeDescr[timing] + ' ' + symbols[role] + ', ' + data[indices['nick']] + '!';
 } 
 
 function daySpec(text) {
@@ -377,6 +391,16 @@ function rssSelection(text) {
     return 0; // unspecified
 }
 
+function specsSelection(text) {
+    var start = text.indexOf('(');
+    var end = text.indexOf(')');
+    if (start + 1 <  end) {
+	return text.substring(start + 1, end);
+    } else {
+	return '';
+    }
+}
+    
 function classSelection(text) {
     var fields = text.split(' ');
     for (var i = 1; i < fields.length; i++) { // scan for role specification
@@ -412,15 +436,19 @@ function classSelection(text) {
 function currentDefault(name) {
     var defaults = fs.readFileSync('roles.log').toString().trim().split('\n').filter(Boolean);
     for (var i = 0; i < defaults.length; i++) {
-	var f = defaults[i].split(' ');
+	var f = defaults[i].split(separator);
 	if (f[indices['defName']] == name) { // default has already been set
 	    var defs = {'role':  parseInt(f[indices['defRole']]),
 			'rss': parseInt(f[indices['defRss']]),
-			'class': parseInt(f[indices['defClass']])};
+			'class': parseInt(f[indices['defClass']]),
+			'specs': ''};
+	    if (f.length > indices['defSpecs']) {
+		defs.specs = f[indices['defSpecs']];
+	    }
 	    return defs;
 	}
     }
-    return {'role': 0, 'rss': 0, 'class': 0};
+    return {'role': 0, 'rss': 0, 'class': 0, 'specs': ''};
 }
 
 function currentStatus(name, day) {
@@ -636,6 +664,7 @@ function listing(channel, day, draw) {
 	var cID = parseInt(userData[indices['class']]);
 	var timing = parseInt(userData[indices['timing']]);
 	var nickname = userData[indices['nick']];
+	var specs = formatSpecs(userData[indices['specs']]);
 	var prefix = '';
 	if (status != prev) {
 	    var firstYes = true;
@@ -649,6 +678,7 @@ function listing(channel, day, draw) {
 		list += '__Attending:__\n';
 		firstYes = false;
 	    }
+	    nickname = '**' + nickname + '**'; // boldface	    
 	    prefix = i + '. ';
 	    i++;
 	    break;
@@ -663,7 +693,7 @@ function listing(channel, day, draw) {
 	    if (firstNo) {
 		list += '__Unable to attend:__\n';
 		firstNo = false;
-	    }	    
+	    }
 	    nickname = '~~' + nickname + '~~'; // crossed out
 	    role = 5;
 	    break;
@@ -680,7 +710,7 @@ function listing(channel, day, draw) {
 	    source = stamSymbols;
 	    break;
 	}
-	list += prefix + symbols[role] + ' ' + source[cID] + ' ' + nickname + timeDescr[timing] + '\n';
+	list += prefix + symbols[role] + ' ' + source[cID] + ' ' + nickname + specs + timeDescr[timing] + '\n';
     }
     if (draw) {
 	collage(channel, resp, day, list);
@@ -806,7 +836,7 @@ function manageToons(name, nickname, channel, text) {
 
 function manageDefaults(name, nickname, defs, curr, channel) {
     if (curr['role'] != 0) {
-	if (defs['role'] == curr['role'] && defs['class'] == curr['class'] && defs['rss'] == curr['rss']) {
+	if (defs['role'] == curr['role'] && defs['class'] == curr['class'] && defs['rss'] == curr['rss'] && defs['specs'] == curr['specs']) {
 	    channel.send('You had already set that as your default.');
 	    return;
 	}
@@ -835,18 +865,20 @@ function manageDefaults(name, nickname, defs, curr, channel) {
 	for (; i < defaults.length; i++) {
 	    var f = defaults[i].split(' ');
 	    if (f[indices['defName']] == name) { // entry to replace
-		defaults[i] = name + ' ' + curr['role'] + ' ' + curr['rss'] + ' ' + curr['class']; // DEFAULT FILE SYNTAX: <name> <role> <rss> <class>
+		// DEFAULT FILE SYNTAX: <name> <role> <rss> <class> <specs>
+		defaults[i] = [name, curr['role'], curr['rss'], curr['class'], curr['specs']].join(separator); 
 		fs.writeFileSync('roles.log', defaults.join('\n')  + '\n', (err) => {
 		    if (err) throw err;
 		});
-		channel.send('Default role for ' + nickname + ' has been updated as ' + repl);
+		channel.send('Default role for ' + nickname + ' has been updated as ' + repl + formatSpecs(curr['specs']));
 		return;
 	    }
 	} 
 	if (debugMode) {
 	    console.log('default append');
 	}
-	fs.writeFileSync('roles.log', defaults.join('\n') + '\n' + name + ' ' + curr['role'] + ' ' + curr['rss'] + ' ' + curr['class'], (err) => {
+	var data = [name, curr['role'], curr['rss'], curr['class'], curr['specs']];
+	fs.writeFileSync('roles.log', defaults.join('\n') + '\n' + data.join(separator), (err) => {
 	    if (err) throw err;
 	});
 	channel.send('Default for ' + nickname + ' set as ' + repl);
@@ -866,7 +898,8 @@ function manageDefaults(name, nickname, defs, curr, channel) {
 		source = stamSymbols;
 		break;
 	    }
-	    set += ' ' + symbols[defs['role']] + ' ' + source[defs['class']];
+	    var specs = formatSpecs(defs['specs']);
+	    set += ' ' + symbols[defs['role']] + ' ' + source[defs['class']] + specs;
 	    channel.send('Your default is set as ' + set);
 	    return; // nothing more to do
 	} 
@@ -981,7 +1014,8 @@ function process(message) {
 	}
 	var curr = {'role': roleSelection(text),
 		    'rss': rssSelection(text),
-		    'class': classSelection(text)};
+		    'class': classSelection(text),
+		    'specs': specsSelection(text)};
 	var defs = currentDefault(name);
 	if (debugMode) {
 	    console.log(text);
@@ -1029,6 +1063,9 @@ function process(message) {
 			console.log('Using default class');
 		    }
 		    curr['class'] = defs['class']; // use default whenever none is given
+		    if (curr['specs'].length == 0) { // also use default specs if there was none and the other data matches
+			curr['specs'] = defs['specs'];
+		    }
 		}
 		var status = 0;
 		var timing = 0;
@@ -1059,7 +1096,7 @@ function process(message) {
 		    if (url == undefined) {
 			url = "undefined";
 		    }
-		    var data = [status, curr['role'], curr['rss'], curr['class'], timing, name, nickname, url]; // RESPONSE FILE SYNTAX
+		    var data = [status, curr['role'], curr['rss'], curr['class'], timing, name, nickname, url, curr['specs']]; // RESPONSE FILE SYNTAX
 		    var appendix = '';
 		    if (specDate == -1) { // no date was specified
 			appendix = '\nYou have responded for the *next raid* which is on ' + dayNames[day] + '; to specify a date, include one of Mon Fri Sat in your command.';
