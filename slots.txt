@@ -1,7 +1,9 @@
 Healer-Templar Gossamer/Winter-Remembrance/Nova
 MagDPS-Warden Harmony VD/CA/Bal/Malacath-Meteor/Nortern
-MagSupport-Sorc(Offensive) -Negate/Purger/Orbs
-MagDPS DK Harmony VD/CA Shifting Lockdowns
+MagDPS-Necro Harmony VD/CA/Bal/Malacath-Hulk/Resurect
+MagSupport-Sorc(Offensive) Curse/Merit-Negate/Purger/Orbs
+Healer-Templar Hiti/Hollow-Barrier/Nova
+MagDPS DK Harmony VD/CA/Grot/Malacath- Shifting/Shifting
 StamDPS Necro/Warden AOE & Execute BoneShield Vigor
 MagSupport Sorc Defensive Purger SiegeShield
 Healer Templar Transmutation Remembrance Nova
