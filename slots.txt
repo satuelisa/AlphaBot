@@ -1,6 +1,6 @@
-Healer Templar Gossamer Remembrance Nova
-MagDPS Warden Harmony VD/CA Burst HOTs
-MagSupport Sorc Offensive Purger Streak Orbs
+Healer-Templar Gossamer/Winter-Remembrance/Nova
+MagDPS-Warden Harmony VD/CA/Bal/Malacath-Meteor/Nortern
+MagSupport-Sorc(Offensive) -Negate/Purger/Orbs
 MagDPS DK Harmony VD/CA Shifting Lockdowns
 StamDPS Necro/Warden AOE & Execute BoneShield Vigor
 MagSupport Sorc Defensive Purger SiegeShield
