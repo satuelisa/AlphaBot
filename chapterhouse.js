@@ -54,26 +54,26 @@ const roleNames = {0: '', 1: 'damage dealer', 2: 'support/utility', 3: 'healer',
 // </ TOON SPECS>
 
 const classSymbols = {0: ':question:',
-		      1: 'Templar',
-		      2: 'Sorc',
-		      3: 'DK',
-		      4: 'NB',
-		      5: 'Necro',
-		      6: 'Warden'}
+		      1: '<:templar:739912569241731275>',
+		      2: '<:sorc:739912569476874301>',
+		      3: '<:dk:739912569443319960>',
+		      4: '<:nb:739912569392857170>',
+		      5: '<:necro:739912569485131777>',
+		      6: '<:warden:739912569241862286>'}
 const magSymbols = {0: ':blue_circle:',
-		    1: 'Magplar',
-		    2: 'Magsorc',
-		    3: 'MagDK',
-		    4: 'Magblade',
-		    5: 'Magcro',
-		    6: 'Magden'}
+		    1: '<:magplar:739912569531138098>',
+		    2: '<:magsorc:739912569631932537>',
+		    3: '<:magdk:739912569632063538>',
+		    4: '<:magblade:739912569510297629>',
+		    5: '<:magcro:739912569287999489>',
+		    6: '<:magden:739912569460097169>'}
 const stamSymbols = {0: ':green_circle:',
-		    1: 'Stamplar',
-		    2: 'Stamsorc',
-		    3: 'StamDK',
-		    4: 'Stamblade',
-		    5: 'Stamcro',
-		    6: 'Stamden'}
+		    1: '<:stamplar:739912569715949639>',
+		    2: '<:stamsorc:739912569602441371>',
+		    3: '<:stamdk:739912569632063558>',
+		    4: '<:stamblade:739912569195724821>',
+		    5: '<:stamcro:739912569564954784>',
+		    6: '<:stamden:739912569262964798>'}
 
 const timeDescr = {0: '',
 		   1: ' *[joining late, leaving early]* ',
