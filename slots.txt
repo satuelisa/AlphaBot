@@ -4,16 +4,16 @@ MagDPS-Necro Harmony VD/CA/Bal/Malacath-Hulk/Resurrect
 MagSupport-Sorc(Offensive) Curse/Merit-Negate/Purger/Orbs
 Healer-Templar Hiti/Hollow-Barrier/Nova
 MagDPS-DK Harmony VD/CA/Grot/Malacath-Shifting/Shifting
-StamDPS-Necro/Warden (WIP)-DB-Hulk/Barrier
+StamDPS-Necro/Warden (VIP)-DB-Hulk/Barrier
 MagSupport-Sorc(Defensive) Curse/Merit-Negate/Purger/Orbs
 Healer-Necro Olo/Hollow-Hulk/Resurrect
 MagDPS-Necro Harmony VD/CA/Bal/Malacath-Hulk/Resurrect
 MagDPS-Warden (or NB) Harmony VD/CA/Bal/Malacath-Meteor/Northern
-StamSupport-Sorc/Warden(WIP)-Rapids/Negate/Sleet
+StamSupport-Sorc/Warden(VIP)-Rapids/Negate/Sleet
 Healer-Necro/Templar-Transmutation/Hiti-Barrier/Nova(Hulk/Resurrect)
 MagDPS-DK/Warden/NB Harmony VD/CA/Grot/Malacath-(Class Ulti)
-SorcSupport-(Offensive Stam/Mag)(WIP)-Faster Negate
-StamDPS-Necro/Warden (WIP)-DB-Hulk/Barrier
+SorcSupport-(Offensive Stam/Mag)(VIP)-Faster Negate
+StamDPS-Necro/Warden (VIP)-DB-Hulk/Barrier
 Healer-Templar/NB/Necro Gossamer/Transmutation-Remembrance/Nova
 MagDPS-DK Harmony VD/CA/Grot/Malacath-Shifting/Shifting
 MagDPS-DK/Warden/NB Harmony VD/CA/Grot/Malacath-(Class Ulti)
