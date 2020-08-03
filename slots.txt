@@ -14,7 +14,7 @@ Healer-Necro/Templar-Transmutation/Hiti-Barrier/Nova(Hulk/Resurect)
 MagDPS-DK/Warden/NB Harmony VD/CA/Grot/Malacath-(Class Ulti)
 SorcSupport-(Offensive Stam/Mag)(WIP)-Faster Negate
 StamDPS-Necro/Warden (WIP)-DB-Hulk/Barrier
-Healer-Templar/NB/Necro	Gossamer/Transmutation-Remembrance/Nova
+Healer-Templar/NB/Necro    Gossamer/Transmutation-Remembrance/Nova
 MagDPS-DK Harmony VD/CA/Grot/Malacath-Shifting/Shifting
 MagDPS-DK/Warden/NB Harmony VD/CA/Grot/Malacath-(Class Ulti)
 MagSupport-Sorc(Offensive) Curse/Merit-Negate/Purger/Orbs
