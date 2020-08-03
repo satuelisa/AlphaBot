@@ -3,20 +3,18 @@ MagDPS-Warden Harmony VD/CA/Bal/Malacath-Meteor/Nortern
 MagDPS-Necro Harmony VD/CA/Bal/Malacath-Hulk/Resurect
 MagSupport-Sorc(Offensive) Curse/Merit-Negate/Purger/Orbs
 Healer-Templar Hiti/Hollow-Barrier/Nova
-MagDPS DK Harmony VD/CA/Grot/Malacath- Shifting/Shifting
-StamDPS Necro/Warden AOE & Execute BoneShield Vigor
-MagSupport Sorc Defensive Purger SiegeShield
-Healer Templar Transmutation Remembrance Nova
-MagDPS Necro Harmony VD/CA Hulk HOTs
-MagDPS Warden Harmony VD/CA AOE HOTs
-MagDPS Necro Harmony VD/CA AOE HOTs
-Healer Necro Olorime Graveyard Totem Grasp
-Sorc/Warden Rapids/Debuffs Negate/Sleet BoneShield Vigor
-Healer Templar/Necro
-SupportSorc Negate HOTs (RR/Vigor)
-MagDPS NB/DK/WardenHarmony VD AOE HOTs
-StamDPS	Necro/Warden Burst Dawnbreaker AOE & Execute BoneShield	Vigor
-Healer Templar/NB/Necro	Gossamer/Transmutation Remembrance HOTs
-MagSupport Sorc/DK Negate/Standard Purge/Orbs/Lockdowns	HOTs
-MagDPS NB/DK/Necro Harmony VD AOE HOTs
-MagDPS NB/DK/Necro Harmony VD AOE HOTs
+MagDPS-DK Harmony VD/CA/Grot/Malacath-Shifting/Shifting
+StamDPS-Necro/Warden (WIP)-DB-Hulk/Barrier
+MagSupport-Sorc(Defensive) Curse/Merit-Negate/Purger/Orbs
+Healer-Necro Olo/Hollow-Hulk/Resurect
+MagDPS-Necro Harmony VD/CA/Bal/Malacath-Hulk/Resurect
+MagDPS-Warden (or NB) Harmony VD/CA/Bal/Malacath-Meteor/Nortern
+StamSupport-Sorc/Warden(WIP)-Rapids/Negate/Sleet
+Healer-Necro/Templar-Transmutation/Hiti-Barrier/Nova(Hulk/Resurect)
+MagDPS-DK/Warden/NB Harmony VD/CA/Grot/Malacath-(Class Ulti)
+SorcSupport-(Offensive Stam/Mag)(WIP)-Faster Negate
+StamDPS-Necro/Warden (WIP)-DB-Hulk/Barrier
+Healer-Templar/NB/Necro	Gossamer/Transmutation-Remembrance/Nova
+MagDPS-DK Harmony VD/CA/Grot/Malacath-Shifting/Shifting
+MagDPS-DK/Warden/NB Harmony VD/CA/Grot/Malacath-(Class Ulti)
+MagSupport-Sorc(Offensive) Curse/Merit-Negate/Purger/Orbs
