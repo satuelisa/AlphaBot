@@ -13,21 +13,22 @@ client.on("ready", () => {
 
 'use strict';
 
-const debugMode = true;
+const debugMode =  false;
 const { spawnSync } = require('child_process');
 const separator = ' # ';
-const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). Also class (templar, DK, etc.) and primary resource (magicka or stamina) can be specified. You can also write a custom specification indicating any sets, skills, or ultimates you would like to mention by enclosing them in parenthesis.\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n';
-const dateInfo = '\nBy default, you will be responding to the next raid; you can use *Mon Tue Wed Thu Fri* to specify a date, whereas using *all* or *week* refers to the next five raids.\n';
+const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). Also class (templar, DK, etc.) and primary resource (magicka or stamina) can be specified. You can also write a custom specification indicating any sets, skills, or ultimates you would like to mention by enclosing them in parenthesis.\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n\nIf your are signing up for **Core B**, please include the string *b* in the signup command.\n';
+const dateInfo = '\nBy default, you will be responding to the next raid; you can use *Mon Tue Wed Thu Fri Sat* to specify a date, whereas using *all* or *week* refers to the next six raids for Core A and the next two for Core B that runs on Wednesdays and Fridays.\n';
 const earlyLate = '\nYou can also include the words *late* or *early* to indicate if you will be joining late or leaving early (or even both).\n';
 const feedback = '\nIf anything seems broken or unpleasant, just tag *satuelisa* and express your concerns. <:Agswarrior:552592567875928064>'; 
 const options = roleInfo + earlyLate + dateInfo + '\nUse __!**sfh**__ to see this help text and __!**r**aid__ to just view the sign-ups.';
 const help = '**Available commands:**\n__!**s**ignup__ if you will attend the next raid\n!__**m**aybe__ if you might be able to attend\n!__**d**ecline__ if you will not make it\n' + options;
 
-const symbols = {0: ':confused:', 1: '**[D]**',
-		 2: '**[S]**',
-		 3: '**[H]**',
-		 4: '**[F]**',
-		 5: '**[-]**'}; // unavailable
+const symbols = {0: ':confused:', // unspecified
+		 1: ':crossed_swords:', // dps
+		 2: ':shield:', // support 
+		 3: ':hospital:', // heals
+		 4: ':mechanical_arm:', // flex
+		 5: ':no_entry_sign:'}; // unavailable
 const roleDescr = {0: 'surprise role', 1: 'damage', 2: 'support', 3: 'healer', 4: 'flexible spot'};
 const classDescr = {0: '', 1: 'templar ', 2: 'sorc ', 3: 'DK ', 4: 'NB ', 5: 'necro ', 6: 'warden '};
 const rssDescr = {0: '', 1: 'mag ', 2: 'stam '}
@@ -80,20 +81,27 @@ const timeDescr = {0: '',
 		   2: ' *[joining late]* ',
 		   3: ' *[leaving early]* '};
 const confirm = {1: 'confirmed', 2: 'possible', 3: 'unavailable'};
-const raidNights = [1, 2, 3, 4, 5]; // Mon through Fri
-const nextRaid = {0: 1, 1: 2, 2: 3, 3: 4, 4: 5, 5: 1, 6: 1};
+const raidNights = [1, 2, 3, 4, 5, 6]; // Mon through Sat
+const nextRaid = {0: 1, 1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 1}; // all except Sunday
 const dayNames = {1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday',
-		  6: 'Saturday', 7: 'Sunday', 8: 'the next five raids'};
+		  6: 'Saturday', 7: 'Sunday', 8: 'the next round of raids'};
 const ALL = 8;
+
+function coreB(day) {
+    return (day == 3 || day == 5 || day == ALL); // Wed & Fri
+}
+
 const stopWords = ["for", "as", "a", "an", "the", "of", "raid", "up",
 		   "tonight", "today", "yo", "me", "sign", "up", "gift", "gods", "to", "please"];
 const prefixList = ["mon", "tue", "wed", "thu", "fri", "sat", "sun", "all", "week"];
 const indices = {'status': 0, 'role': 1,
 		 'resource': 2, 'class': 3,
-		 'timing': 4, 'name': 5,
-		 'nick': 6, 'url': 7, 'specs': 8,
+		 'timing': 4, 'core': 5,
+		 'name': 6, 'nick': 7,
+		 'url': 8, 'specs': 9,
 		 'defName': 0, 'defRole': 1,
-		 'defRss': 2, 'defClass': 3, 'defSpecs': 4};
+		 'defRss': 2, 'defClass': 3,
+		 'defCore': 4, 'defSpecs': 5};
 loadLogs();
 
 function removeDuplicates(array) {
@@ -139,6 +147,7 @@ function reply(data, day) {
     var cID = data[indices['class']];
     var rID = data[indices['resource']];
     var timing = data[indices['timing']];
+    var core = data[indices['core']];
     var r = 'You are *' + confirm[status] + '*';
     var specs = formatSpecs(data[indices['specs']]);
     if (debugMode) {
@@ -147,7 +156,7 @@ function reply(data, day) {
     if (status != 3) {
 	r += ' as ' + rssDescr[rID] + classDescr[cID] + roleDescr[role];
     }
-    return r + specs + ' for ' + dayNames[day]  + timeDescr[timing] + ' ' +
+    return r + specs + ' for **Core ' + core + '** on ' + dayNames[day]  + timeDescr[timing] + ' ' +
 	symbols[role] + ', ' + data[indices['nick']] + '!';
 } 
 
@@ -280,18 +289,22 @@ function currentDefault(name) {
     var defaults = fs.readFileSync('ch_roles.log').toString().trim().split('\n').filter(Boolean);
     for (var i = 0; i < defaults.length; i++) {
 	var f = defaults[i].split(separator);
-	if (f[indices['defName']] == name) { // default has already been set
+	if (f[indices['defName']] == name) { // a default has already been set
 	    var defs = {'role':  parseInt(f[indices['defRole']]),
 			'rss': parseInt(f[indices['defRss']]),
 			'class': parseInt(f[indices['defClass']]),
+			'core': 'A', // default core when nothing is mentioned
 			'specs': ''};
-	    if (f.length > indices['defSpecs']) {
-		defs.specs = f[indices['defSpecs']];
+	    if (f.length > indices['defCore']) {
+		defs.core = f[indices['defCore']]; // update if there is one
+	    }	    
+	    if (f.length > indices['defSpecs']) { 
+		defs.specs = f[indices['defSpecs']]; // update if there is one
 	    }
 	    return defs;
 	}
     }
-    return {'role': 0, 'rss': 0, 'class': 0, 'specs': ''};
+    return {'role': 0, 'rss': 0, 'class': 0, 'core': 'A', 'specs': ''};
 }
 
 function currentStatus(name, day) {
@@ -299,16 +312,19 @@ function currentStatus(name, day) {
 	console.log('checking current status', name, day);
     }
     var resp = raid[day];
-    for (var i = 0; i < resp.length; i++) {
-	var f = resp[i].split(separator);
-	if (f[indices['name']] == name) {
-	    var curr = {'role': parseInt(f[indices['role']]),
-			'rss': parseInt(f[indices['resource']]),
-			'class': parseInt(f[indices['class']])};
-	    return curr;
+    if (resp != undefined) {
+	for (var i = 0; i < resp.length; i++) {
+	    var f = resp[i].split(separator);
+	    if (f[indices['name']] == name) {
+		var curr = {'role': parseInt(f[indices['role']]),
+			    'core': parseInt(f[indices['core']]),
+			    'rss': parseInt(f[indices['resource']]),
+			    'class': parseInt(f[indices['class']])};
+		return curr;
+	    }
 	}
     }
-    return {'role': 0, 'rss': 0, 'class': 0};    
+    return {'role': 0, 'rss': 0, 'class': 0, 'core': 'A'};    
 }
 
 // helper method from https://discordjs.guide/popular-topics/canvas.html#adding-in-text
@@ -330,25 +346,20 @@ async function ack(data, day, message, msg) {
     var role = data[indices['role']];
     var rID = data[indices['resource']];
     var cID = data[indices['class']];
+    var core = data[indices['core']];
     var url = data[indices['url']];
     var text = name + '\n' + confirm[status]; 
     if (status == 1 || status == 2) {
 	text += ' as\n' + rssDescr[rID] + classDescr[cID] + roleDescr[role];	
     }
     if (day != 8) {
-	text += '\nfor ' + dayNames[day]; 
-    }
-    if (debugMode) {
-	console.log(text);
+	text += '\nfor core ' + core + ' on ' + dayNames[day]; 
     }
     message.channel.send(msg);
     return;
 }
 
 function addResponse(data, day, message, thanks) {
-    if (debugMode) {
-	console.log('new response for', day);
-    }
     var appendix = '';
     if (data[indices['status']] !=3 && data[indices['role']] == 0) { 
 	appendix = '\n' + roleInfo;
@@ -370,21 +381,24 @@ function updateStatus(data, day) {
     var role = data[indices['role']];
     var rID = data[indices['resource']];
     var cID = data[indices['class']];
+    var core = data[indices['core']];
     var timing = data[indices['timing']];
     if (debugMode) {
 	console.log('checking', name, 'for', day);
     }
-    for (var i = 0; i < resp.length; i++) {
-	var f = resp[i].split(separator);
-	if (f[indices['name']] == name) {
-	    if (debugMode) {
-		console.log('match of', name, 'for', day, '\n', f);
-	    }	    
-	    resp[i] = data.join(separator); // rewrite entry and file
-	    fs.writeFileSync(filename(day), resp.join('\n') + '\n', (err) => { 
-		if (err) throw err;
-	    });
-	    return true;
+    if (resp != undefined) {
+	for (var i = 0; i < resp.length; i++) {
+	    var f = resp[i].split(separator);
+	    if (f[indices['name']] == name) {
+		if (debugMode) {
+		    console.log('match of', name, 'for', day, '\n', f);
+		}	    
+		resp[i] = data.join(separator); // rewrite entry and file
+		fs.writeFileSync(filename(day), resp.join('\n') + '\n', (err) => { 
+		    if (err) throw err;
+		});
+		return true;
+	    }
 	}
     }
     return false; // no match
@@ -404,8 +418,12 @@ function listing(channel, day) {
 	count = '';
     }
     var list = 'For **' + dayNames[day] + '**, we have ' + singular +  count + ' response' + plural + ':\n'; 
+    var cores = { 'A': '\n**Core A**\n', 'B': '\n**Core B**\n'};
     var i = 1;
     var prev = 0;
+    var firstYes = {'A': false, 'B': false};
+    var firstMaybe = {'A': false, 'B': false};
+    var firstNo = {'A': false, 'B': false};
     for (r in resp) {
 	var userData = resp[r].split(separator);
 	var status = parseInt(userData[indices['status']]);
@@ -414,18 +432,23 @@ function listing(channel, day) {
 	var cID = parseInt(userData[indices['class']]);
 	var timing = parseInt(userData[indices['timing']]);
 	var nickname = userData[indices['nick']];
+	var core = userData[indices['core']];
+	if (core == undefined) {
+	    core = 'A'; // default
+	}
+	console.log(nickname, core);
 	var specs = formatSpecs(userData[indices['specs']]);
 	var prefix = '';
 	if (status != prev) {
-	    var firstYes = true;
-	    var firstMaybe = true;
-	    var firstNo = true;
+	    firstYes[core] = true;
+	    firstMaybe[core] = true;
+	    firstNo[core] = true;
 	    prev = status;
 	}
 	switch (status) {
 	case 1: // attendee
-	    if (firstYes) {
-		list += '__Attending:__\n';
+	    if (firstYes[core]) {
+		cores[core] += '__Attending:__\n';
 		firstYes = false;
 	    }
 	    nickname = '**' + nickname + '**'; // boldface	    
@@ -433,16 +456,16 @@ function listing(channel, day) {
 	    i++;
 	    break;
 	case 2: // maybe
-	    if (firstMaybe) {
-		list += '__Possibly attending:__\n';
-		firstMaybe = false;
+	    if (firstMaybe[core]) {
+		cores[core] += '__Possibly attending:__\n';
+		firstMaybe[core] = false;
 	    }	    
 	    prefix = '? ';
 	    break;
 	case 3: // declined
-	    if (firstNo) {
-		list += '__Unable to attend:__\n';
-		firstNo = false;
+	    if (firstNo[core]) {
+		cores[core] += '__Unable to attend:__\n';
+		firstNo[core] = false;
 	    }
 	    nickname = '~~' + nickname + '~~'; // crossed out
 	    role = 5;
@@ -460,9 +483,13 @@ function listing(channel, day) {
 	    source = stamSymbols;
 	    break;
 	}
-	list += prefix + symbols[role] + ' ' + source[cID] + ' ' + nickname + specs + timeDescr[timing] + '\n';
+	cores[core] += prefix + symbols[role] + ' ' + source[cID] + ' ' + nickname + specs + timeDescr[timing] + '\n';
     }
-    return list;
+    var r = list + cores['A'];
+    if (coreB(day)) {
+	r += cores['B'];
+    }
+    return r;
 }
 
 function listRaid(channel, day) {
@@ -473,17 +500,16 @@ function listRaid(channel, day) {
 	text = listing(channel, day);
     }
     if (channel != undefined && text != undefined) {
-	console.log(channel, text);
 	channel.send(text);
     } 
     return text;
 }
 
-
 function manageDefaults(name, nickname, defs, curr, channel) {
     if (curr['role'] != 0) {
 	if (defs['role'] == curr['role'] && defs['class'] == curr['class']
-	    && defs['rss'] == curr['rss'] && defs['specs'] == curr['specs']) {
+	    && defs['rss'] == curr['rss'] && defs['core'] == curr['core']
+	    && defs['specs'] == curr['specs']) {
 	    channel.send('You had already set that as your default.');
 	    return;
 	}
@@ -500,10 +526,7 @@ function manageDefaults(name, nickname, defs, curr, channel) {
 	    source = stamSymbols;
 	    break;
 	}
-	repl += ' ' + symbols[curr['role']] + ' ' + source[curr['class']];
-	if (debugMode) {
-            console.log('current ' + repl);
-        }
+	repl += ' ' + symbols[curr['role']] + ' ' + source[curr['class']] + ' for core ' + curr['core'];
 	var defaults = fs.readFileSync('roles.log').toString().trim().split('\n').filter(Boolean);
 	if (debugMode) {
 	    console.log('default update');
@@ -512,8 +535,8 @@ function manageDefaults(name, nickname, defs, curr, channel) {
 	for (; i < defaults.length; i++) {
 	    var f = defaults[i].split(' ');
 	    if (f[indices['defName']] == name) { // entry to replace
-		// DEFAULT FILE SYNTAX: <name> <role> <rss> <class> <specs>
-		defaults[i] = [name, curr['role'], curr['rss'], curr['class'], curr['specs']].join(separator); 
+		// DEFAULT FILE SYNTAX: <name> <role> <rss> <class> <core> <specs> 
+		defaults[i] = [name, curr['role'], curr['rss'], curr['class'], curr['core'], curr['specs']].join(separator); 
 		fs.writeFileSync('roles.log', defaults.join('\n')  + '\n', (err) => {
 		    if (err) throw err;
 		});
@@ -521,10 +544,7 @@ function manageDefaults(name, nickname, defs, curr, channel) {
 		return;
 	    }
 	} 
-	if (debugMode) {
-	    console.log('default append');
-	}
-	var data = [name, curr['role'], curr['rss'], curr['class'], curr['specs']];
+	var data = [name, curr['role'], curr['rss'], curr['class'], curr['core'], curr['specs']];
 	fs.writeFileSync('roles.log', defaults.join('\n') + '\n' + data.join(separator), (err) => {
 	    if (err) throw err;
 	});
@@ -580,14 +600,16 @@ function process(message) {
 	    nickname = name.split('#')[0]; 
 	}
 	let url = message.author.displayAvatarURL();
+	var core = 'A';
+	if (text.includes(' b ') || text.endsWith(' b')) {
+	    core = 'B';
+	}
 	var curr = {'role': roleSelection(text),
 		    'rss': rssSelection(text),
 		    'class': classSelection(text),
-		    'specs': specsSelection(text)};
+		    'specs': specsSelection(text),
+		    'core': core};
 	var defs = currentDefault(name);
-	if (debugMode) {
-	    console.log(text);
-	}
 	if (text.startsWith('!def')) { // default step requested with !default or !def
 	    manageDefaults(name, nickname, defs, curr, channel);
 	} else { // response or raid listing (other raid commands than default)
@@ -649,20 +671,21 @@ function process(message) {
 		} else if (text[1] == 's' || text.includes(' yes ') || text.includes(' confirm')) { 
 		    status = 1; // signup
 		} else {
-		    if (debugMode) {
-			console.log(text);
-		    }
 		    return;
 		}
 		if (status != 0) { // a valid response
 		    if (curr['role'] == 0 && day != ALL) {
 			curr = currentStatus(name, day); // check if one is set
 		    }
-		    var data = [status, curr['role'], curr['rss'], curr['class'], timing, name, nickname, url, curr['specs']]; // RESPONSE FILE SYNTAX
+		    var data = [status, curr['role'], curr['rss'], curr['class'], timing, curr['core'], name, nickname, url, curr['specs']]; // RESPONSE FILE SYNTAX
 		    var appendix = '';
 		    if (specDate == -1) { // no date was specified
 			appendix = '\nYou have responded for the *next raid* which is on ' +
 			    dayNames[day] + '; to specify a date, include a weekday in your command.';
+		    }
+		    if (data[indices['core']] == 'B' && !coreB(day)) {
+			message.channel.send('Sorry, but **Core B** only runs on Wednesdays and Fridays :frowning2:');
+			return;
 		    }
 		    if (day != ALL) { // one-day response
 			if (updateStatus(data, day)) { // an update on an existing response
@@ -671,13 +694,12 @@ function process(message) {
 			    addResponse(data, day, message, true);
 			}
 		    } else { // response for all raids
-			if (debugMode) {
-			    console.log('weekly response');
-			}			
 			for (var i = 0; i < raidNights.length; i++) {
 			    var rn = raidNights[i];
-			    if (!updateStatus(data, rn)) { // update if exists
-				addResponse(data, rn, message, false, false); // add if it does not
+			    if (data[indices['core']] == 'A' || coreB(rn)) {
+				if (!updateStatus(data, rn)) { // update if exists
+				    addResponse(data, rn, message, false, false); // add if it does not
+				}
 			    }
 			}
 			ack(data, day, message, reply(data, day) + appendix); // thank the user
