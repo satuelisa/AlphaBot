@@ -16,7 +16,7 @@ client.on("ready", () => {
 const debugMode =  false;
 const { spawnSync } = require('child_process');
 const separator = ' # ';
-const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). Also class (templar, DK, etc.) and primary resource (magicka or stamina) can be specified. You can also write a custom specification indicating any sets, skills, or ultimates you would like to mention by enclosing them in parenthesis.\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n\nIf your are signing up for **Core B**, please include the string *b* in the signup command.\n';
+const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). Also class (templar, DK, etc.) and primary resource (magicka or stamina) can be specified. You can also write a custom specification indicating any sets, skills, or ultimates you would like to mention by enclosing them in parenthesis.\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n\nIf your are signing up for **Core B**, please include the string *b* in the signup command. Similarly, to specify **Core A**, just include *a*.\n';
 const dateInfo = '\nBy default, you will be responding to the next raid; you can use *Mon Tue Wed Thu Fri Sat* to specify a date, whereas using *all* or *week* refers to the next six raids for Core A and the next two for Core B that runs on Wednesdays and Fridays.\n';
 const earlyLate = '\nYou can also include the words *late* or *early* to indicate if you will be joining late or leaving early (or even both).\n';
 const feedback = '\nIf anything seems broken or unpleasant, just tag *satuelisa* and express your concerns. <:Agswarrior:552592567875928064>'; 
@@ -91,7 +91,7 @@ function coreB(day) {
     return (day == 3 || day == 5 || day == ALL); // Wed & Fri
 }
 
-const stopWords = ["for", "as", "a", "an", "the", "of", "raid", "up",
+const stopWords = ["for", "as", "an", "the", "of", "raid", "up",
 		   "tonight", "today", "yo", "me", "sign", "up", "gift", "gods", "to", "please"];
 const prefixList = ["mon", "tue", "wed", "thu", "fri", "sat", "sun", "all", "week"];
 const indices = {'status': 0, 'role': 1,
@@ -176,7 +176,7 @@ function daySpec(text) {
     } else if (text.includes(' sun')) {
 	return 7;
     } else if (text.includes(' all') || text.includes(' week')
-	       || (text.includes(' w') && !text.includes(' wa') && !text.includes(' wi')) || text.includes(' a')) {
+	       || (text.includes(' w') && !text.includes(' wa') && !text.includes(' wi'))) {
 	return ALL;
     }
     return -1; // none specified
@@ -293,11 +293,8 @@ function currentDefault(name) {
 	    var defs = {'role':  parseInt(f[indices['defRole']]),
 			'rss': parseInt(f[indices['defRss']]),
 			'class': parseInt(f[indices['defClass']]),
-			'core': 'A', // default core when nothing is mentioned
-			'specs': ''};
-	    if (f.length > indices['defCore']) {
-		defs.core = f[indices['defCore']]; // update if there is one
-	    }	    
+			'core': f[indices['defCore']],
+			'specs': 'no sets/skills specified'};
 	    if (f.length > indices['defSpecs']) { 
 		defs.specs = f[indices['defSpecs']]; // update if there is one
 	    }
@@ -353,7 +350,7 @@ async function ack(data, day, message, msg) {
 	text += ' as\n' + rssDescr[rID] + classDescr[cID] + roleDescr[role];	
     }
     if (day != 8) {
-	text += '\nfor core ' + core + ' on ' + dayNames[day]; 
+	text += '\nfor **Core ' + core + '** on ' + dayNames[day]; 
     }
     message.channel.send(msg);
     return;
@@ -383,9 +380,6 @@ function updateStatus(data, day) {
     var cID = data[indices['class']];
     var core = data[indices['core']];
     var timing = data[indices['timing']];
-    if (debugMode) {
-	console.log('checking', name, 'for', day);
-    }
     if (resp != undefined) {
 	for (var i = 0; i < resp.length; i++) {
 	    var f = resp[i].split(separator);
@@ -526,26 +520,26 @@ function manageDefaults(name, nickname, defs, curr, channel) {
 	    source = stamSymbols;
 	    break;
 	}
-	repl += ' ' + symbols[curr['role']] + ' ' + source[curr['class']] + ' for core ' + curr['core'];
-	var defaults = fs.readFileSync('roles.log').toString().trim().split('\n').filter(Boolean);
+	repl += ' ' + symbols[curr['role']] + ' ' + source[curr['class']] + ' for **Core ' + curr['core'] + '**';
+	var defaults = fs.readFileSync('ch_roles.log').toString().trim().split('\n').filter(Boolean);
 	if (debugMode) {
 	    console.log('default update');
 	}
+	var data = [name, curr['role'], curr['rss'], curr['class'], curr['core'], curr['specs']];
 	var i = 0;
 	for (; i < defaults.length; i++) {
 	    var f = defaults[i].split(' ');
 	    if (f[indices['defName']] == name) { // entry to replace
 		// DEFAULT FILE SYNTAX: <name> <role> <rss> <class> <core> <specs> 
-		defaults[i] = [name, curr['role'], curr['rss'], curr['class'], curr['core'], curr['specs']].join(separator); 
-		fs.writeFileSync('roles.log', defaults.join('\n')  + '\n', (err) => {
+		defaults[i] = data.join(separator); 
+		fs.writeFileSync('ch_roles.log', defaults.join('\n')  + '\n', (err) => {
 		    if (err) throw err;
 		});
 		channel.send('Default role for ' + nickname + ' has been updated as ' + repl + formatSpecs(curr['specs']));
 		return;
 	    }
 	} 
-	var data = [name, curr['role'], curr['rss'], curr['class'], curr['core'], curr['specs']];
-	fs.writeFileSync('roles.log', defaults.join('\n') + '\n' + data.join(separator), (err) => {
+	fs.writeFileSync('ch_roles.log', defaults.join('\n') + '\n' + data.join(separator), (err) => {
 	    if (err) throw err;
 	});
 	channel.send('Default for ' + nickname + ' set as ' + repl);
@@ -566,11 +560,11 @@ function manageDefaults(name, nickname, defs, curr, channel) {
 		break;
 	    }
 	    var specs = formatSpecs(defs['specs']);
-	    set += ' ' + symbols[defs['role']] + ' ' + source[defs['class']] + specs;
+	    set += ' ' + symbols[defs['role']] + ' ' + source[defs['class']] + specs + ' for **Core ' + defs['core'] + '**';
 	    channel.send('Your default is set as ' + set);
 	    return; // nothing more to do
 	} 
-	channel.send('You should specify which role to set as your default: **d**amage, **s**upport/**u**tility, **h**ealer, or **f**lexible.');
+	channel.send('You should specify, at least, which role to set as your default: **d**amage, **s**upport/**u**tility, **h**ealer, or **f**lexible.');
 	return;
     }
 }
@@ -600,9 +594,11 @@ function process(message) {
 	    nickname = name.split('#')[0]; 
 	}
 	let url = message.author.displayAvatarURL();
-	var core = 'A';
+	var core = undefined;
 	if (text.includes(' b ') || text.endsWith(' b')) {
 	    core = 'B';
+	} else if (text.includes(' a ') || text.endsWith(' a')) {
+	    core = 'A';	    
 	}
 	var curr = {'role': roleSelection(text),
 		    'rss': rssSelection(text),
@@ -614,9 +610,7 @@ function process(message) {
 	    manageDefaults(name, nickname, defs, curr, channel);
 	} else { // response or raid listing (other raid commands than default)
 	    loadLogs();
-	    if (debugMode) {
-		console.log(name, curr['role'], defs['role']);
-	    }
+	    console.log(name, curr['role'], defs['role'], defs['core']);
 	    var specDate = daySpec(text);
 	    var day = raidDate(specDate);
 	    if (text[1] == 'r') { // raid listing requested
@@ -634,6 +628,13 @@ function process(message) {
 		}
 		return;
 	    } else { // a new response has been given with !signup
+		if (core == undefined) {
+		    console.log(name, defs);
+		    curr['core'] = defs['core'];
+		    if (curr['core'] == undefined) {
+			curr['core'] = 'A'; // default
+		    }
+		}
 		if (curr['role'] == 0) {
 		    if (debugMode) {
 			console.log('Using default role');
@@ -647,9 +648,6 @@ function process(message) {
 		    curr['rss'] = defs['rss']; // use default whenever none is given
 		}
 		if (curr['role'] == defs['role'] && curr['rss'] == defs['rss'] && curr['class'] == 0) {
-		    if (debugMode) {
-			console.log('Using default class');
-		    }
 		    curr['class'] = defs['class']; // use default whenever none is given
 		    if (curr['specs'].length == 0) { // also use default specs if there was none and the other data matches
 			curr['specs'] = defs['specs'];
