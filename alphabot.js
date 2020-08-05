@@ -15,9 +15,37 @@ client.on("ready", () => {
 
 const debugMode = true;
 const { spawnSync } = require('child_process');
+
+
+async function chat(message) {
+    var tag = message.author.tag;
+    if (tag.includes('AlphaBot')) { // it me, Mario
+	return;
+    }
+    var usuario =  tag.split('#')[0];
+    var text = message.content.toLowerCase();
+    if (!text.includes('slot')) {
+	message.author.send('Sorry, I only talk about the slot builds by DM.').catch(error => { console.log(tag + ' cannot receive bot DM') });
+	return;
+    }
+    let m = guild.member(message.author);
+    if (!m.roles.cache.find(role => role.name === 'Alpha Squad')) {
+	message.author.send('Sorry, I am only allowed to respond to Alpha Squad members.').catch(error => { console.log(tag + ' cannot receive bot DM') });
+    } else {
+	let start = text.indexOf('slot') + 4;
+	let slot = parseInt(text.substring(start));
+	if (slot > 0 && slot < 21) {
+	    let data = fs.readFileSync('slot' + slot + '.txt').toString().trim();
+	    message.author.send('**Alpha Squad Slot ' + slot + '**\n\n' + data).catch(error => { console.log(tag + ' cannot receive bot DM') });
+	} else {
+	    message.author.send('Sorry, but I only know builds for slots from 1 to 20.').catch(error => { console.log(tag + ' cannot receive bot DM') });
+	}
+    }
+}
+
 const separator = ' # ';
 const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). Also class (templar, DK, etc.) and primary resource (magicka or stamina) can be specified. You can also write a custom specification indicating any sets, skills, or ultimates you would like to mention by enclosing them in parenthesis.\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n';
-const dateInfo = '\nBy default, you will be responding to the next raid; you can use *Mon Fri Sat* to specify a date, whereas using *all* or *week* refers to the next four raids.\n';
+const dateInfo = '\nBy default, you will be responding to the next raid; you can use *Mon Fri Sat* to specify a date, whereas using *all* or *week* refers to the next three raids.\n';
 const earlyLate = '\nYou can also include the words *late* or *early* to indicate if you will be joining late or leaving early (or even both).\n';
 const feedback = '\nIf anything seems broken or unpleasant, just tag *satuelisa* and express your concerns. <:Agswarrior:552592567875928064>'; 
 const options = roleInfo + earlyLate + dateInfo + '\nUse __!**h**ustle__ to see this help text and __!**r**aid__ to just view the sign-ups.';
@@ -95,9 +123,9 @@ const stamIcons = {1: 'stamplar.png',
 		  6: 'stamden.png'}
 
 const timeDescr = {0: '',
-		   1: ' <:time:668502892432457736> *(joining late, leaving early)* ',
-		   2: ' <:time:668502892432457736> *(joining late)* ',
-		   3: ' <:time:668502892432457736>  *(leaving early)* '};
+		   1: ' <:time:668502892432457736> *[joining late, leaving early]* ',
+		   2: ' <:time:668502892432457736> *[joining late]* ',
+		   3: ' <:time:668502892432457736>  *[leaving early]* '};
 const confirm = {1: 'confirmed', 2: 'possible', 3: 'unavailable'};
 const raidNights = [1, 5, 6]; // Mon Fri Sat 
 const nextRaid = {0: 1, 1: 5, 2: 5, 3: 5, 4: 5, 5: 6, 6: 1};
@@ -325,7 +353,8 @@ function daySpec(text) {
 	return 5;
     } else if (text.includes(' sat')) {
 	return 6;
-    } else if (text.includes(' all') || text.includes(' week') || (text.includes(' w') && !text.includes('wa')) || text.includes(' a')) {
+    } else if (text.includes(' all') || text.includes(' week') ||
+	       (text.includes(' w') && !text.includes(' wa') && !text.includes(' wi')) || text.includes(' a')) {
 	return ALL;
     }
     return -1; // none specified
@@ -1133,7 +1162,9 @@ function process(message) {
 
 
 client.on("message", (message) => {
-    if (message.content.startsWith('!')) {
+    if (message.channel instanceof Discord.DMChannel) {
+	chat(message);
+    } else if (message.content.startsWith('!')) {
 	process(message);
     } else {
 	alpaca(message); // for Ags
