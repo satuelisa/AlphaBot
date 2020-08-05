@@ -1,0 +1,20 @@
+This is a **Magicka Templar healer**, a strictly defensive role. The two five-piece sets (both light) are **Winter's Respite** and **Gossamer**, the latter of which will change after the next DLC release.
+https://eso-sets.com/set/winters-respite
+https://eso-sets.com/set/gossamer 
+
+The main ultimate is **Remembrance** and it is important to cast it *ahead of the group* and *interrupt the cast* as the group moves past your location.
+https://eso-skillbook.com/skill/remembrance
+
+The backbar ultimate is **Solar Disturbance** and it is to be used *only* when the group is in no imminent danger; this is **not** an offensive skill.
+https://eso-skillbook.com/skill/solar-disturbance
+
+The main skills include
+
+1) **Illustrious healing** that needs to be recast every four seconds if using the *Master's Restoration staff*.
+https://eso-skillbook.com/skill/illustrious-healing
+
+2) **Radiating regeneration** that needs to be cast often enough to apply one stack on each group member.
+https://eso-skillbook.com/skill/radiating-regeneration
+
+3) **Extended Ritual** that *should not* be cast while initiating a push so as not to mask the defensive synergies.
+https://eso-skillbook.com/skill/extended-ritual
