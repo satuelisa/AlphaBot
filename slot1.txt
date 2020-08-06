@@ -10,10 +10,10 @@ https://eso-skillbook.com/skill/solar-disturbance
 
 The main skills include
 
-1) **Illustrious healing** that needs to be recast every four seconds if using the *Master's Restoration staff*.
+1) **Illustrious Healing** that needs to be recast every four seconds if using the *Master's Restoration staff*.
 https://eso-skillbook.com/skill/illustrious-healing
 
-2) **Radiating regeneration** that needs to be cast often enough to apply one stack on each group member.
+2) **Radiating Regeneration** that needs to be cast often enough to apply one stack on each group member.
 https://eso-skillbook.com/skill/radiating-regeneration
 
 3) **Extended Ritual** that *should not* be cast while initiating a push so as not to mask the defensive synergies.
