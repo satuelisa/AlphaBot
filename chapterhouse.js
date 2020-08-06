@@ -320,13 +320,14 @@ function currentDefault(name) {
 	    var defs = {'role':  parseInt(f[indices['defRole']]),
 			'rss': parseInt(f[indices['defRss']]),
 			'class': parseInt(f[indices['defClass']]),
-			'core': f[indices['defCore']],
+			'core': f[indices['defCore']].trim(),
 			'specs': 'no sets/skills specified'};
+	    console.log(defs)
+	    if (defs['core'] != 'A' && defs['core'] != 'B') {
+		defs['core'] = 'A'; // default
+	    }
 	    if (f.length > indices['defSpecs']) { 
 		defs.specs = f[indices['defSpecs']]; // update if there is one
-	    }
-	    if (defs['core'] != 'A' || defs['core'] != 'B') {
-		defs['core'] = 'A';
 	    }
 	    return defs;
 	}
@@ -638,22 +639,22 @@ function process(message) {
 		    'specs': specsSelection(text),
 		    'core': core};
 	var defs = currentDefault(name);
+	if (core == undefined) {
+	    core = defs['core'];
+	    curr['core'] = core;
+	}
+	if (curr['core'] == undefined) {
+	    console.log('no def core', name, defs);		
+	    curr['core'] = 'A'; // default
+	}
+	if (Number.isNaN(curr['core'])) {
+	    curr['core'] = 'A';
+	}
 	if (text.startsWith('?def')) { // default step requested with !default or !def
 	    manageDefaults(name, nickname, defs, curr, channel);
 	} else { // response or raid listing (other raid commands than default)
 	    loadLogs('A');
 	    loadLogs('B');
-	    if (core == undefined) {
-		console.log('missing core', name, defs);
-		curr['core'] = defs['core'];
-	    }
-	    if (curr['core'] == undefined) {
-		console.log('no def core', name, defs);		
-		curr['core'] = 'A'; // default
-	    }
-	    if (Number.isNaN(curr['core'])) {
-		curr['core'] = 'A';
-	    }
 	    console.log(name, curr['role'], defs['role'], defs['core']);
 	    var specDate = daySpec(text);
 	    console.log('req date', specDate);
