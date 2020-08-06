@@ -18,7 +18,7 @@ const { spawnSync } = require('child_process');
 
 
 async function chat(message) {
-    var tag = message.author.tag;
+    const tag = message.author.tag;
     if (tag.includes('AlphaBot')) { // it me, Mario
 	return;
     }
@@ -28,14 +28,14 @@ async function chat(message) {
 	message.author.send('Sorry, I only talk about the slot builds by DM.').catch(error => { console.log(tag + ' cannot receive bot DM') });
 	return;
     }
-    let m = guild.member(message.author);
+    const m = guild.member(message.author);
     if (!m.roles.cache.find(role => role.name === 'Alpha Squad')) {
 	message.author.send('Sorry, I am only allowed to respond to Alpha Squad members.').catch(error => { console.log(tag + ' cannot receive bot DM') });
     } else {
-	let start = text.indexOf('slot') + 4;
-	let slot = parseInt(text.substring(start));
+	const start = text.indexOf('slot') + 4;
+	const slot = parseInt(text.substring(start));
 	if (slot > 0 && slot < 21) {
-	    let data = fs.readFileSync('slot' + slot + '.txt').toString().trim();
+	    const data = fs.readFileSync('slot' + slot + '.txt').toString().trim();
 	    message.author.send('**Alpha Squad Slot ' + slot + '**\n\n' + data).catch(error => { console.log(tag + ' cannot receive bot DM') });
 	} else {
 	    message.author.send('Sorry, but I only know builds for slots from 1 to 20.').catch(error => { console.log(tag + ' cannot receive bot DM') });
