@@ -15,13 +15,25 @@ client.on("ready", () => {
 
 const debugMode =  false;
 const { spawnSync } = require('child_process');
+
+let coc = fs.readFileSync('ch_coc.txt').toString().trim();
+
+async function thankYouNote(message, info) {
+    var tag = message.author.tag;
+    if (tag.includes('AlphaBot')) { // it me, Mario
+	return;
+    }
+    message.author.send(info + '\nThank you interacting with me.').catch(error => { console.log(tag + ' cannot receive bot DM') });
+}
+
+
 const separator = ' # ';
-const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). Also class (templar, DK, etc.) and primary resource (magicka or stamina) can be specified. You can also write a custom specification indicating any sets, skills, or ultimates you would like to mention by enclosing them in parenthesis.\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n\nIf your are signing up for **Core B**, please include the string *b* in the signup command. Similarly, to specify **Core A**, just include *a*.\n';
-const dateInfo = '\nBy default, you will be responding to the next raid; you can use *Mon Tue Wed Thu Fri Sat* to specify a date, whereas using *all* or *week* refers to the next six raids for Core A and the next two for Core B that runs on Wednesdays and Fridays.\n';
+const roleInfo ='\nThe commands *?signup* and *?maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). Also class (templar, DK, etc.) and primary resource (magicka or stamina) can be specified. You can also write a custom specification indicating any sets, skills, or ultimates you would like to mention by enclosing them in parenthesis.\n\nYou can set a default role with the *?default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n\nIf your are signing up for **Core B**, please include the string *b* in the signup command. Similarly, to specify **Core A**, just include *a*.\n';
+const dateInfo = '\nBy default, you will be responding to the next raid; you can use *Mon Tue Wed Thu Fri Sat Sun* to specify a date, whereas using *all* or *week* refers to the next round of raids for Core A (Friday and Saturday) and the next two for Core B (Wednesday and Friday).\n';
 const earlyLate = '\nYou can also include the words *late* or *early* to indicate if you will be joining late or leaving early (or even both).\n';
 const feedback = '\nIf anything seems broken or unpleasant, just tag *satuelisa* and express your concerns. <:Agswarrior:552592567875928064>'; 
-const options = roleInfo + earlyLate + dateInfo + '\nUse __!**sfh**__ to see this help text and __!**r**aid__ to just view the sign-ups.';
-const help = '**Available commands:**\n__!**s**ignup__ if you will attend the next raid\n!__**m**aybe__ if you might be able to attend\n!__**d**ecline__ if you will not make it\n' + options;
+const options = roleInfo + earlyLate + dateInfo + '\nUse __?**h**__ to see this help text and __?**r**aid__ to just view the sign-ups.';
+const help = '**Available commands:**\n__?**s**ignup__ if you will attend the next raid\n?__**m**aybe__ if you might be able to attend\n?__**d**ecline__ if you will not make it\n' + options;
 
 const symbols = {0: ':confused:', // unspecified
 		 1: ':crossed_swords:', // dps
@@ -80,9 +92,18 @@ const timeDescr = {0: '',
 		   1: ' *[joining late, leaving early]* ',
 		   2: ' *[joining late]* ',
 		   3: ' *[leaving early]* '};
-const confirm = {1: 'confirmed', 2: 'possible', 3: 'unavailable'};
-const raidNights = [1, 2, 3, 4, 5, 6]; // Mon through Sat
-const nextRaid = {0: 1, 1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 1}; // all except Sunday
+
+const confirm = {1: 'confirmed',
+		 2: 'possible',
+		 3: 'unavailable'};
+
+const raidNights = {'A': [5, 6], 
+		    'B': [3, 5],
+		    'both': [3, 5, 6]} 
+
+const nextRaid = {'A': {0: 5, 1: 5, 2: 5, 3: 5, 4: 5, 5: 6, 6: 5},
+		  'B': {0: 3, 1: 3, 2: 3, 3: 5, 4: 5, 5: 3, 6: 3}};
+
 const dayNames = {1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday',
 		  6: 'Saturday', 7: 'Sunday', 8: 'the next round of raids'};
 const ALL = 8;
@@ -102,7 +123,8 @@ const indices = {'status': 0, 'role': 1,
 		 'defName': 0, 'defRole': 1,
 		 'defRss': 2, 'defClass': 3,
 		 'defCore': 4, 'defSpecs': 5};
-loadLogs();
+loadLogs('A');
+loadLogs('B');
 
 function removeDuplicates(array) {
   return array.filter((a, b) => array.indexOf(a) === b)
@@ -123,15 +145,19 @@ function filename(d) {
     return 'ch_' +  d + '.log';
 }
 
-function raidDate(specDate) {
+function raidDate(specDate, core) {
     var date = new Date();
     var weekDay = date.getDay();
-    if (raidNights.includes(weekDay)) {
+    console.log('checking date', core, raidNights[core], specDate in raidNights[core]);
+    if (specDate > -1 && specDate < 8 && !(raidNights[core].includes(specDate))) {
+	return -2; // no raid
+    }
+    if (raidNights[core].includes(weekDay)) {
 	if (date.getHours() < 20) { // before eight on a raid Night
 	    weekDay = ((weekDay - 1) + 7) % 7; // sign up for today (js modulo sucks)
 	}
     }
-    var day = nextRaid[weekDay]; // default is next raid
+    var day = nextRaid[core][weekDay]; // default is next raid
     if (specDate != -1) {
 	day = specDate;
     }
@@ -182,9 +208,10 @@ function daySpec(text) {
     return -1; // none specified
 }
 
-function loadLogs() { // update a global storage
-    for (var i = 0; i < raidNights.length; i++) {
-	var rn = raidNights[i];
+function loadLogs(core) { // update a global storage
+    var rNs = raidNights[core];
+    for (var i = 0; i < rNs.length; i++) {
+	var rn = rNs[i];
 	raid[rn] = fs.readFileSync(filename(rn)).toString().trim().split('\n').filter(Boolean).sort();
     }
     return;
@@ -298,6 +325,9 @@ function currentDefault(name) {
 	    if (f.length > indices['defSpecs']) { 
 		defs.specs = f[indices['defSpecs']]; // update if there is one
 	    }
+	    if (defs['core'] != 'A' || defs['core'] != 'B') {
+		defs['core'] = 'A';
+	    }
 	    return defs;
 	}
     }
@@ -366,7 +396,11 @@ function addResponse(data, day, message, thanks) {
     });
     raid[day].push(data.join(separator));
     if (thanks) {
-    	ack(data, day, message, listing(undefined, day, false, false) + appendix);
+    	ack(data, day, message, listing(undefined, day, false, false));
+	if (data[indices['status']] != 3) {
+	    appendix = coc + '\n' + appendix;
+	}
+	thankYouNote(message, appendix);
     }
     return;
 }
@@ -411,7 +445,7 @@ function listing(channel, day) {
 	singular = 'one';
 	count = '';
     }
-    var list = 'For **' + dayNames[day] + '**, we have ' + singular +  count + ' response' + plural + ':\n'; 
+    var list = '\nFor **' + dayNames[day] + '**, we have ' + singular +  count + ' response' + plural + ':\n'; 
     var cores = { 'A': '\n**Core A**\n', 'B': '\n**Core B**\n'};
     var i = 1;
     var prev = 0;
@@ -574,17 +608,15 @@ function process(message) {
     var channel = message.channel;
     if (!channel.name.includes('sf')) { // ignore other channels
 	return;
-    } else if (channel.name != 'sf-signup') {
+    } else if (!channel.name.includes('sf-signup')) {
 	channel.send('I have been confined to the <#738954578602491946> channel.' +
 		     ' Please talk to me there.')
 	return;
     }
-    if (text.includes('!clear')) {
-	return; // that is for another bot
-    }
-    if (text.startsWith('!sfh')) {
-	channel.send(help);
-    } else if (text.startsWith('!') && 'dsmrt'.includes(text[1])) {	
+    if (text.startsWith('?h')) {
+	thankYouNote(message, help);
+	channel.send('I have sent you instructions by DM :smile:');
+    } else if (text.startsWith('?') && 'dsmrt'.includes(text[1])) {	
 	let user = message.member.user;
 	let name = user.tag;
 	let member = guild.member(message.author);
@@ -606,13 +638,31 @@ function process(message) {
 		    'specs': specsSelection(text),
 		    'core': core};
 	var defs = currentDefault(name);
-	if (text.startsWith('!def')) { // default step requested with !default or !def
+	if (text.startsWith('?def')) { // default step requested with !default or !def
 	    manageDefaults(name, nickname, defs, curr, channel);
 	} else { // response or raid listing (other raid commands than default)
-	    loadLogs();
+	    loadLogs('A');
+	    loadLogs('B');
+	    if (core == undefined) {
+		console.log('missing core', name, defs);
+		curr['core'] = defs['core'];
+	    }
+	    if (curr['core'] == undefined) {
+		console.log('no def core', name, defs);		
+		curr['core'] = 'A'; // default
+	    }
+	    if (Number.isNaN(curr['core'])) {
+		curr['core'] = 'A';
+	    }
 	    console.log(name, curr['role'], defs['role'], defs['core']);
 	    var specDate = daySpec(text);
-	    var day = raidDate(specDate);
+	    console.log('req date', specDate);
+	    var day = raidDate(specDate, curr['core']);
+	    console.log('date match', day);
+	    if (day == -2) {
+		message.channel.send('Sorry, but **Core ' + curr['core'] + '** does not run that day :frowning2:');
+		return;
+	    }
 	    if (text[1] == 'r') { // raid listing requested
 		if (debugMode) {
 		    console.log('listing requested');
@@ -621,20 +671,13 @@ function process(message) {
 		    listRaid(channel, day);
 		} else { // all week requested
 		    var r = 'Showing all responses.\n';
-		    for (var i = 0; i < raidNights.length; i++) {
-			r += listRaid(undefined, raidNights[i], false);
+		    for (var i = 0; i < raidNights['both'].length; i++) {
+			r += listRaid(undefined, raidNights['both'][i], false);
 		    }
 		    channel.send(r);
 		}
 		return;
 	    } else { // a new response has been given with !signup
-		if (core == undefined) {
-		    console.log(name, defs);
-		    curr['core'] = defs['core'];
-		    if (curr['core'] == undefined) {
-			curr['core'] = 'A'; // default
-		    }
-		}
 		if (curr['role'] == 0) {
 		    if (debugMode) {
 			console.log('Using default role');
@@ -692,8 +735,8 @@ function process(message) {
 			    addResponse(data, day, message, true);
 			}
 		    } else { // response for all raids
-			for (var i = 0; i < raidNights.length; i++) {
-			    var rn = raidNights[i];
+			for (var i = 0; i < raidNights['both'].length; i++) {
+			    var rn = raidNights['both'][i];
 			    if (data[indices['core']] == 'A' || coreB(rn)) {
 				if (!updateStatus(data, rn)) { // update if exists
 				    addResponse(data, rn, message, false, false); // add if it does not
@@ -708,10 +751,33 @@ function process(message) {
     }
 }
 
+const drinks = [':wine_glass:', ':beers:', ':cocktail:', ':champagne:', ':beer:'];
+const gifs = ['https://tenor.com/view/margarita-tequila-alcohol-drink-smh-gif-13358015',
+	      'https://tenor.com/view/shots-dirtytalk-gif-8561333',
+	      'https://media.giphy.com/media/12tCGGg5NuCO5O/giphy.gif',
+	      'https://media.giphy.com/media/10pVtJi0VzADHa/giphy.gif',
+	      'https://media.giphy.com/media/26gseZqYi0eofgYxy/giphy.gif',
+	      'https://tenor.com/view/inna-drinking-drunk-trendizisst-drinking-wine-gif-14720190',
+	      'https://tenor.com/view/tequila-happy-grandmas-gif-14416107'];
 
 client.on("message", (message) => {
-    if (message.content.startsWith('!')) {
+    if (message.content.startsWith('?')) {
 	process(message);
+    } else {
+	var text = message.content.toLowerCase();	
+	if (text.includes('drunk')) {
+	    var n = (text.match(/drunk/g) || []).length;
+	    if (n > 0) {
+		var a = '';
+		for (var i = 0; i < n; i++) {
+		    a += ' ' + drinks[Math.floor(Math.random() * drinks.length)];
+		}
+		if (Math.random() > 0.8)  {
+		    a += '\n' + gifs[Math.floor(Math.random() * gifs.length)];
+		}
+		message.channel.send(a);
+	    }
+	}
     }
 });
 var ID = fs.readFileSync('ch_token.txt').toString().trim();
