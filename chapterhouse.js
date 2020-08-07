@@ -6,6 +6,8 @@ const fs = require('fs');
 let raid  = {};
 let guild = undefined;
 
+var prefixsymbol = '&'; 
+
 client.on("ready", () => {
     guild = client.guilds.cache.get('447444372439564288');
     console.log(guild.name);
@@ -28,12 +30,12 @@ async function thankYouNote(message, info) {
 
 
 const separator = ' # ';
-const roleInfo ='\nThe commands *?signup* and *?maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). Also class (templar, DK, etc.) and primary resource (magicka or stamina) can be specified. You can also write a custom specification indicating any sets, skills, or ultimates you would like to mention by enclosing them in parenthesis.\n\nYou can set a default role with the *?default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n\nIf your are signing up for **Core B**, please include the string *b* in the signup command. Similarly, to specify **Core A**, just include *a*.\n';
+const roleInfo ='\nThe commands *' + prefixsymbol + 'signup* and *' + prefixsymbol + 'maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). Also class (templar, DK, etc.) and primary resource (magicka or stamina) can be specified. You can also write a custom specification indicating any sets, skills, or ultimates you would like to mention by enclosing them in parenthesis.\n\nYou can set a default role with the *' + prefixsymbol + 'default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n\nIf your are signing up for **Core B**, please include the string *b* in the signup command. Similarly, to specify **Core A**, just include *a*.\n';
 const dateInfo = '\nBy default, you will be responding to the next raid; you can use *Mon Tue Wed Thu Fri Sat Sun* to specify a date, whereas using *all* or *week* refers to the next round of raids for Core A (Friday and Saturday) and the next two for Core B (Wednesday and Friday).\n';
 const earlyLate = '\nYou can also include the words *late* or *early* to indicate if you will be joining late or leaving early (or even both).\n';
 const feedback = '\nIf anything seems broken or unpleasant, just tag *satuelisa* and express your concerns. <:Agswarrior:552592567875928064>'; 
-const options = roleInfo + earlyLate + dateInfo + '\nUse __?**h**__ to see this help text and __?**r**aid__ to just view the sign-ups.';
-const help = '**Available commands:**\n__?**s**ignup__ if you will attend the next raid\n?__**m**aybe__ if you might be able to attend\n?__**d**ecline__ if you will not make it\n' + options;
+const options = roleInfo + earlyLate + dateInfo + '\nUse __' + prefixsymbol + '**h**elp__ to see this help text and __' + prefixsymbol + '**r**aid__ to just view the sign-ups.';
+const help = '**Available commands:**\n__' + prefixsymbol + '**s**ignup__ if you will attend the next raid\n' + prefixsymbol + '__**m**aybe__ if you might be able to attend\n' + prefixsymbol + '__**d**ecline__ if you will not make it\n' + options;
 
 const symbols = {0: ':confused:', // unspecified
 		 1: ':crossed_swords:', // dps
@@ -448,11 +450,11 @@ function listing(channel, day) {
     }
     var list = '\nFor **' + dayNames[day] + '**, we have ' + singular +  count + ' response' + plural + ':\n'; 
     var cores = { 'A': '\n**Core A**\n', 'B': '\n**Core B**\n'};
-    var i = 1;
     var prev = 0;
     var firstYes = {'A': false, 'B': false};
     var firstMaybe = {'A': false, 'B': false};
     var firstNo = {'A': false, 'B': false};
+    var seq = {'A': 0, 'B': 0};
     for (r in resp) {
 	var userData = resp[r].split(separator);
 	var status = parseInt(userData[indices['status']]);
@@ -481,8 +483,8 @@ function listing(channel, day) {
 		firstYes = false;
 	    }
 	    nickname = '**' + nickname + '**'; // boldface	    
-	    prefix = i + '. ';
-	    i++;
+	    seq[core] += 1;
+	    prefix = seq[core] + '. ';
 	    break;
 	case 2: // maybe
 	    if (firstMaybe[core]) {
@@ -515,8 +517,14 @@ function listing(channel, day) {
 	cores[core] += prefix + symbols[role] + ' ' + source[cID] + ' ' + nickname + specs + timeDescr[timing] + '\n';
     }
     var r = list + cores['A'];
+    if (seq['A'] == 0) {
+	r += '*Nobody is attending Core A yet* :frowning:';
+    }
     if (coreB(day)) {
 	r += cores['B'];
+	if (seq['B'] == 0) {
+	    r += '*Nobody is attending Core B yet* :frowning:';
+	}	
     }
     return r;
 }
@@ -614,10 +622,10 @@ function process(message) {
 		     ' Please talk to me there.')
 	return;
     }
-    if (text.startsWith('?h')) {
+    if (text.startsWith(prefixsymbol + 'h')) {
 	thankYouNote(message, help);
 	channel.send('I have sent you instructions by DM :smile:');
-    } else if (text.startsWith('?') && 'dsmrt'.includes(text[1])) {	
+    } else if (text.startsWith(prefixsymbol) && 'dsmrt'.includes(text[1])) {	
 	let user = message.member.user;
 	let name = user.tag;
 	let member = guild.member(message.author);
@@ -650,7 +658,7 @@ function process(message) {
 	if (Number.isNaN(curr['core'])) {
 	    curr['core'] = 'A';
 	}
-	if (text.startsWith('?def')) { // default step requested with !default or !def
+	if (text.startsWith(prefixsymbol + 'def')) { // default step requested with !default or !def
 	    manageDefaults(name, nickname, defs, curr, channel);
 	} else { // response or raid listing (other raid commands than default)
 	    loadLogs('A');
@@ -762,7 +770,7 @@ const gifs = ['https://tenor.com/view/margarita-tequila-alcohol-drink-smh-gif-13
 	      'https://tenor.com/view/tequila-happy-grandmas-gif-14416107'];
 
 client.on("message", (message) => {
-    if (message.content.startsWith('?')) {
+    if (message.content.startsWith(prefixsymbol)) {
 	process(message);
     } else {
 	var text = message.content.toLowerCase();	
