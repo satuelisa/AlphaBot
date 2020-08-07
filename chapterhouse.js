@@ -623,8 +623,12 @@ function process(message) {
 	return;
     }
     if (text.startsWith(prefixsymbol + 'h')) {
-	thankYouNote(message, help);
-	channel.send('I have sent you instructions by DM :smile:');
+	if (text.includes('channel')) {
+	    channel.send(help);	    
+	} else {
+	    thankYouNote(message, help);
+	    channel.send('I have sent you instructions by DM :smile:');
+	}
     } else if (text.startsWith(prefixsymbol) && 'dsmrt'.includes(text[1])) {	
 	let user = message.member.user;
 	let name = user.tag;
@@ -636,9 +640,9 @@ function process(message) {
 	}
 	let url = message.author.displayAvatarURL();
 	var core = undefined;
-	if (text.includes(' b ') || text.endsWith(' b')) {
+	if (text.includes(' b ') || text.endsWith(' b') || text.includes('b(') || text.includes(')b')) {
 	    core = 'B';
-	} else if (text.includes(' a ') || text.endsWith(' a')) {
+	} else if (text.includes(' a ') || text.endsWith(' a') || text.includes('a(') || text.includes(')a')) {
 	    core = 'A';	    
 	}
 	var curr = {'role': roleSelection(text),
