@@ -1,21 +1,16 @@
 This is a **Stamina damage-dealer** that can be either a **Necromancer** or a **Warden**. The emphasis is on burst damage; for the set combination, please contact @AGSNATURE directly.
 
 The primary ultimate is **Dawnbreaker** (the higher-damage morph):
-https://eso-skillbook.com/skill/dawnbreaker-of-smiting
-
+<https://eso-skillbook.com/skill/dawnbreaker-of-smiting>
 The second ultimate depends on the class; for a *Necromancer* it is **Pestilent Colossus**.
-https://eso-skillbook.com/skill/pestilent-colossus
+<https://eso-skillbook.com/skill/pestilent-colossus>
 
 The required skills include class-based AOE damage and the following
-
 1) *Spin to win* that is used as an execute.
-https://eso-skillbook.com/skill/whirling-blades
-
+<https://eso-skillbook.com/skill/whirling-blades>
 2) **Bone Shield** (either morph) to be kept active at all times during combat.
-https://eso-skillbook.com/skill/bone-shield
-
+<https://eso-skillbook.com/skill/bone-shield>
 3) **Echoing Vigor** to be used defensively when the group is taking heavy damage.
-https://eso-skillbook.com/skill/echoing-vigor
-
+<https://eso-skillbook.com/skill/echoing-vigor>
 4) On a Warden, keeping up **Expansive Frost Cloak** on the whole group is primordial.
-https://eso-skillbook.com/skill/expansive-frost-cloak
+<https://eso-skillbook.com/skill/expansive-frost-cloak>

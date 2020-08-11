@@ -1,33 +1,25 @@
 This is a **Magicka Warden damage-dealer**, an offensive role with a backbar heal-over-time (HoT). One of the two-piece sets is **Vicious Death** which is a light-armor set (bought with AP in Cyrodiil) and the other is **Clever Alchemist** which is craftable. The monster set is **Balorgh** (vet DLC dungeon or golden vendor) and the build also requires the **Malacath ring** (requires the Greymoor chapter).
-https://eso-sets.com/set/vicious-death
-https://eso-sets.com/set/clever-alchemist
-https://eso-sets.com/set/balorgh
-https://eso-sets.com/set/malacaths-band-of-brutality
-
+<https://eso-sets.com/set/vicious-death>
+<https://eso-sets.com/set/clever-alchemist>
+<https://eso-sets.com/set/balorgh>
+<https://eso-sets.com/set/malacaths-band-of-brutality>
 The three jewelry pieces need to be traited as *Harmony*.
 
 One of the ultimates is **Ice Comet**.
-https://eso-skillbook.com/skill/ice-comet
-
+<https://eso-skillbook.com/skill/ice-comet>
 The other ultimate is **Northern Storm**.
-https://eso-skillbook.com/skill/northern-storm
+<https://eso-skillbook.com/skill/northern-storm>
 
 The main skills include AOE damage from destruction staff and class abilities, also including
-
 1) Keeping up **Expansive Frost Cloak** on the whole group is primordial.
-https://eso-skillbook.com/skill/expansive-frost-cloak 
-
+<https://eso-skillbook.com/skill/expansive-frost-cloak>
 2) With **proxy det**, timing it so that it goes off together with the rest of the magicka DPS is key.
-https://eso-skillbook.com/skill/proximity-detonation
-
+<https://eso-skillbook.com/skill/proximity-detonation>
 3) Your **shalks** need to go off just before your proxy.
-https://eso-skillbook.com/skill/deep-fissure
-
+<https://eso-skillbook.com/skill/deep-fissure>
 4) Your **netch** must *always* be active.
-https://eso-skillbook.com/skill/blue-betty
-
+<https://eso-skillbook.com/skill/blue-betty>
 5) RaT is your ticket out of hard spots and also increases your damage a tiny bit.
-https://eso-skillbook.com/skill/race-against-time
-
+<https://eso-skillbook.com/skill/race-against-time>
 6) **Radiating Regeneration** on the backbar *Restoration staff* to cast frequently before and between pushes.
-https://eso-skillbook.com/skill/radiating-regeneration
+<https://eso-skillbook.com/skill/radiating-regeneration>

@@ -1,21 +1,17 @@
 This is a **Magicka Templar healer** that is a completely defensive role. The first five-piece light armor set is either **Hiti** or **Hollowfang** (both are DLV dungeon drop sets) and the second one is **Transmutation** (can be bought with AP in Cyrodiil).
-https://eso-sets.com/set/hitis-hearth
-https://eso-sets.com/set/hollowfang-thirst
-https://eso-sets.com/set/robes-of-transmutation
+<https://eso-sets.com/set/hitis-hearth>
+<https://eso-sets.com/set/hollowfang-thirst>
+<https://eso-sets.com/set/robes-of-transmutation>
 
 The primary ultimate is **Barrier** that is to be cast upon initiating a push through a choke point or into a large group.
-https://eso-skillbook.com/skill/reviving-barrier
-
+<https://eso-skillbook.com/skill/reviving-barrier>
 The secondary ultimate, only to be used in safe situations, is **Solar Prison**.
-https://eso-skillbook.com/skill/solar-prison
+<https://eso-skillbook.com/skill/solar-prison>
 
 The main skills include
-
 1) **Illustrious Healing** that needs to be recast every four seconds if using the *Master's Restoration staff*.
-https://eso-skillbook.com/skill/illustrious-healing
-
+<https://eso-skillbook.com/skill/illustrious-healing>
 2) **Radiating Regeneration** that needs to be cast often enough to apply one stack on each group member.
-https://eso-skillbook.com/skill/radiating-regeneration
-
+<https://eso-skillbook.com/skill/radiating-regeneration>
 3) **Extended Ritual** that *should not* be cast while initiating a push so as not to mask the defensive synergies.
-https://eso-skillbook.com/skill/extended-ritual
+<https://eso-skillbook.com/skill/extended-ritual>

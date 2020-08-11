@@ -1,20 +1,16 @@
 This is a **Stamina Warden support**, also Sorcerer is a possible class for this role. For set information, please contact @AGSNATURE.
 
 The main ultimate for a Warden is **Permafrost** and for a Sorcerer **Absorption Field** (the heal-morph of negate).
-https://eso-skillbook.com/skill/permafrost
-https://eso-skillbook.com/skill/absorption-field
+<https://eso-skillbook.com/skill/permafrost>
+<https://eso-skillbook.com/skill/absorption-field>
 
 The main skills include
-
 1) **Charging Maneuver** (rapids) to be kept active on all group members during all combat and when we ride.
-https://eso-skillbook.com/skill/charging-maneuver
-
+<https://eso-skillbook.com/skill/charging-maneuver>
 2) **Bone Shield** (either morph) to be kept active at all times during combat.
-https://eso-skillbook.com/skill/bone-shield
-
+<https://eso-skillbook.com/skill/bone-shield>
 3) **Echoing Vigor** to be used defensively when the group is taking heavy damage.
-https://eso-skillbook.com/skill/echoing-vigor
-
+<https://eso-skillbook.com/skill/echoing-vigor>
 4) On a Warden, keeping up **Expansive Frost Cloak** on the whole group is primordial.
-https://eso-skillbook.com/skill/expansive-frost-cloak
+<https://eso-skillbook.com/skill/expansive-frost-cloak>
 

@@ -1,22 +1,18 @@
 This is a **Magicka Templar healer**, with also **Necromancer** being a possible class. This is a strictyly defensive role. The two light five-piece sets are **Transmutation** (can be bought in Cyrodiil with AP) and **Hiti** (a DLC dungeon drop set).
-https://eso-sets.com/set/robes-of-transmutation
-https://eso-sets.com/set/hitis-hearth
+<https://eso-sets.com/set/robes-of-transmutation>
+<https://eso-sets.com/set/hitis-hearth>
 
 The main ultimate is **Barrier**.
-https://eso-skillbook.com/skill/reviving-barrier
-
+<https://eso-skillbook.com/skill/reviving-barrier>
 For a Templar, the backbar is **Solar Prison** (nova), whereas Necromancer slots the rez ult.
-https://eso-skillbook.com/skill/solar-prison
-https://eso-skillbook.com/skill/renewing-animation
+<https://eso-skillbook.com/skill/solar-prison>
+<https://eso-skillbook.com/skill/renewing-animation>
 
 The main skills include
-
 1) **Illustrious Healing** that needs to be recast every four seconds if using the *Master's Restoration staff*.
-https://eso-skillbook.com/skill/illustrious-healing
-
+<https://eso-skillbook.com/skill/illustrious-healing>
 2) **Radiating Regeneration** that needs to be cast often enough to apply one stack on each group member.
-https://eso-skillbook.com/skill/radiating-regeneration
-
+<https://eso-skillbook.com/skill/radiating-regeneration>
 3) On a Templar, **Extended Ritual** that *should not* be cast while initiating a push so as not to mask the defensive synergies.
-https://eso-skillbook.com/skill/extended-ritual
+<https://eso-skillbook.com/skill/extended-ritual>
 

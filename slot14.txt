@@ -1,18 +1,15 @@
 This is **Magicka damage-dealer** that can be either a **Dragonknight**, a **Warden**, or a **Nightblade**. One of the two-piece sets is **Vicious Death** which is a light-armor set (bought with AP in Cyrodiil) and the other is **Clever Alchemist** which is craftable. The monster set is **Balorgh** (vet DLC dungeon or golden vendor) and the build also requires the **Malacath ring** (requires the Greymoor chapter).
-https://eso-sets.com/set/vicious-death
-https://eso-sets.com/set/clever-alchemist
-https://eso-sets.com/set/balorgh
-https://eso-sets.com/set/malacaths-band-of-brutality
-
+<https://eso-sets.com/set/vicious-death>
+<https://eso-sets.com/set/clever-alchemist>
+<https://eso-sets.com/set/balorgh>
+<https://eso-sets.com/set/malacaths-band-of-brutality>
 The three jewelry pieces need to be traited as *Harmony*.
 
 In all cases, the primary ultimate is **Eye**.
-https://eso-skillbook.com/skill/eye-of-the-storm
-
+<https://eso-skillbook.com/skill/eye-of-the-storm>
 For a DK, the second ultimate should be **Shifting Standard**.
-https://eso-skillbook.com/skill/shifting-standard
+<https://eso-skillbook.com/skill/shifting-standard>
 
 The main tasks include AOE damage with destro staff skills and class abilities together with
-
 1) **Radiating Regeneration** on the backbar *Restoration staff* to cast frequently before and between pushes.
-https://eso-skillbook.com/skill/radiating-regeneration
+<https://eso-skillbook.com/skill/radiating-regeneration>

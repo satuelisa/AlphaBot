@@ -1,29 +1,22 @@
 This a **Support Sorcerer** that can be either *Stamina* or *Magicka*. Please contact @AGSNATURE about the set combination that is directed at very fast ultimate recovery.
 
 Either both ultimate are set to **Negate** or, if bar switching is easy, the backbar ultimate can be **Barrier**, in the following morphs.
-https://eso-skillbook.com/skill/absorption-field
-https://eso-skillbook.com/skill/reviving-barrier
+<https://eso-skillbook.com/skill/absorption-field>
+<https://eso-skillbook.com/skill/reviving-barrier>
 
 For a *Stamina Sorcerer*, the required skills include
-
 1) **Charging Maneuver** (rapids) to be kept active on all group members during all combat and when we ride.
-https://eso-skillbook.com/skill/charging-maneuver
-
+<https://eso-skillbook.com/skill/charging-maneuver>
 2) **Bone Shield** (either morph) to be kept active at all times during combat.
-https://eso-skillbook.com/skill/bone-shield
-
+<https://eso-skillbook.com/skill/bone-shield>
 3) **Echoing Vigor** to be used defensively when the group is taking heavy damage.
-https://eso-skillbook.com/skill/echoing-vigor
-
+<https://eso-skillbook.com/skill/echoing-vigor>
 whereas for a *Magicka Sorcerer* they need to include
-
 1) **Radiating Regeneration** on the backbar *Restoration staff* to cast frequently before and between pushes.
-https://eso-skillbook.com/skill/radiating-regeneration
-
+<https://eso-skillbook.com/skill/radiating-regeneration>
 2) **Energy Orb** that need to be cast when kiting and between pushes, but *never* offensively.
-https://eso-skillbook.com/skill/energy-orb
-
-3) if the build has a high chance of critical strike, also **Power surge** is useful if it fits on the bars.
-https://eso-skillbook.com/skill/power-surge
+<https://eso-skillbook.com/skill/energy-orb>
+3) Optionally, if the build has a high chance of critical strike, also **Power surge** is useful if it fits on the bars.
+<https://eso-skillbook.com/skill/power-surge>
 
 
