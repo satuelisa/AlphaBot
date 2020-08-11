@@ -15,7 +15,11 @@ client.on("ready", () => {
 
 const debugMode = true;
 const { spawnSync } = require('child_process');
-
+const available = fs.readFileSync('slots.txt').toString().trim().split('\n').filter(Boolean);
+var slotlist = 'The **Alpha Squad** slots are:\n';
+for (let i = 0; i < available.length; i++) {
+    slotlist += (i + 1) + '. ' + available[i] + '\n';
+}
 
 async function chat(message) {
     const tag = message.author.tag;
@@ -32,13 +36,17 @@ async function chat(message) {
     if (!m.roles.cache.find(role => role.name === 'Alpha Squad')) {
 	message.author.send('Sorry, I am only allowed to respond to Alpha Squad members.').catch(error => { console.log(tag + ' cannot receive bot DM') });
     } else {
-	const start = text.indexOf('slot') + 4;
-	const slot = parseInt(text.substring(start));
-	if (slot > 0 && slot < 21) {
-	    const data = fs.readFileSync('slot' + slot + '.txt').toString().trim();
-	    message.author.send('**Alpha Squad Slot ' + slot + '**\n\n' + data).catch(error => { console.log(tag + ' cannot receive bot DM') });
+	if (text.includes('slots')) {
+	    message.author.send(slotlist);
 	} else {
-	    message.author.send('Sorry, but I only know builds for slots from 1 to 20.').catch(error => { console.log(tag + ' cannot receive bot DM') });
+	    const start = text.indexOf('slot') + 4;
+	    const slot = parseInt(text.substring(start));
+	    if (slot > 0 && slot < 21) {
+		const data = fs.readFileSync('slot' + slot + '.txt').toString().trim();
+		message.author.send('**Alpha Squad Slot ' + slot + '**\n\n' + data).catch(error => { console.log(tag + ' cannot receive bot DM') });
+	    } else {
+		message.author.send('Sorry, but I only know builds for slots from 1 to 20.').catch(error => { console.log(tag + ' cannot receive bot DM') });
+	    }
 	}
     }
 }
@@ -352,12 +360,12 @@ function currentStatus(name, day) {
 }
 
 // helper method from https://discordjs.guide/popular-topics/canvas.html#adding-in-text
-const applyText = (canvas, text, available) => {
+const applyText = (canvas, text, av) => {
     const ctx = canvas.getContext('2d');
     let fontSize = 50;
     do {
 	ctx.font = `${fontSize -= 2}px sans serif`;
-    } while (ctx.measureText(text).width >= available);
+    } while (ctx.measureText(text).width >= av);
     return ctx.font;
 };
 
@@ -696,7 +704,6 @@ function manageDefaults(name, nickname, defs, curr, channel) {
 
 function signupForSlot(nick, day, slot, clear) {
     // data = [status, curr['role'], curr['rss'], curr['class'], timing, name, nickname, url]; // RESPONSE FILE SYNTAX
-    var available = fs.readFileSync('slots.txt').toString().trim().split('\n').filter(Boolean);
     var taken = fs.readFileSync('slots_' + day + '.log').toString().trim().split('\n').filter(Boolean);
     var mapping = {};
     var high = 0;
