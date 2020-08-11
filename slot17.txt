@@ -1,0 +1,3 @@
+Healer	Templar/NB/Necro		Defensive	Gossamer/Transmutation	Remembrance	"HOTs
+Springs
+Extended ritual"	NOVA	Yes (full)

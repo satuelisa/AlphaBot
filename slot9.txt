@@ -1,0 +1,34 @@
+This is a **Magicka Necromancer healer**, a defensive role that also
+provides *offensive synergies*. The two five-piece sets (both light) are
+**Hollowfang** (DLC dungeon drop set) and **Olorime** (DLC trial set);
+the former can also be **Spell Power Cure** (IC dungeon drop set that
+you can also get with key fragments) after the next DLC release.
+https://eso-sets.com/set/hollowfang-thirst
+https://eso-sets.com/set/vestment-of-olorime
+https://eso-sets.com/set/spell-power-cure
+
+The main ultimate is the resurrection ultimate **Renewing animation** (please do not use the morph that consumes corpses) and it is important to coordinate and call out the use of this ultimate.
+https://eso-skillbook.com/skill/renewing-animation
+
+The backbar ultimate is for situations where no group member is dead or in immediate risk of dying: "the hulk" (colossus), technically either morph can work
+https://eso-skillbook.com/skill/frozen-colossus
+
+The main skills include
+
+1) **Renewing Undeath** that works best when used on a corpse so as to also remove negative effects and applying a heal-over-time.
+https://eso-skillbook.com/skill/renewing-undeath
+
+2) **Radiating Regeneration** that needs to be cast often enough to apply one stack on each group member.
+https://eso-skillbook.com/skill/radiating-regeneration
+
+3) **Unnerving Boneyard** that can be cast ahead to where the damage dealers will engage with the enemy without the need to expose the healer to the damage,
+https://eso-skillbook.com/skill/unnerving-boneyard
+
+4) **Necrotic Potency** for building ultimate and slightly reducing incoming damage.
+https://eso-skillbook.com/skill/necrotic-potency
+
+5) Optionally, also **Bone Totem** (either morph) can be used for fearing the enemy.
+https://eso-skillbook.com/skill/bone-totem
+
+6) Also optionally, after the next DLC is released, **Empowring Grasp** is a powerful lockdown.
+https://eso-skillbook.com/skill/empowering-grasp

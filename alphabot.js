@@ -95,7 +95,7 @@ const magSymbols = {0: ':blue_circle:',
 		    4: '<:magblade:698500374021275710>',
 		    5: '<:magcro:698500365267763230>',
 		    6: '<:magden:698500356350672967>'}
-const stamSymbols = {0: 'green_circle:',
+const stamSymbols = {0: ':green_circle:',
 		    1: '<:stamplar:698500259256467471>',
 		    2: '<:stamsorc:698500249106251806>',
 		    3: '<:stamdk:698500268840714271>',
@@ -152,14 +152,6 @@ function removeDuplicates(array) {
   return array.filter((a, b) => array.indexOf(a) === b)
 };
 
-//function collage(day) {
-//    const redo = spawnSync('python3', ['raid.py', day]);
-//    let embed = new Discord.RichEmbed(); 
-//    embed.setTitle("Alpha Squad RSVP for " + dayNames[day])
-//    embed.setImage('https://elisa.dyndns-web.com/eso/raid_' + day + '.png?nocache=' + new Date().getTime()); // no cache
-//    return embed;
-//}
-
 function formatSpecs(specs) {
     if (specs == undefined) {
 	specs = '';
@@ -169,144 +161,6 @@ function formatSpecs(specs) {
     }
     return specs;
 }
-
-async function collage(channel, resp, day, text) {
-    var n = resp.length;
-    if (n == 0) {
-	return;
-    }
-    if (debugMode) {
-	console.log('preparing collage');
-    }
-    const w = 402; 
-    const h = 434; 
-    const canvas = Canvas.createCanvas(w, h);
-    const ctx = canvas.getContext('2d');
-    try {
-	const background = await Canvas.loadImage('./scroll.png');
-	ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-    } catch (e) {
-	console.log('bg', e);
-    }
-    const dim = Math.ceil(Math.sqrt(n));
-    const center = w / 2
-    const top = 170;
-    const as = Math.round((w - 180) / dim);
-    const m = Math.round(as / 10) // margin
-    const is = 2 * m + 10;
-    const rw = dim * as + (dim + 1) * m;
-    const lw = Math.round(m / 2);
-    const offset = as - is - 2 * lw;
-    const co = is / 5;
-    const start = Math.round(center - rw / 2 + m);
-    var x = start;
-    var y = top;
-    var col = 0;
-    for (r in resp) {
-	var userData = resp[r].split(separator);
-	var status = parseInt(userData[indices['status']]);
-	var role = parseInt(userData[indices['role']]);
-	var rID = parseInt(userData[indices['resource']]);
-	var cID = parseInt(userData[indices['class']]);
-	var timing = parseInt(userData[indices['timing']]);
-	var nickname = userData[indices['nick']];
-	var url = userData[indices['url']];
-	if (userData.length > indices['specs']) {
-	    specs = userData[indices['specs']];
-	}
-	console.log(url);
-	if (url.includes('undefined')) {
-	    url = defaultAvatar;
-	} else {
-	    url = url.split('?')[0] + '?size=' + avatarSize;
-	}
-	if (debugMode) {
-	    console.log(nickname, 'avatar', url);
-	}
-	try {
-	    const avatar = await Canvas.loadImage(url);
-	    ctx.drawImage(avatar, x, y, as, as);
-	} catch (e) {
-	    console.log('skipping an avatar icon', e);
-	}
-	ctx.strokeStyle = style[status];
-	ctx.lineWidth = lw;
-	if (status == 3) { // unavailable
-	    ctx.beginPath();
-	    ctx.moveTo(x, y);
-	    ctx.lineTo(x + as, y + as);
-	    ctx.stroke();
-	    ctx.beginPath();
-	    ctx.moveTo(x + as, y);
-	    ctx.lineTo(x, y + as);
-	    ctx.stroke();
-	}
-	ctx.strokeRect(x, y, as, as);
-	if (role > 0) {
-	    var icon = roleIcons[role];
-	    if (debugMode) {
-		console.log(nickname, 'role', icon);
-	    }
-	    try {
-		const roleIcon = await Canvas.loadImage('./' + icon);
-		ctx.drawImage(roleIcon, x + offset, y + offset, is, is);
-	    } catch(e) {
-		console.log('skipping a role icon', e);
-	    }
-	}
-	if (cID > 0) {
-	    if (debugMode) {
-		console.log(nickname, 'class', cID);
-		console.log(nickname, 'resource', rID);
-	    }	    
-	    var icon = undefined;
-	    switch (rID) {
-	    case 0:
-		icon = classIcons[cID];
-		break;
-	    case 1: // magicka
-		icon = magIcons[cID];
-		break;
-	    case 2: // stamina
-		icon = stamIcons[cID];
-		break;
-	    }
-	    try {
-		const classIcon = await Canvas.loadImage('./' + icon);
-		ctx.drawImage(classIcon, x + co, y + co, is, is);
-	    } catch(e) {
-		console.log('skipping a class icon', e);
-	    }
-	}
-	if (timing > 0) {
-	    if (debugMode) {
-		console.log(nickname, 'time');
-	    }
-	    try {
-		const ti = await Canvas.loadImage('./' + timeIcon);
-		ctx.drawImage(ti, x + 2 * lw, y + offset, is, is);
-	    } catch(e) {
-		console.log('skipping a time icon', e);
-	    }
-		
-	}
-	x += as + m;
-	col += 1;
-	if (col == dim) {
-            y += as + m;
-            x = start;
-            col = 0;
-	}
-    }
-    const bg = new Discord.MessageAttachment(canvas.toBuffer(), 'raid_' + day + '.png');
-    if (bg != undefined) {
-	channel.send(text, bg);
-    } else {
-	channel.send(text);
-    }
-    return;
-}
-
 function filename(d) {
     return 'alphabot_' +  d + '.log';
 }
@@ -507,7 +361,7 @@ const applyText = (canvas, text, available) => {
     return ctx.font;
 };
 
-async function ack(draw, data, day, message, msg) {
+async function ack(data, day, message, msg) {
     var name = data[indices['nick']];
     if (debugMode) {
 	console.log('thanking', name);
@@ -527,104 +381,11 @@ async function ack(draw, data, day, message, msg) {
     if (debugMode) {
 	console.log(text);
     }
-    if (draw) {
-	const height = 229; 
-	const width = 320;
-	const canvas = Canvas.createCanvas(width, height);
-	const margin = 40;
-	const is = avatarSize; // icon size
-	const ts = is - 10; // hourglass size
-	const ctx = canvas.getContext('2d');
-	try {
-	    const background = await Canvas.loadImage('./confirm.png');
-	    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-	} catch (e) {
-	    console.log('skipping confirmation bg', e);
-	}
-	if (url.includes('undefined')) {
-	    url = defaultAvatar;
-	} else {
-	    url = url.split('?')[0] + '?size=' + avatarSize;
-	}	
-	if (debugMode) {
-	    console.log(url);
-	}
-	try {
-	    const avatar = await Canvas.loadImage(url);
-	    ctx.drawImage(avatar, margin, margin, avatarSize, avatarSize);
-	} catch (e) {
-	    console.log('skipping confirmation avatar', e);
-	}
-	ctx.strokeStyle = style[status];
-	ctx.lineWidth = 5;
-	ctx.strokeRect(margin, margin, avatarSize, avatarSize);
-	if (role > 0) {
-	    var icon = roleIcons[role];
-	    if (debugMode) {
-		console.log(icon);
-	    }
-	    try {
-		const roleIcon = await Canvas.loadImage('./' + icon);
-		const d = is + margin;
-    		ctx.drawImage(roleIcon, margin, height - d, is, is);
-	    } catch (e) {
-		console.log('skipping conf role icon', e);
-	    }
-	}
-	if (cID > 0) {
-	    var icon = undefined;
-	    switch (rID) {
-	    case 0:
-		icon = classIcons[cID];
-		break;
-	    case 1: // magicka
-		icon = magIcons[cID];
-		break;
-	    case 2: // stamina
-		icon = stamIcons[cID];
-		break;
-	    }
-	    if (debugMode) {
-		console.log(icon);
-	    }
-	    try {
-		const classIcon = await Canvas.loadImage('./' + icon);
-		const d = is + margin;
-    		ctx.drawImage(classIcon, width / 3, height - d + 10, is, is);
-	    } catch (e) {
-		console.log('skipping conf class icon', e);
-	    }
-	}	
-	const offset = 1.5 * margin;
-	const busy = offset + avatarSize;
-	ctx.font = applyText(canvas, text, width - busy - margin);
-	ctx.fillStyle = '#ffffff';
-	ctx.fillText(text, busy, offset);
-	if (data[indices['timing']] > 0) {
-	    try {
-		const ti = await Canvas.loadImage('./' + timeIcon);
-		const d = ts + margin;
-		ctx.drawImage(ti, width - d - margin / 2, height - d, ts, ts);
-	    } catch (e) {
-		console.log('skipping conf time icon', e);
-	    }
-	}
-	const bg = new Discord.MessageAttachment(canvas.toBuffer(), 'ack_' + day + '_' + name.replace(' ', '') + '.png');
-	if (bg != undefined) {
-	    message.channel.send(msg, bg);
-	    return;
-	}
-    }
     message.channel.send(msg);
-    //    var embed = new Discord.RichEmbed()
-    //	.setTitle(a)
-    //	.setAuthor("Alpha Squad RSVP for " + dayNames[day], message.author.avatarURL)
-    //	.setDescription("Thank you for letting us know! " + symbols[role]);
-    //    message.channel.send(embed);
     return;
 }
 
-function addResponse(data, day, message, thanks, draw) {
+function addResponse(data, day, message, thanks) {
     if (debugMode) {
 	console.log('new response for', day);
     }
@@ -637,7 +398,7 @@ function addResponse(data, day, message, thanks, draw) {
     });
     raid[day].push(data.join(separator));
     if (thanks) {
-    	ack(draw, data, day, message, listing(undefined, day, false, false) + appendix);
+    	ack(data, day, message, listing(undefined, day, false, false) + appendix);
     }
     return;
 }
@@ -669,7 +430,7 @@ function updateStatus(data, day) {
     return false; // no match
 }
     
-function listing(channel, day, draw) {
+function listing(channel, day) {
     if (debugMode) {
         console.log('listing for', day);
     }
@@ -741,10 +502,6 @@ function listing(channel, day, draw) {
 	}
 	list += prefix + symbols[role] + ' ' + source[cID] + ' ' + nickname + specs + timeDescr[timing] + '\n';
     }
-    if (draw) {
-	collage(channel, resp, day, list);
-	return;
-    } 
     return list;
 }
 
@@ -760,14 +517,14 @@ function alpaca(message) {
     }
 }
 
-function listRaid(channel, day, draw) {
+function listRaid(channel, day) {
     var text = undefined;
     if (raid[day].length == 0) {
 	text = '*Nobody* has responded for **' + dayNames[day] + '**  :frowning2:';
     } else {
-	text = listing(channel, day, draw);
+	text = listing(channel, day);
     }
-    if (!draw && channel != undefined && text != undefined) {
+    if (channel != undefined && text != undefined) {
 	console.log(channel, text);
 	channel.send(text);
     } 
@@ -1025,13 +782,6 @@ function process(message) {
     if (text.startsWith('!h')) {
 	channel.send(help);
     } else if (text.startsWith('!') && 'dsmrt'.includes(text[1])) {	
-	var draw = true;
-	if (text.includes(' text')) {
-	    if (debugMode) {
-		console.log('turning off graphics')
-	    }
-	    draw = false;
-	}
 	let user = message.member.user;
 	let name = user.tag;
 	let member = guild.member(message.author);
@@ -1065,7 +815,7 @@ function process(message) {
 		    console.log('listing requested');
 		}
 		if (day != ALL) {
-		    listRaid(channel, day, draw);
+		    listRaid(channel, day);
 		} else { // all week requested
 		    var r = 'Showing all responses.\n';
 		    for (var i = 0; i < raidNights.length; i++) {
@@ -1140,7 +890,7 @@ function process(message) {
 			if (updateStatus(data, day)) { // an update on an existing response
 			    channel.send(reply(data, day));
 			} else { // a new response
-			    addResponse(data, day, message, true, draw);
+			    addResponse(data, day, message, true);
 			}
 		    } else { // response for all raids
 			if (debugMode) {
@@ -1152,7 +902,7 @@ function process(message) {
 				addResponse(data, rn, message, false, false); // add if it does not
 			    }
 			}
-			ack(draw, data, day, message, reply(data, day) + appendix); // thank the user
+			ack(data, day, message, reply(data, day) + appendix); // thank the user
 		    }
 		}
 	    }

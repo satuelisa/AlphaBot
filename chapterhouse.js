@@ -110,8 +110,8 @@ const dayNames = {1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: '
 		  6: 'Saturday', 7: 'Sunday', 8: 'the next round of raids'};
 const ALL = 8;
 
-function coreB(day) {
-    return (day == 3 || day == 5 || day == ALL); // Wed & Fri
+function coreOn(core, day) {
+    return raidNights[core].includes(day);
 }
 
 const stopWords = ["for", "as", "an", "the", "of", "raid", "up",
@@ -516,15 +516,26 @@ function listing(channel, day) {
 	}
 	cores[core] += prefix + symbols[role] + ' ' + source[cID] + ' ' + nickname + specs + timeDescr[timing] + '\n';
     }
-    var r = list + cores['A'];
-    if (seq['A'] == 0) {
-	r += '*Nobody is attending Core A yet* :frowning:';
+    var r = list;
+    if (coreOn('A', day)) {
+	r += cores['A'];
+	if (seq['A'] == 0) {
+	    if (raidNights['A'].includes(day)) {
+		r += '*Nobody is attending Core A yet* :frowning:';
+	    } else { // this should not even be necessary
+		r += '*Core A does not run on ' + dayNames[day] + '*';	    
+	    }
+	}
     }
-    if (coreB(day)) {
+    if (coreOn('B', day)) {
 	r += cores['B'];
 	if (seq['B'] == 0) {
-	    r += '*Nobody is attending Core B yet* :frowning:';
-	}	
+	    if (raidNights['B'].includes(day)) {
+		r += '*Nobody is attending Core B yet* :frowning:';
+	    } else { // this should not even be necessary
+		r += '*Core B does not run on ' + dayNames[day] + '*';
+	    }
+	}
     }
     return r;
 }
@@ -737,7 +748,7 @@ function process(message) {
 			appendix = '\nYou have responded for the *next raid* which is on ' +
 			    dayNames[day] + '; to specify a date, include a weekday in your command.';
 		    }
-		    if (data[indices['core']] == 'B' && !coreB(day)) {
+		    if (data[indices['core']] == 'B' && !coreOn('B', day)) {
 			message.channel.send('Sorry, but **Core B** only runs on Wednesdays and Fridays :frowning2:');
 			return;
 		    }
@@ -750,7 +761,7 @@ function process(message) {
 		    } else { // response for all raids
 			for (var i = 0; i < raidNights['both'].length; i++) {
 			    var rn = raidNights['both'][i];
-			    if (data[indices['core']] == 'A' || coreB(rn)) {
+			    if (data[indices['core']] == 'A' || coreOn('B', rn)) {
 				if (!updateStatus(data, rn)) { // update if exists
 				    addResponse(data, rn, message, false, false); // add if it does not
 				}
@@ -773,23 +784,30 @@ const gifs = ['https://tenor.com/view/margarita-tequila-alcohol-drink-smh-gif-13
 	      'https://tenor.com/view/inna-drinking-drunk-trendizisst-drinking-wine-gif-14720190',
 	      'https://tenor.com/view/tequila-happy-grandmas-gif-14416107'];
 
+const drunk = ['drunk', 'ivre', 'borrach', 'humala'];
+
 client.on("message", (message) => {
     if (message.content.startsWith(prefixsymbol)) {
 	process(message);
     } else {
-	var text = message.content.toLowerCase();	
-	if (text.includes('drunk')) {
-	    var n = (text.match(/drunk/g) || []).length;
-	    if (n > 0) {
-		var a = '';
-		for (var i = 0; i < n; i++) {
-		    a += ' ' + drinks[Math.floor(Math.random() * drinks.length)];
-		}
-		if (Math.random() > 0.8)  {
-		    a += '\n' + gifs[Math.floor(Math.random() * gifs.length)];
-		}
-		message.channel.send(a);
+	var text = message.content.toLowerCase();
+	var total = 0;
+	for (let i = 0; i < drunk.length; i++) {
+	    let word = drunk[i];
+	    if (text.includes(word)) {
+		let re = new RegExp(word, 'g');
+		total += (text.match(re)).length;
 	    }
+	}
+	if (total > 0) {
+	    var a = '';
+	    for (var i = 0; i < total; i++) {
+		a += ' ' + drinks[Math.floor(Math.random() * drinks.length)];
+	    }
+	    if (Math.random() > 0.8)  {
+		a += '\n' + gifs[Math.floor(Math.random() * gifs.length)];
+	    }
+	    message.channel.send(a);
 	}
     }
 });
