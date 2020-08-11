@@ -16,7 +16,7 @@ The main skills include
 https://eso-skillbook.com/skill/efficient-purge
 https://eso-skillbook.com/skill/cleanse
 
-2) **Orbs** that need to be cast when kiting and between pushes, but *never* offensively.
+2) **Energy Orb** that need to be cast when kiting and between pushes, but *never* offensively.
 https://eso-skillbook.com/skill/energy-orb
 
 3) **Ward Ally** to be casrt on the backbar restoration staff on allies who are behind and under heavy fire.

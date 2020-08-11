@@ -1,3 +1,25 @@
-Healer	Templar/NB/Necro		Defensive	Gossamer/Transmutation	Remembrance	"HOTs
-Springs
-Extended ritual"	NOVA	Yes (full)
+This is a **Magicka healer** that can be either a **Templar**, a **Nightblade**, or a **Necromancer**. This is primarily a defensive role. The two light-armor sets to be worn as five-piece sets are **Gossamer** (a DLC dungeon drop set) and **Transmutation** (can be bought in Cyrodiil with AP).
+https://eso-sets.com/set/gossamer 
+https://eso-sets.com/set/robes-of-transmutation
+
+The primary ultimate depends on the class: **Remembrance** for Templars (*must* be cast preventively and then interrupted if the group moves past you), **Siphon** for Nightblades (*must* be followed by a burst heal), and the *resurrection ultimate* for Necromancers.
+https://eso-skillbook.com/skill/remembrance
+https://eso-skillbook.com/skill/soul-siphon
+https://eso-skillbook.com/skill/renewing-animation
+
+The secondary ultimate also depends on the class: **Solar Prison** for Templars (only to be used when the group is in no immediate danger), **Meteor** (either morph) for Nightblades, and **Colossus** for Necromancers.
+https://eso-skillbook.com/skill/solar-prison
+https://eso-skillbook.com/skill/meteor
+https://eso-skillbook.com/skill/frozen-colossus
+
+The main skills include
+
+1) **Illustrious Healing** that needs to be recast every four seconds if using the *Master's Restoration staff*.
+https://eso-skillbook.com/skill/illustrious-healing
+
+2) **Radiating Regeneration** that needs to be cast often enough to apply one stack on each group member.
+https://eso-skillbook.com/skill/radiating-regeneration
+
+3) For Templars, **Extended Ritual** that *should not* be cast while initiating a push so as not to mask the defensive synergies.
+https://eso-skillbook.com/skill/extended-ritual
+

@@ -1,1 +1,44 @@
-Mag Support	Sorcerer		Agressive / Purger	Snow/RestBRP/Curse/Merit	Negate	Purge/orb/lockdowns	Lightning / Orb	Hot
+This is a **Magicka Sorcerer support** build, an *offensive* role that focuses on streaking. The two five-piece sets are both light armor:
+**Curse Eater** (bought with AP in Cropsford) and **Meritorious** (bought with Telvat at IC). Also the **Snow Treaders** (a mythic item that requieres the Greymoor chapter) are needed.
+https://eso-sets.com/set/curse-eater
+https://eso-sets.com/set/meritorious-service
+https://eso-sets.com/set/snow-treaders
+
+The backbar weapon needs to be a *Blackrose restoration staff* 
+https://eso-sets.com/set/menders-ward
+
+The essential ultimate is the healing morph of negate and it is actually often double barred to ensure easy access. Make sure to adjust the ground-targeting mode to automatic once you have mastered aiming your negates.
+https://eso-skillbook.com/skill/absorption-field
+
+The main skills include
+
+1) Right before engaging, cast your **Ward**.
+https://eso-skillbook.com/skill/hardened-ward
+
+2) As a push is about to begin, *anticipate* the direction and  **streak** ahead of the group to stun the enemy.
+https://eso-skillbook.com/skill/bolt-escape
+
+3) Upon completing the streak, cast **Restraining Prison** to further stun them and to protect yourself.
+https://eso-skillbook.com/skill/restraining-prison
+
+4) Optionally, if you are a vampire, also **Stupefy** works if the streak fell short or failed to activate on time.
+https://eso-skillbook.com/skill/stupefy
+
+5) **Purge**: use the efficient one if your magicka regeneration is giving you trouble, otherwise use cleanse.
+https://eso-skillbook.com/skill/efficient-purge
+https://eso-skillbook.com/skill/cleanse
+
+6) **Energy Orb** that need to be cast when kiting and between pushes, but *never* offensively.
+https://eso-skillbook.com/skill/energy-orb
+
+7) **Ward Ally** to be casrt on the backbar restoration staff on allies who are behind and under heavy fire.
+https://eso-skillbook.com/skill/ward-ally
+
+8) **Lightning flood** to provide a damage synergy.
+https://eso-skillbook.com/skill/lightning-flood
+
+9) **Radiating Regeneration** to cast before and between pushes (everyone should have multiple stacks at those times).
+https://eso-skillbook.com/skill/radiating-regeneration
+
+
+
