@@ -67,7 +67,7 @@ def visualize(specs, canvas):
         p = (caster.x, caster.y) if len(specs) == 4 else caster.locations[specs[4]]
         circle(p, specs[2], specs[3], canvas)
     elif 'beam' in specs:
-        beam(specs[1], cspecs[2], specs[3], canvas)
+        beam(specs[1], specs[2], specs[3], canvas)
     elif 'label' in specs:
         canvas.text((50, 50), specs[1], font = fnt, fill = (255, 255, 255, 255))
 
@@ -94,7 +94,7 @@ def radiant(time, caster, party):
             candidates.append(member)
     for t in range(time, time + instant):
         for members in sample(candidates, min(3, len(candidates))):
-            active[t].add(('line', caster, member, (209, 170, 13, 200)))
+            active[t].add(('beam', caster, member, (209, 170, 13, 200)))
 
 def illustrious(time, caster, party):
     for t in range(time, time + (12 * fps)): # a 12-second ground effect
