@@ -6,18 +6,62 @@ import numpy as np
 import sys
 import cv2
 
-meter = 5 # how many pixels should a meter be
+locations = {
+    'outpost_ground': {
+        'back flag': ((1500, 300), (1800, 600)),
+        'front flag': ((1530, 1000), (1780, 1270)),
+        'kill box': ((1550, 700), (1760, 1050)),
+        'merchant': ((1220, 280), (1400, 610)),
+        'mechant lower stairs': ((1200, 630), (1410, 850)),
+        'merchant mid': ((1220, 860), (1400, 980)),
+        'merchant upper stairs': ((1230, 1015), (1415, 1225)),
+        'postern': ((1890, 280), (2070, 610)),
+        'postern lower stairs': ((1875, 630), (2100, 850)),
+        'postern mid': ((1880, 860), (2080, 980)),
+        'postern upper stairs': ((1875, 1015), (2060, 1225)),
+        'inside the door': ((1480, 1290), (1835, 1530)),
+        'outside the door': ((1480, 1580), (1840, 1700)),
+        'left of the door': ((1370, 1580), (1515, 1680)),
+        'right of the door': ((1800, 1580), (1905, 1680)),
+        'left porch': ((1160, 1580), (1370, 1680)),
+        'right porch': ((1905, 1580), (2140, 1680)),
+        'merchant stairs': ((950, 370), (1100, 500)),
+        'postern stairs': ((2190, 370), (2340, 500)),
+        'front porch': ((1170, 1575), (2140, 1890)),
+        'edge of the porch': ((1340, 1890), (1900, 2150))
+    }
+}
+
 fps = 60
 delay = 10
 instant = fps // 2
 flash = fps // 4
-text = 2 * fps 
-scale = 150 # in meters
-s = meter * scale
-margin = round(0.1 * s)
-dim = (s, s)
+text = round(0.9 * fps)
+
+# diagram dimensions with density 300 in PDF to PNG conversion
+width = 3300
+height = 2550
+
+# THESE VALUES ARE MERE GUESSES
+meter = 5 # how many pixels should a meter be
+if len(sys.argv) > 1:
+    if 'corner' in sys.argv[1]: # corner tower diagrams
+        meter = 10
+    elif 'inner' in sys.argv[1]: # inner keep diagrams
+        meter = 7
+    elif 'outpost' in sys.argv[1]: # outer keep or outpost
+        meter = 12
+    elif 'door' in sys.argv[1]: # outer keep outer door
+        meter = 12
+    elif 'resource' in sys.argv[1]:
+        meter = 12
+    else:
+        print('Unknown diagram')
+        quit()
+
+margin = round(0.1 * min(width, height))
 full = 2 * pi
-total = 40 # total duration in seconds
+total = 30 # total duration in seconds
 final = total * fps
 clock = 0
 noise = 3
@@ -27,14 +71,21 @@ print(f'Animating {final} frames')
 colors = { 'crown': (218, 204, 31, 255), # yellow
            'healer': (31, 194, 219, 255), # blue
            'support': (5, 117, 18, 255), # green
-           'dd': (209, 13, 173, 255) } # purple
+           'offensive': (52, 235, 232, 255), # cyan  
+           'dd': (209, 13, 173, 255), # purple
+           'streak': (0, 0, 255, 255), 
+           'rapids': (196, 49, 6, 100),
+           'purge': (245, 158, 66, 100),
+           'rr': (209, 170, 13, 200), # yellow
+           'heal': (69, 245, 66, 100), # green
+           'label': (255, 255, 255, 255)}
 
 INACTIVE = -1
 active = defaultdict(set)
 fnt = ImageFont.truetype("/Library/Fonts/Arial Unicode.ttf", 40)
 
 def sprite(x, y, s = 2):
-    size = s * meter
+    size = s * meter # 2-meter sprites by default
     return [(x + size, y), (x, y - size // 2), (x + size // 3, y), (x, y + size // 2)]
     
 def dist(x1, y1, x2, y2):
@@ -69,7 +120,7 @@ def visualize(specs, canvas):
     elif 'beam' in specs:
         beam(specs[1], specs[2], specs[3], canvas)
     elif 'label' in specs:
-        canvas.text((50, 50), specs[1], font = fnt, fill = (255, 255, 255, 255))
+        canvas.text((50, 50), specs[1], font = fnt, fill = colors['label'])
 
 # skills
         
@@ -79,12 +130,12 @@ def charging(time, caster, party):
         if dist(caster.x, caster.y, member.x, member.y) < radius:
             member.apply('rapids', 8)
     for t in range(time, time + instant):
-        active[t].add(('circ', caster, radius, (196, 49, 6, 100)))
+        active[t].add(('circ', caster, radius, colors['rapids']))
     
 def purge(time, caster, raid):
     radius = 18 * meter
     for t in range(time, time + instant):
-        active[t].add(('circ', caster, radius, (245, 158, 66, 100)))
+        active[t].add(('circ', caster, radius, colors['purge']))
 
 def radiant(time, caster, party):
     radius = 28 * meter
@@ -94,11 +145,15 @@ def radiant(time, caster, party):
             candidates.append(member)
     for t in range(time, time + instant):
         for members in sample(candidates, min(3, len(candidates))):
-            active[t].add(('beam', caster, member, (209, 170, 13, 200)))
+            active[t].add(('beam', caster, member, colors['rr']))
 
+def streak(time, caster, target):
+    for t in range(time, time + instant):
+        active[t].add(('beam', caster, target, colors['streak'])) 
+            
 def illustrious(time, caster, party):
     for t in range(time, time + (12 * fps)): # a 12-second ground effect
-        active[t].add(('circ', caster, 8 * meter, (69, 245, 66, 100), 'illustrious'))
+        active[t].add(('circ', caster, 8 * meter, colors['heal'], 'illustrious'))
 
 def proxy(time, caster, party):
     end = time + (8 * fps) # an 8-second timer
@@ -106,8 +161,8 @@ def proxy(time, caster, party):
         if t > end - flash: # detonation
             active[t].add(('circ', caster, 8 * meter, (199, 6, 199, 100))) 
         else: # meantime
-            active[t].add(('circ', caster, 2 * meter, (199, 6, 199, 100))) 
-    
+            active[t].add(('circ', caster, 2 * meter, (199, 6, 199, 100)))
+
 def shake(x, m, dec = False):
     if dec:
         sign = 1 if random() < 0.5 else -1
@@ -115,6 +170,11 @@ def shake(x, m, dec = False):
     else:
         return x + randint(-m, m)
 
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
 class Player:
 
     def __init__(self, r, x, y, a, p = INACTIVE, cm = INACTIVE, rr = INACTIVE, bounce = False):
@@ -155,6 +215,8 @@ class Player:
                 self.timers[proxy] = randint(delay, 2 * delay)
             elif self.role == 'crown':
                 self.timers[proxy] = randint(0, delay)
+            elif self.role == 'offensive':
+                self.effects['streak'] = 5 + randint(delay, delay) # 5 seconds after proxies are called
                      
     def move(self, lead):
         if self.role == 'crown':
@@ -166,22 +228,32 @@ class Player:
             if self.bounce:
                 if self.x < margin:
                     self.a = uniform(-pi / 4, pi / 4)
-                elif self.x > s - margin:
+                elif self.x > width - margin:
                     self.a = uniform(3 * pi / 4, 5 * pi / 4)
                 if self.y < margin:
                     self.a = uniform(-3 * pi / 4, -pi / 4)
-                elif self.y > s - margin:
+                elif self.y > height - margin:
                     self.a = uniform(pi / 4, 3 * pi / 3)
                 if self.a < 0:
                     self.a += full
                 elif self.a > full:
                     self.a -= full
         else:
-            self.x += shake(lead.dx, noise)
-            self.y += shake(lead.dy, noise)
+            self.dx = lead.dx
+            self.dy = lead.dy
+            origin = None
+            if self.effects.get('streak', INACTIVE) == 0:
+                origin = Point(self.x, self.y)
+                l = 15 * meter # streaks are 15 meters
+                self.dx += round(l * cos(self.a))
+                self.dy -= round(l * sin(self.a))
+            self.x += shake(self.dx, noise)
+            self.y += shake(self.dy, noise)
+            if origin is not None:
+                streak(clock, self, origin)
             self.a = lead.a
         for effect in self.effects: # decrease effect durations
-            if self.effects[effect] > 0:        
+            if self.effects[effect] >= 0:        
                 self.effects[effect] -= 1 
         return
 
@@ -204,7 +276,7 @@ class Player:
                        fill = colors[self.role])
 
 calls = dict()
-for (time, call) in [(3, 'heal'), (2, 'proxy'), (7, 'heal'), (11, 'proxy'), (14, 'heal'), (17, 'heal'), (20, 'proxy'), (25, 'heal')]:
+for (time, call) in [(1, 'heal'), (2, 'proxy'), (4, 'heal'), (12, 'proxy'), (14, 'heal'), (17, 'heal'), (22, 'proxy'), (25, 'heal')]:
     calls[time * fps] = call
 
 class Raid:
@@ -226,8 +298,8 @@ class Raid:
                        Player('dd', shake(x, spread), shake(y, spread), a, rr = 10),
                        Player('support', shake(x, spread), shake(y, spread), a, p = 4, rr = 8), # purger
                        Player('support', shake(x, spread), shake(y, spread), a, p = 4, rr = 9), # purger
-                       Player('support', shake(x, spread), shake(y, spread), a, p = 6, rr = 10), # off-purger
-                       Player('support', shake(x, spread), shake(y, spread), a, p = 6, rr = 8), # off-purger
+                       Player('offensive', shake(x, spread), shake(y, spread), a, p = 6, rr = 10), # streaker
+                       Player('offensive', shake(x, spread), shake(y, spread), a, p = 6, rr = 8), # streaker
                        Player('support', shake(x, spread), shake(y, spread), a, cm = 8) ] # stam support
 
     def step(self, canvas):
@@ -253,10 +325,20 @@ class Raid:
             sys.stdout.flush()
         return clock < final
 
+img = None
+if len(sys.argv) == 1:
+    width = 800
+    height = 800
+    dim = (width, height)
+    img = Image.new('RGBA', dim, color = 'black')
+else:
+    img = Image.open(sys.argv[1])
+    width, height = img.size
+    dim = (width, height)
+
 fourcc = cv2.VideoWriter_fourcc(*'avc1')    
 video = cv2.VideoWriter('simulation.mp4', fourcc, fps, dim)
-img = Image.new('RGBA', dim, color = 'black')
-raid = Raid(s // 2, s // 2, uniform(0, full))
+raid = Raid(width // 2, height // 2, uniform(0, full))
 while True:
     frame = img.copy()
     if raid.step(ImageDraw.Draw(frame)):
