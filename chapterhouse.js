@@ -38,9 +38,9 @@ const options = roleInfo + earlyLate + dateInfo + '\nUse __' + prefixsymbol + '*
 const help = '**Available commands:**\n__' + prefixsymbol + '**s**ignup__ if you will attend the next raid\n' + prefixsymbol + '__**m**aybe__ if you might be able to attend\n' + prefixsymbol + '__**d**ecline__ if you will not make it\n' + options;
 
 const symbols = {0: ':confused:', // unspecified
-		 1: ':crossed_swords:', // dps
-		 2: ':shield:', // support 
-		 3: ':hospital:', // heals
+		 1: '<:sfdps:744307873181466674>', // dps
+		 2: '<:sfsupport:744304803928211466>', // support 
+		 3: '<:sfhealer:744312848020144190>', // heals
 		 4: ':mechanical_arm:', // flex
 		 5: ':no_entry_sign:'}; // unavailable
 const roleDescr = {0: 'surprise role', 1: 'damage', 2: 'support', 3: 'healer', 4: 'flexible spot'};
