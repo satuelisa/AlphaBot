@@ -1,9 +1,8 @@
 This a **Support Sorcerer** that can be either *Stamina* or *Magicka*. Please contact @AGSNATURE about the set combination that is directed at very fast ultimate recovery.
-
+<https://en.uesp.net/wiki/Special:EsoBuildData?id=260221>
 Either both ultimate are set to **Negate** or, if bar switching is easy, the backbar ultimate can be **Barrier**, in the following morphs.
 <https://eso-skillbook.com/skill/absorption-field>
 <https://eso-skillbook.com/skill/reviving-barrier>
-
 For a *Stamina Sorcerer*, the required skills include
 1) **Charging Maneuver** (rapids) to be kept active on all group members during all combat and when we ride.
 <https://eso-skillbook.com/skill/charging-maneuver>

@@ -1,16 +1,15 @@
-This is a **Magicka Warden damage-dealer**, also **Nightblade** is a possible class, an offensive role with a backbar heal-over-time (HoT). One of the two-piece sets is **Vicious Death** which is a light-armor set (bought with AP in Cyrodiil) and the other is **Clever Alchemist** which is craftable. The monster set is **Balorgh** (vet DLC dungeon or golden vendor) and the build also requires the **Malacath ring** (requires the Greymoor chapter).
+This is a **Magicka Warden damage-dealer**, also **Nightblade** is a possible class, an offensive role with a backbar heal-over-time (HoT).
+<https://en.uesp.net/wiki/Special:EsoBuildData?id=265287>
+One of the two-piece sets is **Vicious Death** which is a light-armor set (bought with AP in Cyrodiil) and the other is **Clever Alchemist** which is craftable. The monster set is **Balorgh** (vet DLC dungeon or golden vendor) and the build also requires the **Malacath ring** (requires the Greymoor chapter).
 <https://eso-sets.com/set/vicious-death>
 <https://eso-sets.com/set/clever-alchemist>
 <https://eso-sets.com/set/balorgh>
 <https://eso-sets.com/set/malacaths-band-of-brutality>
-The three jewelry pieces need to be traited as *Harmony*.
-
-One of the ultimates is **Ice Comet**.
+The three jewelry pieces need to be traited as *Harmony*. One of the ultimates is **Ice Comet**.
 <https://eso-skillbook.com/skill/ice-comet>
 On a Warden, the other ultimate is **Northern Storm**, whereas on a Nightblade it is **Eye of the Storm**.
 <https://eso-skillbook.com/skill/northern-storm>
 <https://eso-skillbook.com/skill/eye-of-the-storm>
-
 The main skills include AOE damage from destruction staff and class abilities, also including
 1) **Radiating Regeneration** on the backbar *Restoration staff*; cast frequently before and between pushes.
 <https://eso-skillbook.com/skill/radiating-regeneration>

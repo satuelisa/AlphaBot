@@ -1,9 +1,7 @@
 This is a **Stamina Warden support**, also Sorcerer is a possible class for this role. For set information, please contact @AGSNATURE.
-
 The main ultimate for a Warden is **Permafrost** and for a Sorcerer **Absorption Field** (the heal-morph of negate).
 <https://eso-skillbook.com/skill/permafrost>
 <https://eso-skillbook.com/skill/absorption-field>
-
 The main skills include
 1) **Charging Maneuver** (rapids) to be kept active on all group members during all combat and when we ride.
 <https://eso-skillbook.com/skill/charging-maneuver>

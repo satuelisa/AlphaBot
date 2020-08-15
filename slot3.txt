@@ -1,15 +1,17 @@
-This is a **Magicka Necromancer damage-dealer**, an offensive role with a backbar heal-over-time (HoT). One of the two-piece sets is **Vicious Death** which is a light-armor set (bought with AP in Cyrodiil) and the other is **Clever Alchemist** which is craftable. The monster set is **Balorgh** (vet DLC dungeon or golden vendor) and the build also requires the **Malacath ring** (requires the Greymoor chapter).
+This is a **Magicka Necromancer damage-dealer**, an offensive role with a backbar heal-over-time (HoT).
+<https://en.uesp.net/wiki/Special:EsoBuildData?id=265431>
+<https://en.uesp.net/wiki/Special:EsoBuildData?id=265441>
+<https://en.uesp.net/wiki/Special:EsoBuildData?id=265442>
+One of the two-piece sets is **Vicious Death** which is a light-armor set (bought with AP in Cyrodiil) and the other is **Clever Alchemist** which is craftable. The monster set is **Balorgh** (vet DLC dungeon or golden vendor) and the build also requires the **Malacath ring** (requires the Greymoor chapter).
 <https://eso-sets.com/set/vicious-death>
 <https://eso-sets.com/set/clever-alchemist>
 <https://eso-sets.com/set/balorgh>
 <https://eso-sets.com/set/malacaths-band-of-brutality>
 The three jewelry pieces need to be traited as *Harmony*.
-
 The main ultimate is **Pestilent Colossus** and it needs to be places *behind* the enemy at the beginning of an engagement.
 <https://eso-skillbook.com/skill/pestilent-colossus>
 The backbar ultimate is the resurrection one; either morph will work.
 <https://eso-skillbook.com/skill/reanimate>
-
 The main skills include AOE damage from destruction staff and class abilities, especially
 1) **Avid Boneyard** so you can synergize your own stuff instead of waiting for others to be in point.
 <https://eso-skillbook.com/skill/avid-boneyard>

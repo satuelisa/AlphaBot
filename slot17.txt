@@ -1,7 +1,6 @@
 This is a **Magicka healer** that can be either a **Templar**, a **Nightblade**, or a **Necromancer**. This is primarily a defensive role. The two light-armor sets to be worn as five-piece sets are **Gossamer** (a DLC dungeon drop set) and **Transmutation** (can be bought in Cyrodiil with AP).
 <https://eso-sets.com/set/gossamer>
 <https://eso-sets.com/set/robes-of-transmutation>
-
 The primary ultimate depends on the class: **Remembrance** for Templars (*must* be cast preventively and then interrupted if the group moves past you), **Siphon** for Nightblades (*must* be followed by a burst heal), and the *resurrection ultimate* for Necromancers.
 <https://eso-skillbook.com/skill/remembrance>
 <https://eso-skillbook.com/skill/soul-siphon>
@@ -10,7 +9,6 @@ The secondary ultimate also depends on the class: **Solar Prison** for Templars 
 <https://eso-skillbook.com/skill/solar-prison>
 <https://eso-skillbook.com/skill/meteor>
 <https://eso-skillbook.com/skill/frozen-colossus>
-
 The main skills include
 1) **Illustrious Healing** that needs to be recast every four seconds if using the *Master's Restoration staff*.
 <https://eso-skillbook.com/skill/illustrious-healing>

@@ -4,12 +4,10 @@ This is a **Magicka Dragonknight damage-dealer**, an offensive role with a backb
 <https://eso-sets.com/set/grothdarr>
 <https://eso-sets.com/set/malacaths-band-of-brutality>
 The three jewelry pieces need to be traited as *Harmony*.
-
 The primary ultimate should be **Shifting Standard**.
 <https://eso-skillbook.com/skill/shifting-standard>
 In case that bar switching is easy and there are more DKs in group, the secondary ultimate may be **Eye**; otherwise you can double-slot Standard as it is vital for a successful push.
 <https://eso-skillbook.com/skill/eye-of-the-storm>
-
 The main skills include AOE damage with destruction staff and class skills and 
 1) Lockdowns with **Talons** must be placed on enemies *before* the main burst of our damage reaches them.
 <https://eso-skillbook.com/skill/choking-talons>

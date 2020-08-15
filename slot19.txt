@@ -4,12 +4,10 @@ This is **Magicka damage-dealer** that can be either a **Dragonknight**, a **War
 <https://eso-sets.com/set/balorgh>
 <https://eso-sets.com/set/malacaths-band-of-brutality>
 The three jewelry pieces need to be traited as *Harmony*.
-
 In all cases, the primary ultimate is **Eye**.
 <https://eso-skillbook.com/skill/eye-of-the-storm>
 For a DK, the second ultimate should be **Shifting Standard**.
 <https://eso-skillbook.com/skill/shifting-standard>
-
 The main tasks include AOE damage with destro staff skills and class abilities together with
 1) **Radiating Regeneration** on the backbar *Restoration staff* to cast frequently before and between pushes.
 <https://eso-skillbook.com/skill/radiating-regeneration>

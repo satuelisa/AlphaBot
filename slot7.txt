@@ -1,10 +1,8 @@
 This is a **Stamina damage-dealer** that can be either a **Necromancer** or a **Warden**. The emphasis is on burst damage; for the set combination, please contact @AGSNATURE directly.
-
 The primary ultimate is **Dawnbreaker** (the higher-damage morph):
 <https://eso-skillbook.com/skill/dawnbreaker-of-smiting>
 The second ultimate depends on the class; for a *Necromancer* it is **Pestilent Colossus**.
 <https://eso-skillbook.com/skill/pestilent-colossus>
-
 The required skills include class-based AOE damage and the following
 1) *Spin to win* that is used as an execute.
 <https://eso-skillbook.com/skill/whirling-blades>
