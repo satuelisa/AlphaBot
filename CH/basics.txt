@@ -1,0 +1,9 @@
+1) Minimum statsL 27k health, 2k crit resist
+2) On mag toons: Proxy det
+3) On resto staves: Radiating regen
+4) Jewelry trait: 3 x **Swift** for all roles
+5) Staff trait:
+- Nirnhoned or Sharpened on all lightning staves
+- Powered on all restoration staves
+6) Tri-stat glyphs on main armour pieces
+7) RDK addon is a hard requirement
