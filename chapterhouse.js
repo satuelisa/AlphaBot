@@ -20,6 +20,13 @@ const { spawnSync } = require('child_process');
 
 let coc = fs.readFileSync('ch_coc.txt').toString().trim();
 
+const basic = '\n\n' + fs.readFileSync('CH/basics.txt').toString().trim();
+const availSlots = fs.readFileSync('CH/coreB.txt').toString().trim().split('\n').filter(Boolean);
+var slotlist = 'The **CH SF Core B** slots are:\n';
+for (let i = 0; i < availSlots.length; i++) {
+    slotlist += (i + 1) + '. ' + availSlots[i] + '\n';
+}
+
 async function thankYouNote(message, info) {
     var tag = message.author.tag;
     if (tag.includes('AlphaBot')) { // it me, Mario
@@ -100,11 +107,11 @@ const confirm = {1: 'confirmed',
 		 3: 'unavailable'};
 
 const raidNights = {'A': [5, 6], 
-		    'B': [3, 5],
-		    'both': [3, 5, 6]} 
+		    'B': [1, 3],
+		    'both': [1, 3, 5, 6]} 
 
 const nextRaid = {'A': {0: 5, 1: 5, 2: 5, 3: 5, 4: 5, 5: 6, 6: 5},
-		  'B': {0: 3, 1: 3, 2: 3, 3: 5, 4: 5, 5: 3, 6: 3}};
+		  'B': {0: 1, 1: 3, 2: 3, 3: 1, 4: 1, 5: 1, 6: 1}};
 
 const dayNames = {1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday',
 		  6: 'Saturday', 7: 'Sunday', 8: 'the next round of raids'};
@@ -150,7 +157,7 @@ function filename(d) {
 function raidDate(specDate, core) {
     var date = new Date();
     var weekDay = date.getDay();
-    console.log('checking date', core, raidNights[core], specDate in raidNights[core]);
+    // console.log('checking date', core, raidNights[core], specDate in raidNights[core]);
     if (specDate > -1 && specDate < 8 && !(raidNights[core].includes(specDate))) {
 	return -2; // no raid
     }
@@ -162,9 +169,6 @@ function raidDate(specDate, core) {
     var day = nextRaid[core][weekDay]; // default is next raid
     if (specDate != -1) {
 	day = specDate;
-    }
-    if (debugMode) {
-	console.log(weekDay, specDate, day);
     }
     return day;
 }
@@ -178,9 +182,6 @@ function reply(data, day) {
     var core = data[indices['core']];
     var r = 'You are *' + confirm[status] + '*';
     var specs = formatSpecs(data[indices['specs']]);
-    if (debugMode) {
-	console.log('reply for', day);
-    }
     if (status != 3) {
 	r += ' as ' + rssDescr[rID] + classDescr[cID] + roleDescr[role];
     }
@@ -324,7 +325,6 @@ function currentDefault(name) {
 			'class': parseInt(f[indices['defClass']]),
 			'core': f[indices['defCore']].trim(),
 			'specs': 'no sets/skills specified'};
-	    console.log(defs)
 	    if (defs['core'] != 'A' && defs['core'] != 'B') {
 		defs['core'] = 'A'; // default
 	    }
@@ -338,9 +338,6 @@ function currentDefault(name) {
 }
 
 function currentStatus(name, day) {
-    if (debugMode) {
-	console.log('checking current status', name, day);
-    }
     var resp = raid[day];
     if (resp != undefined) {
 	for (var i = 0; i < resp.length; i++) {
@@ -369,9 +366,6 @@ const applyText = (canvas, text, available) => {
 
 async function ack(data, day, message, msg) {
     var name = data[indices['nick']];
-    if (debugMode) {
-	console.log('thanking', name);
-    }    
     var status = data[indices['status']];
     var role = data[indices['role']];
     var rID = data[indices['resource']];
@@ -436,9 +430,6 @@ function updateStatus(data, day) {
 }
     
 function listing(channel, day) {
-    if (debugMode) {
-        console.log('listing for', day);
-    }
     var resp = raid[day].sort();
     var singular = '';
     var plural = 's';
@@ -528,13 +519,10 @@ function listing(channel, day) {
 	}
     }
     if (coreOn('B', day)) {
-	r += cores['B'];
-	if (seq['B'] == 0) {
-	    if (raidNights['B'].includes(day)) {
-		r += '*Nobody is attending Core B yet* :frowning:';
-	    } else { // this should not even be necessary
-		r += '*Core B does not run on ' + dayNames[day] + '*';
-	    }
+	if (raidNights['B'].includes(day)) {
+	    r += signupForSlot(undefined, day, -1, false); // just the listing
+	} else { // this should not even be necessary
+	    r += '*Core B does not run on ' + dayNames[day] + '*';
 	}
     }
     return r;
@@ -576,9 +564,7 @@ function manageDefaults(name, nickname, defs, curr, channel) {
 	}
 	repl += ' ' + symbols[curr['role']] + ' ' + source[curr['class']] + ' for **Core ' + curr['core'] + '**';
 	var defaults = fs.readFileSync('ch_roles.log').toString().trim().split('\n').filter(Boolean);
-	if (debugMode) {
-	    console.log('default update');
-	}
+
 	var data = [name, curr['role'], curr['rss'], curr['class'], curr['core'], curr['specs']];
 	var i = 0;
 	for (; i < defaults.length; i++) {
@@ -622,6 +608,94 @@ function manageDefaults(name, nickname, defs, curr, channel) {
 	return;
     }
 }
+
+function signupForSlot(nick, day, slot, clear) {
+    var taken = fs.readFileSync('CH/slots_' + day + '.log').toString().trim().split('\n').filter(Boolean);
+    var mapping = {};
+    var rewrite = false;
+    var resp = '';
+    var prev = '';
+    for (let i = 0; i < taken.length; i++) {
+	let fields = taken[i].split(" ");
+	if (fields.length > 1) {
+	    if (!(fields[0] in mapping)) {
+		if (fields[1] == nick) {
+		    if (slot != 0 || clear) {
+			if (!clear) {
+			    return 'You are already signed up. Please use *!signup slot clear* to eliminate the existing sign-up first.';
+			} else {
+			    rewrite = true;
+			    taken[i] = '';
+			    prev = i;
+			}
+		    }
+		}
+		mapping[fields[0]] = fields[1];
+	    }
+	}
+    }
+    if (rewrite) {
+	fs.writeFileSync('CH/slots_' + day + '.log', taken.join('\n') + '\n', (err) => { 
+	    if (err) throw err;
+	});
+	return 'Your sign-up for slot ' + (prev + 1) + ' has been cleared, ' + nick;
+    }
+    if (slot < 1) { // display slots
+	resp = 'The **CH SF Core B** raid slots for ' + dayNames[day] + ' are:\n\n';
+	for (let i = 0; i < availSlots.length; i++) {
+	    let is = (i + 1) + '';
+	    resp += is + '. ' + availSlots[i];
+	    if (i in mapping) {
+		resp += ' **' + mapping[i] + '**';
+	    } else {
+		resp += ' *available*';
+	    }
+	    resp += '\n';
+	}
+	return resp;
+    } else {
+	if (slot in availSlots) {
+	    fs.appendFileSync('CH/slots_' + day + '.log', slot + ' ' + nick + '\n', (err) => {
+		if (err) throw err;
+	    });
+	    return 'You are now signed up for slot ' + slot + ', ' + nick + ' :slight_smile:';
+	} else {
+	    return 'That slot is already taken :cry:';
+	}
+    }
+}
+
+async function chat(message) {
+    const tag = message.author.tag;
+    if (tag.includes('SpecialForce')) { // it me, Mario
+	return;
+    }
+    console.log(tag);
+    var usuario =  tag.split('#')[0];
+    var text = message.content.toLowerCase();
+    if (!text.includes('slot')) {
+	message.author.send('Sorry, I only talk about the slot builds by DM.').catch(error => { console.log(tag + ' cannot receive bot DM') });
+	return;
+    }
+    const m = guild.member(message.author);
+    if (!m.roles.cache.find(role => role.name.includes('Special Forces'))) {
+	message.author.send('Sorry, I am only allowed to respond to SF members.').catch(error => { console.log(tag + ' cannot receive bot DM') });
+    } else {
+	if (text.includes('slots')) {
+	    message.author.send(slotlist);
+	} else {
+	    const start = text.indexOf('slot') + 4;
+	    const slot = parseInt(text.substring(start));
+	    if (slot > 0 && slot < availSlots.length) {
+		const data = fs.readFileSync('CH/slot' + slot + '.txt').toString().trim();
+		message.author.send('**CH SF Core B Slot ' + slot + '**\n\n' + data + basic).catch(error => { console.log(tag + ' cannot receive bot DM') });
+	    } else {
+		message.author.send('Sorry, but I only know builds for slots from 1 to' + availSlots.length + '.').catch(error => { console.log(tag + ' cannot receive bot DM') });
+	    }
+	}
+    }
+}
+
 
 function process(message) {
     var text = message.content.toLowerCase();
@@ -753,17 +827,51 @@ function process(message) {
 			return;
 		    }
 		    if (day != ALL) { // one-day response
-			if (updateStatus(data, day)) { // an update on an existing response
-			    channel.send(reply(data, day));
-			} else { // a new response
-			    addResponse(data, day, message, true);
+			if (data[indices['core']] == 'B') {
+			    if (text.includes('slot')) {
+				var slot = parseInt(text.substring(text.indexOf('slot') + 4)) || 0;
+				channel.send(signupForSlot(nickname, day, slot, text.includes('clear')));
+			    } else {
+				channel.send('To sign for Core B, please indicate the slot you want to fill by including *slot <number>* in your message. ' +
+					     'DM me for information on all *slots* or a specific *slot <number>*.');
+				return;
+			    }
+			} else { // core A
+			    if (text.includes('slot')) {
+				channel.send('Core A uses free-form signups, there is not slot to define.');
+				return;
+			    } else {
+				if (updateStatus(data, day)) { // an update on an existing response
+				    channel.send(reply(data, day));
+				} else { // a new response
+				    addResponse(data, day, message, true);
+				}
+			    }
 			}
 		    } else { // response for all raids
-			for (var i = 0; i < raidNights['both'].length; i++) {
-			    var rn = raidNights['both'][i];
-			    if (data[indices['core']] == 'A' || coreOn('B', rn)) {
-				if (!updateStatus(data, rn)) { // update if exists
-				    addResponse(data, rn, message, false, false); // add if it does not
+			if (data[indices['core']] == 'B') {
+			    if (text.includes('slot')) {
+				var slot = parseInt(text.substring(text.indexOf('slot') + 4)) || 0;
+				for (var i = 0; i < raidNights['B'].length; i++) {
+				    var rn = raidNights['B'][i];
+				    channel.send(signupForSlot(nickname, rn, slot, text.includes('clear')));
+				}
+			    } else {
+				channel.send('To sign for Core B, please indicate the slot you want to fill by including *slot <number>* in your message. ' +
+					     'DM me for information on all *slots* or a specific *slot <number>*.');
+				return;
+			    }
+			} else { // core A
+			    if (text.includes('slot')) {
+				channel.send('Core A uses free-form signups, there is not slot to define.');
+				return;
+			    }
+			    for (var i = 0; i < raidNights['both'].length; i++) {
+				var rn = raidNights['both'][i];
+				if (data[indices['core']] == 'A' || coreOn('B', rn)) {
+				    if (!updateStatus(data, rn)) { // update if exists
+					addResponse(data, rn, message, false, false); // add if it does not
+				    }
 				}
 			    }
 			}
@@ -787,7 +895,10 @@ const gifs = ['https://tenor.com/view/margarita-tequila-alcohol-drink-smh-gif-13
 const drunk = ['drunk', 'ivre', 'borrach', 'humala'];
 
 client.on("message", (message) => {
-    if (message.content.startsWith(prefixsymbol)) {
+    if (message.channel instanceof Discord.DMChannel) {
+	console.log('chat');
+	chat(message);
+    } else if (message.content.startsWith(prefixsymbol)) {
 	process(message);
     } else {
 	var text = message.content.toLowerCase();

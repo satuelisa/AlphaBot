@@ -1,8 +1,8 @@
-Heals Templar Transmutation
-Heals Templar Gossamer
-Heals Warden Hiti
-Heals Necro SPC
-DK Vicious Death
+Healer Templar Transmutation
+Healer Templar Gossamer
+Healer Warden Hiti
+Healer Necro SPC
+DPS DK Vicious Death
 DPS Necro Vicious Death
 DPS Necro Vicious Death
 DPS Warden Vicious Death
