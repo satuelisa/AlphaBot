@@ -8,11 +8,6 @@ let guild = undefined;
 
 var prefixsymbol = '&'; 
 
-client.on("ready", () => {
-    guild = client.guilds.cache.get('447444372439564288');
-    console.log(guild.name);
-});
-
 'use strict';
 
 const debugMode =  false;
@@ -35,9 +30,8 @@ async function thankYouNote(message, info) {
     message.author.send(info + '\nThank you interacting with me.').catch(error => { console.log(tag + ' cannot receive bot DM') });
 }
 
-
 const separator = ' # ';
-const roleInfo ='\nThe commands *' + prefixsymbol + 'signup* and *' + prefixsymbol + 'maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). Also class (templar, DK, etc.) and primary resource (magicka or stamina) can be specified. You can also write a custom specification indicating any sets, skills, or ultimates you would like to mention by enclosing them in parenthesis.\n\nYou can set a default role with the *' + prefixsymbol + 'default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n\nIf your are signing up for **Core B**, please include the string *b* in the signup command. Similarly, to specify **Core A**, just include *a*.\n';
+const roleInfo ='\nThe commands *' + prefixsymbol + 'signup* and *' + prefixsymbol + 'maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). Also class (templar, DK, etc.) and primary resource (magicka or stamina) can be specified. You can also write a custom specification indicating any sets, skills, or ultimates you would like to mention by enclosing them in parenthesis.\n\nYou can set a default role for Core A with the *' + prefixsymbol + 'default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n\nIf your are signing up for **Core B**, please include the slot number (DM me for more info) and the string *b* in the signup command. Similarly, to specify **Core A**, just include *a*.\n';
 const dateInfo = '\nBy default, you will be responding to the next raid; you can use *Mon Tue Wed Thu Fri Sat Sun* to specify a date, whereas using *all* or *week* refers to the next round of raids for Core A (Friday and Saturday) and the next two for Core B (Wednesday and Friday).\n';
 const earlyLate = '\nYou can also include the words *late* or *early* to indicate if you will be joining late or leaving early (or even both).\n';
 const feedback = '\nIf anything seems broken or unpleasant, just tag *satuelisa* and express your concerns. <:Agswarrior:552592567875928064>'; 
@@ -106,19 +100,85 @@ const confirm = {1: 'confirmed',
 		 2: 'possible',
 		 3: 'unavailable'};
 
-const raidNights = {'A': [5, 6], 
-		    'B': [1, 3],
-		    'both': [1, 3, 5, 6]} 
-
-const nextRaid = {'A': {0: 5, 1: 5, 2: 5, 3: 5, 4: 5, 5: 6, 6: 5},
-		  'B': {0: 1, 1: 3, 2: 3, 3: 1, 4: 1, 5: 1, 6: 1}};
-
 const dayNames = {1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday',
 		  6: 'Saturday', 7: 'Sunday', 8: 'the next round of raids'};
 const ALL = 8;
+const raidNights = {'A': [], 'B': [], 'O': [], 'all': []};
+const time = [];
+const crown = [];
+const group = [];
+const campaign = [];
+const backups = [];
+const groupNames = {'A': 'CH SF Core A',
+		    'B': 'CH SF Core B',
+		    'O': 'CH Open PVP',
+		    'S': 'CH Auction'}
+const eventList= fs.readFileSync('CH/schedule.txt').toString().trim().split('\n').filter(Boolean);
+for (let i = 0; i < eventList.length; i++) {
+    let day = i + 1;
+    const event = eventList[i].split(' ');
+    time[day] = event[0];
+    crown[day] = event[1].split('/');
+    campaign[day] = event[2];
+    group[day] = event[3];
+    if (group[day] != 'S') { // no signups for the auction
+	rn = raidNights[group[day]];
+	rn.push(day);
+	if (!raidNights['all'].includes(day)) {
+	    raidNights['all'].push(day)
+	}
+    }
+}
+const backupListing = fs.readFileSync('CH/backups.txt').toString().trim().split('\n').filter(Boolean);
+for (let i = 0; i < backupListing.length; i++) {
+    backups[i + 1] = backupListing[i].split(' ');
+}
+const nextRaid = {'A': {},
+		  'B': {},
+		  'O': {}}
+for (let et in nextRaid){
+    for (let i = 0; i < raidNights[et].length; i++) {
+	let active = raidNights[et][i];
+	for (let j = active; j < active + 7; j++) {
+	    let day = ((j - 1) + 7) % 7;
+	    let rl = nextRaid[et];
+	    if (!(rl.hasOwnProperty('' + day))) { // unset at present
+		if (day != active) {
+		    rl[day] = active;
+		}
+	    }  
+	    // console.log('for', day, 'we have', rl[day], 'and could have', active, day > rl[day], active > day);
+	    if (day > rl[day] && active > day) { 
+		rl[day] = active; // this one comes first
+	    }
+	}
+    }
+}
+
+
+client.on("ready", () => {
+    guild = client.guilds.cache.get('447444372439564288');
+    console.log(guild.name);
+    console.log(nextRaid);    	
+});
+
 
 function coreOn(core, day) {
-    return raidNights[core].includes(day);
+    return raidNights[core].includes(day) || day == ALL;
+}
+
+function coreDays(core) {
+    var s = '';
+    const k = raidNights[core].length
+    for (let i = 0; i < k; i++) {
+	s += dayNames[raidNights[core][i]];
+	if (i == k - 2) {
+	    s += ' and ';
+	} else if (i == k - 1) {
+	    s += ', ';
+	}
+    }
+    return s;
 }
 
 const stopWords = ["for", "as", "an", "the", "of", "raid", "up",
@@ -182,7 +242,7 @@ function reply(data, day) {
     var core = data[indices['core']];
     var r = 'You are *' + confirm[status] + '*';
     var specs = formatSpecs(data[indices['specs']]);
-    if (status != 3) {
+    if (status != 3 && core != 'B') {
 	r += ' as ' + rssDescr[rID] + classDescr[cID] + roleDescr[role];
     }
     return r + specs + ' for **Core ' + core + '** on ' + dayNames[day]  + timeDescr[timing] + ' ' +
@@ -434,7 +494,13 @@ function listing(channel, day) {
     var singular = '';
     var plural = 's';
     var count = resp.length;
-    if (resp.length == 1) {
+    if (coreOn('B', day)) {
+	let taken = fs.readFileSync('CH/slots_' + day + '.log').toString().trim().split('\n').filter(Boolean);
+	if (typeof taken != 'undefined') {
+	    count += taken.length;
+	}
+    }
+    if (count == 1) {
 	plural = '';
 	singular = 'one';
 	count = '';
@@ -519,18 +585,18 @@ function listing(channel, day) {
 	}
     }
     if (coreOn('B', day)) {
-	if (raidNights['B'].includes(day)) {
-	    r += signupForSlot(undefined, day, -1, false); // just the listing
-	} else { // this should not even be necessary
-	    r += '*Core B does not run on ' + dayNames[day] + '*';
-	}
+	r += signupForSlot(undefined, day, -1, false); // just the listing
     }
     return r;
 }
 
 function listRaid(channel, day) {
     var text = undefined;
-    if (raid[day].length == 0) {
+    var taken = undefined;
+    if (coreOn('B', day)) {
+	taken = fs.readFileSync('CH/slots_' + day + '.log').toString().trim().split('\n').filter(Boolean);
+    }
+    if ((!raid.hasOwnProperty(day) || raid[day].length == 0) && typeof taken === "undefined") {
 	text = '*Nobody* has responded for **' + dayNames[day] + '**  :frowning2:';
     } else {
 	text = listing(channel, day);
@@ -622,15 +688,16 @@ function signupForSlot(nick, day, slot, clear) {
 		if (fields[1] == nick) {
 		    if (slot != 0 || clear) {
 			if (!clear) {
-			    return 'You are already signed up. Please use *!signup slot clear* to eliminate the existing sign-up first.';
+			    return 'You are already signed up for ' + dayNames[day] + '. Please use *!signup slot clear* to eliminate the existing sign-up first if you want to make another one.';
 			} else {
 			    rewrite = true;
 			    taken[i] = '';
-			    prev = i;
+			    prev = parseInt(fields[0]) - 1;
+			    console.log(fields);
 			}
 		    }
 		}
-		mapping[fields[0]] = fields[1];
+		mapping[parseInt(fields[0]) - 1] = fields[1];
 	    }
 	}
     }
@@ -643,8 +710,7 @@ function signupForSlot(nick, day, slot, clear) {
     if (slot < 1) { // display slots
 	resp = 'The **CH SF Core B** raid slots for ' + dayNames[day] + ' are:\n\n';
 	for (let i = 0; i < availSlots.length; i++) {
-	    let is = (i + 1) + '';
-	    resp += is + '. ' + availSlots[i];
+	    resp += (i + 1) + '. ' + availSlots[i];
 	    if (i in mapping) {
 		resp += ' **' + mapping[i] + '**';
 	    } else {
@@ -674,7 +740,7 @@ async function chat(message) {
     var usuario =  tag.split('#')[0];
     var text = message.content.toLowerCase();
     if (!text.includes('slot')) {
-	message.author.send('Sorry, I only talk about the slot builds by DM.').catch(error => { console.log(tag + ' cannot receive bot DM') });
+	message.author.send('I only talk about the slot builds by DM. DM me *slots* to see the listing and then *slot <number>* to see the details for a specific slot.').catch(error => { console.log(tag + ' cannot receive bot DM') });
 	return;
     }
     const m = guild.member(message.author);
@@ -748,7 +814,11 @@ function process(message) {
 	    curr['core'] = 'A';
 	}
 	if (text.startsWith(prefixsymbol + 'def')) { // default step requested with !default or !def
-	    manageDefaults(name, nickname, defs, curr, channel);
+	    if (curr['core'] == 'B') {
+		channel.send('Core B uses slot-based signups. All you need to define is the slot number. Please DM me for more info.');
+	    } else {
+		manageDefaults(name, nickname, defs, curr, channel);
+	    }
 	} else { // response or raid listing (other raid commands than default)
 	    loadLogs('A');
 	    loadLogs('B');
@@ -769,8 +839,8 @@ function process(message) {
 		    listRaid(channel, day);
 		} else { // all week requested
 		    var r = 'Showing all responses.\n';
-		    for (var i = 0; i < raidNights['both'].length; i++) {
-			r += listRaid(undefined, raidNights['both'][i], false);
+		    for (var i = 0; i < raidNights['all'].length; i++) {
+			r += '\n' + listRaid(undefined, raidNights['all'][i], false);
 		    }
 		    channel.send(r);
 		}
@@ -823,7 +893,7 @@ function process(message) {
 			    dayNames[day] + '; to specify a date, include a weekday in your command.';
 		    }
 		    if (data[indices['core']] == 'B' && !coreOn('B', day)) {
-			message.channel.send('Sorry, but **Core B** only runs on Wednesdays and Fridays :frowning2:');
+			message.channel.send('Sorry, but **Core B** only runs ' + coreDays('B') + ':frowning2:');
 			return;
 		    }
 		    if (day != ALL) { // one-day response
@@ -838,7 +908,7 @@ function process(message) {
 			    }
 			} else { // core A
 			    if (text.includes('slot')) {
-				channel.send('Core A uses free-form signups, there is not slot to define.');
+				channel.send('Core A uses free-form signups; there is not slot to define. Type *' + prefixsymbol + 'h* and I will DM you instructions.');
 				return;
 			    } else {
 				if (updateStatus(data, day)) { // an update on an existing response
@@ -866,8 +936,8 @@ function process(message) {
 				channel.send('Core A uses free-form signups, there is not slot to define.');
 				return;
 			    }
-			    for (var i = 0; i < raidNights['both'].length; i++) {
-				var rn = raidNights['both'][i];
+			    for (var i = 0; i < raidNights['all'].length; i++) {
+				var rn = raidNights['all'][i];
 				if (data[indices['core']] == 'A' || coreOn('B', rn)) {
 				    if (!updateStatus(data, rn)) { // update if exists
 					addResponse(data, rn, message, false, false); // add if it does not
