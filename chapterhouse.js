@@ -118,7 +118,7 @@ for (let i = 0; i < eventList.length; i++) {
     let day = i + 1;
     const event = eventList[i].split(' ');
     time[day] = event[0];
-    crown[day] = event[1].split('/');
+    crown[day] = event[1];
     campaign[day] = event[2];
     group[day] = event[3];
     if (group[day] != 'S') { // no signups for the auction
@@ -521,6 +521,7 @@ function listing(channel, day) {
 	var timing = parseInt(userData[indices['timing']]);
 	var nickname = userData[indices['nick']];
 	var core = userData[indices['core']];
+	let username = userData[indices['name']];
 	if (core == undefined) {
 	    core = 'A'; // default
 	}
@@ -571,7 +572,12 @@ function listing(channel, day) {
 	    source = stamSymbols;
 	    break;
 	}
-	cores[core] += prefix + symbols[role] + ' ' + source[cID] + ' ' + nickname + specs + timeDescr[timing] + '\n';
+	console.log(username, day, crown[day], crown[day] === username);
+	let leader = ' ';
+	if (crown[day] === username) {
+	    leader = ' <:Crowns:486254092600213504> ';
+	}
+	cores[core] += prefix + symbols[role] + ' ' + source[cID] + leader + nickname + specs + timeDescr[timing] + '\n';
     }
     var r = list;
     if (coreOn('A', day)) {
