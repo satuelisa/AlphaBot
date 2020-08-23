@@ -115,12 +115,12 @@ const groupNames = {'A': 'CH SF Core A',
 		    'S': 'CH Auction'}
 const eventList= fs.readFileSync('CH/schedule.txt').toString().trim().split('\n').filter(Boolean);
 for (let i = 0; i < eventList.length; i++) {
-    let day = i + 1;
     const event = eventList[i].split(' ');
-    time[day] = event[0];
-    crown[day] = event[1];
-    campaign[day] = event[2];
-    group[day] = event[3];
+    let day = parseInt(event[0]);
+    time[day] = event[1];
+    crown[day] = event[2];
+    campaign[day] = event[3];
+    group[day] = event[4];
     if (group[day] != 'S') { // no signups for the auction
 	rn = raidNights[group[day]];
 	rn.push(day);

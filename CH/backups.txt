@@ -1,6 +1,7 @@
-Bubbles#8411 satuelisa#0666 
-Abindago#0856 Tess#7678 
 satuelisa#0666
-Tess#7678 Carsios#5106
-Tess#7678 
-Tess$7678 
+Carsios#5106 satuelisa#0666
+satuelisa#0666
+Abindago#0856 
+
+satuelisa#0666 Tess#7678 Carsios#5106
+

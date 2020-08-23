@@ -1,7 +1,8 @@
-6EST Carsios#5106 GH B
-7EST iTwiitchy#8180 BR O
-6EST Bubbles#8411 GH B
-7EST Abindago#0856 GH O
-7EST satuelisa#0666 GH A 
-7EST satuelisa#0666 GH A 
-?EST Emyy#4624 NA S
+1 7EST Carsios#5106 GH B
+1 7EST Bubbles#8411 GH B
+2 7EST iTwiitchy#8180 GH O
+3 7EST Bubbles#8411 GH B
+4 7EST Tess#7678 GH A
+5 7EST satuelisa#0666 GH A 
+6 7EST Abindago#0856 GH O
+7 ?EST Emyy#4624 NA S
