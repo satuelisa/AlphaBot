@@ -17,7 +17,7 @@ let coc = fs.readFileSync('ch_coc.txt').toString().trim();
 
 const basic = '\n\n' + fs.readFileSync('CH/basics.txt').toString().trim();
 const availSlots = fs.readFileSync('CH/coreB.txt').toString().trim().split('\n').filter(Boolean);
-var slotlist = 'The **CH SF Core B** slots are:\n';
+var slotlist = 'The **CH SF Core B** slots are:\n\n';
 for (let i = 0; i < availSlots.length; i++) {
     slotlist += (i + 1) + '. ' + availSlots[i] + '\n';
 }
@@ -37,6 +37,8 @@ const earlyLate = '\nYou can also include the words *late* or *early* to indicat
 const feedback = '\nIf anything seems broken or unpleasant, just tag *satuelisa* and express your concerns. <:Agswarrior:552592567875928064>'; 
 const options = roleInfo + earlyLate + dateInfo + '\nUse __' + prefixsymbol + '**h**elp__ to see this help text and __' + prefixsymbol + '**r**aid__ to just view the sign-ups.';
 const help = '**Available commands:**\n__' + prefixsymbol + '**s**ignup__ if you will attend the next raid\n' + prefixsymbol + '__**m**aybe__ if you might be able to attend\n' + prefixsymbol + '__**d**ecline__ if you will not make it\n' + options;
+const helpCoreB = '\nTo **sign up** for *Core B*, use *&signup slot <number> b* on the **#sf-signup** channel in ChapterHouse discord. If you need to **clear** an existing sign-up, just add the word *clear* in that message.';
+const helpSchedule = '\n**Open** groups are for *all guild members*; contact @Abindago#0856 for more information and note that *Core A* members are encouraged to use their core toons or toons they are preparing for the core.\n\n**Core A** groups are *exclusively* for Core A members; send information on your available toons to @satuelisa#0666 for more information.\n\n**Core B** groups are slot-based and exclusively for Core B members; message *slots* to me to see the slots and send your build matching a slot to @Bubbles#8411.\n\nJoining a Core A/B raid also requires you to have **signed up** for it on the **#sf-signup** channel on CH Discord; you gain access to the channel after a Core leader has approved your build.';
 
 const symbols = {0: ':confused:', // unspecified
 		 1: '<:sfdps:744307873181466674>', // dps
@@ -109,11 +111,12 @@ const crown = [];
 const group = [];
 const campaign = [];
 const backups = [];
-const groupNames = {'A': 'CH SF Core A',
-		    'B': 'CH SF Core B',
-		    'O': 'CH Open PVP',
-		    'S': 'CH Auction'}
+const groupNames = {'A': 'Special Forces Core A',
+		    'B': 'Special Forces Core B',
+		    'O': 'Open',
+		    'S': 'Auction'}
 const eventList= fs.readFileSync('CH/schedule.txt').toString().trim().split('\n').filter(Boolean);
+let schedule = '**ChapterHouse PVP Schedule**\n\n';
 for (let i = 0; i < eventList.length; i++) {
     const event = eventList[i].split(' ');
     let day = parseInt(event[0]);
@@ -128,6 +131,7 @@ for (let i = 0; i < eventList.length; i++) {
 	    raidNights['all'].push(day)
 	}
     }
+    schedule += dayNames[day] + ': ' + groupNames[group[day]] + ' with ' + crown[day].split('#')[0] + '\n';
 }
 const backupListing = fs.readFileSync('CH/backups.txt').toString().trim().split('\n').filter(Boolean);
 for (let i = 0; i < backupListing.length; i++) {
@@ -240,6 +244,9 @@ function reply(data, day) {
     var rID = data[indices['resource']];
     var timing = data[indices['timing']];
     var core = data[indices['core']];
+    if (Number.isNaN(core) || core === 'NaN') {
+	core = 'A';
+    }
     var r = 'You are *' + confirm[status] + '*';
     var specs = formatSpecs(data[indices['specs']]);
     if (status != 3 && core != 'B') {
@@ -745,25 +752,26 @@ async function chat(message) {
     console.log(tag);
     var usuario =  tag.split('#')[0];
     var text = message.content.toLowerCase();
-    if (!text.includes('slot')) {
-	message.author.send('I only talk about the slot builds by DM. DM me *slots* to see the listing and then *slot <number>* to see the details for a specific slot.').catch(error => { console.log(tag + ' cannot receive bot DM') });
+    if (!text.includes('slot') && !text.includes('sch')) {
+	message.author.send('I only talk about the *schedule* and the slot builds by DM. DM me *slots* to see the Core B listing and then *slot <number>* to see the details for a specific slot.').catch(error => { console.log(tag + ' cannot receive bot DM') });
 	return;
     }
     const m = guild.member(message.author);
-    if (!m.roles.cache.find(role => role.name.includes('Special Forces'))) {
-	message.author.send('Sorry, I am only allowed to respond to SF members.').catch(error => { console.log(tag + ' cannot receive bot DM') });
+//    if (!m.roles.cache.find(role => role.name.includes('Special Forces'))) {
+//	message.author.send('Sorry, I am only allowed to respond to SF members.').catch(error => { console.log(tag + ' cannot receive bot DM') });
+    //   } else {
+    if (text.includes('sch')) {
+	message.author.send(schedule + helpSchedule);
+    } else if (text.includes('slots')) {
+	message.author.send(slotlist + helpCoreB);
     } else {
-	if (text.includes('slots')) {
-	    message.author.send(slotlist);
+	const start = text.indexOf('slot') + 4;
+	const slot = parseInt(text.substring(start));
+	if (slot > 0 && slot < availSlots.length) {
+	    const data = fs.readFileSync('CH/slot' + slot + '.txt').toString().trim();
+	    message.author.send('**CH SF Core B Slot ' + slot + '**\n\n' + data + basic).catch(error => { console.log(tag + ' cannot receive bot DM') });
 	} else {
-	    const start = text.indexOf('slot') + 4;
-	    const slot = parseInt(text.substring(start));
-	    if (slot > 0 && slot < availSlots.length) {
-		const data = fs.readFileSync('CH/slot' + slot + '.txt').toString().trim();
-		message.author.send('**CH SF Core B Slot ' + slot + '**\n\n' + data + basic).catch(error => { console.log(tag + ' cannot receive bot DM') });
-	    } else {
-		message.author.send('Sorry, but I only know builds for slots from 1 to' + availSlots.length + '.').catch(error => { console.log(tag + ' cannot receive bot DM') });
-	    }
+	    message.author.send('Sorry, but I only know builds for slots from 1 to' + availSlots.length + '.').catch(error => { console.log(tag + ' cannot receive bot DM') });
 	}
     }
 }
