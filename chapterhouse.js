@@ -710,7 +710,7 @@ function signupForSlot(nick, day, slot, clear) {
 			}
 		    }
 		}
-		mapping[parseInt(fields[0]) - 1] = fields[1];
+		mapping[parseInt(fields[0]) - 1] = (fields.slice(1, fields.length)).join(' ');
 	    }
 	}
     }
@@ -975,6 +975,7 @@ const gifs = ['https://tenor.com/view/margarita-tequila-alcohol-drink-smh-gif-13
 	      'https://media.giphy.com/media/26gseZqYi0eofgYxy/giphy.gif',
 	      'https://tenor.com/view/inna-drinking-drunk-trendizisst-drinking-wine-gif-14720190',
 	      'https://tenor.com/view/tequila-happy-grandmas-gif-14416107'];
+const coffee = 'https://media.giphy.com/media/TLCBaaTF5WYrs5inZi/giphy.gif';
 
 const drunk = ['drunk', 'ivre', 'borrach', 'humala'];
 
@@ -986,23 +987,27 @@ client.on("message", (message) => {
 	process(message);
     } else {
 	var text = message.content.toLowerCase();
-	var total = 0;
-	for (let i = 0; i < drunk.length; i++) {
-	    let word = drunk[i];
-	    if (text.includes(word)) {
-		let re = new RegExp(word, 'g');
-		total += (text.match(re)).length;
+	if (text.includes('coffee')) {
+	    message.channel.send(coffee);
+	} else { 
+	    var total = 0;
+	    for (let i = 0; i < drunk.length; i++) {
+		let word = drunk[i];
+		if (text.includes(word)) {
+		    let re = new RegExp(word, 'g');
+		    total += (text.match(re)).length;
+		}
 	    }
-	}
-	if (total > 0) {
-	    var a = '';
-	    for (var i = 0; i < total; i++) {
-		a += ' ' + drinks[Math.floor(Math.random() * drinks.length)];
+	    if (total > 0) {
+		var a = '';
+		for (var i = 0; i < total; i++) {
+		    a += ' ' + drinks[Math.floor(Math.random() * drinks.length)];
+		}
+		if (Math.random() > 0.8)  {
+		    a += '\n' + gifs[Math.floor(Math.random() * gifs.length)];
+		}
+		message.channel.send(a);
 	    }
-	    if (Math.random() > 0.8)  {
-		a += '\n' + gifs[Math.floor(Math.random() * gifs.length)];
-	    }
-	    message.channel.send(a);
 	}
     }
 });
