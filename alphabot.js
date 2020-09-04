@@ -751,11 +751,10 @@ function signupForSlot(nick, day, slot, clear) {
     }
     if (slot < 1) { // display slots
 	resp = 'The raid slots for ' + dayNames[day] + ' are:\n\n';
-	for (let i = 1; i <= show; i++) {
-	    let is = i + '';
-	    resp += is + '. ' + available[i];
+	for (let i = 0; i < show; i++) {
+	    resp += (i + 1) + '. ' + available[i];
 	    if (i in mapping) {
-		resp += ' **' + mapping[is] + '**';
+		resp += ' **' + mapping[i] + '**';
 	    } else {
 		resp += ' *available*';
 	    }
@@ -919,6 +918,10 @@ function process(message) {
 
 
 client.on("message", (message) => {
+    if (message.guild != guild) {
+	console.log(message.guild.name);
+	return;
+    }
     if (message.channel instanceof Discord.DMChannel) {
 	chat(message);
     } else if (message.content.startsWith('!')) {
