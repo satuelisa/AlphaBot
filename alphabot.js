@@ -739,8 +739,8 @@ function signupForSlot(nick, day, slot, clear) {
 	});
 	return 'Your sign-up for slot ' + (prev + 1) + ' has been cleared, ' + nick;
     }
-    var show = 0;
-    if (high < 8) {
+    var show = 12;
+    /* if (high < 8) {
 	show = 8;
     } else if (high < 12) {
 	show = 12;
@@ -748,7 +748,7 @@ function signupForSlot(nick, day, slot, clear) {
 	show = 16;
     } else {
 	show = available.length;
-    }
+    } */
     if (slot < 1) { // display slots
 	resp = 'The raid slots for ' + dayNames[day] + ' are:\n\n';
 	for (let i = 0; i < show; i++) {
