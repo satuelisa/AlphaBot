@@ -1,20 +1,20 @@
-**Healer** *Templar* Gossamer/Winter Remembrance/Nova
-**MagDPS** *Warden* Harmony VD/CA/Bal/Malacath Meteor/Northern
-**MagDPS** *Necro* Harmony VD/CA/Bal/Malacath Hulk/Resurrect
-**Support** *MagSorc* (Offensive) Curse/Merit Negate/Purger/Orbs
-**Healer** *Templar* Hiti/Hollow Barrier/Nova
-**MagDPS** *DK* Harmony VD/CA/Grot/Malacath Shifting/Shifting
+**Healer** *Templar* Defensive - Gossamer/Winter
+**MagDPS** *Warden* Harmony VD/CA/Bal/Malacath
+**MagDPS** *Necro* Harmony VD/CA/Bal/Malacath
+**Support** *MagSorc* (Offensive) Curse/Merit
+**Healer** *Templar* Defensive - Hiti/Transmutation
+**MagDPS** *DK* Harmony VD/CA/Grot/Malacath
+**StamDPS** *Necro/Warden* CA/Malacath
+**Support** *MagSorc* (Defensive) Curse/Merit
+**Healer** *Necro* Offensive - SPC/Winters (backup Templar: Olo/Winters)
+**MagDPS** *Necro* Harmony VD/CA/Bal/Malacath
+**MagDPS** *Warden/NB* Harmony VD/CA/Bal/Malacath
+**StamSupport** *Sorc/Warden* Rapids
+**Healer** *Necro/Templar* Defensive - Transmutation/Hiti
+**MagDPS** *DK/Warden/NB* Harmony VD/CA/Grot/Malacath
+**Support** *Sorc* (Offensive Stam/Mag) Fast Negate
 **StamDPS** *Necro/Warden* (WIP) DB-Hulk/Barrier
-**Support** *MagSorc* (Defensive) Curse/Merit Negate/Purger/Orbs
-**Healer** *Necro* Olo/Hollow Hulk/Resurrect
-**MagDPS** *Necro* Harmony VD/CA/Bal/Malacath-Hulk/Resurrect
-**MagDPS** *Warden/NB* Harmony VD/CA/Bal/Malacath-Meteor/Northern
-**StamSupport** *Sorc/Warden* (WIP) Rapids/Negate/Sleet
-**Healer** *Necro/Templar* Transmutation/Hiti Barrier/Nova(Hulk/Resurrect)
-**MagDPS** *DK/Warden/NB* Harmony VD/CA/Grot/Malacath (Class Ult)
-**Support** *Sorc* (Offensive Stam/Mag) (WIP) Fast Negate
-**StamDPS** *Necro/Warden* (WIP) DB-Hulk/Barrier
-**Healer** *Templar/NB/Necro* Gossamer/Transmutation Remembrance/Nova
-**MagDP** *DK* Harmony VD/CA/Grot/Malacath Shifting/Shifting
-**MagDPS** *DK/Warden/NB* Harmony VD/CA/Grot/Malacath (Class Ulti)
-**MagSupport** Sorc(Offensive) Curse/Merit Negate/Purger/Orbs
+**Healer** *Templar/Necro* Offensive - Olo/Winters - Olo/Jorvulds
+**MagDP** *DK* Harmony VD/CA/Grot/Malacath
+**MagDPS** *DK/Warden/NB* Harmony VD/CA/Grot/Malacath
+**MagSupport** Sorc (Offensive) Curse/Merit Negate/Purger/Orbs
