@@ -13,6 +13,7 @@ client.on("ready", () => {
 
 'use strict';
 
+const commandPrefix = '&';
 const debugMode = true;
 const { spawnSync } = require('child_process');
 const available = fs.readFileSync('slots.txt').toString().trim().split('\n').filter(Boolean);
@@ -52,12 +53,12 @@ async function chat(message) {
 }
 
 const separator = ' # ';
-const roleInfo ='\nThe commands *!signup* and *!maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). Also class (templar, DK, etc.) and primary resource (magicka or stamina) can be specified. You can also write a custom specification indicating any sets, skills, or ultimates you would like to mention by enclosing them in parenthesis.\n\nYou can set a default role with the *!default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n';
+const roleInfo ='\nThe commands *signup* and *maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). Also class (templar, DK, etc.) and primary resource (magicka or stamina) can be specified. You can also write a custom specification indicating any sets, skills, or ultimates you would like to mention by enclosing them in parenthesis.\n\nYou can set a default role with the *default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n';
 const dateInfo = '\nBy default, you will be responding to the next raid; you can use *Mon Fri Sat* to specify a date, whereas using *all* or *week* refers to the next three raids.\n';
 const earlyLate = '\nYou can also include the words *late* or *early* to indicate if you will be joining late or leaving early (or even both).\n';
 const feedback = '\nIf anything seems broken or unpleasant, just tag *satuelisa* and express your concerns. <:Agswarrior:552592567875928064>'; 
-const options = roleInfo + earlyLate + dateInfo + '\nUse __!**h**ustle__ to see this help text and __!**r**aid__ to just view the sign-ups.';
-const help = '**Available commands:**\n__!**s**ignup__ if you will attend the next raid\n!__**m**aybe__ if you might be able to attend\n!__**d**ecline__ if you will not make it\n' + options;
+const options = roleInfo + earlyLate + dateInfo + '\nUse __**h**ustle__ to see this help text and __**r**aid__ to just view the sign-ups.';
+const help = '**Available commands**:' + '\n(put a ' + commandPrefix + ' in the beginning to address the bot)\n' + '\n__**s**ignup__ if you will attend the next raid\n__**m**aybe__ if you might be able to attend\n__**d**ecline__ if you will not make it\n' + options;
 
 const symbols = {0: ':confused:', 1: '<:damage:667107746868625458>',
 		 2: '<:support:667107765872754738>',
@@ -782,12 +783,12 @@ function process(message) {
 	channel.send('I have been confined to the <#667529156212293664> channel. Please talk to me there.')
 	return;
     }
-    if (text.includes('!clear')) {
+    if (text.includes(commandPrefix + 'clear')) {
 	return; // that is for another bot
     }
-    if (text.startsWith('!h')) {
+    if (text.startsWith(commandPrefix + 'h')) {
 	channel.send(help);
-    } else if (text.startsWith('!') && 'dsmrt'.includes(text[1])) {	
+    } else if (text.startsWith(commandPrefix) && 'dsmrt'.includes(text[1])) {	
 	let user = message.member.user;
 	let name = user.tag;
 	let member = guild.member(message.author);
@@ -805,9 +806,9 @@ function process(message) {
 	if (debugMode) {
 	    console.log(text);
 	}
-	if (text.startsWith('!def')) { // default step requested with !default or !def
+	if (text.startsWith(commandPrefix + 'def')) { // default step requested with !default or !def
 	    manageDefaults(name, nickname, defs, curr, channel);
-	} else if (text.startsWith('!toon')) { // register a toon definition
+	} else if (text.startsWith(commandPrefix + 'toon')) { // register a toon definition
 	    manageToons(name, nickname, channel, text);
 	} else { // response or raid listing (other raid commands than default)
 	    loadLogs();
@@ -924,7 +925,7 @@ client.on("message", (message) => {
     }
     if (message.channel instanceof Discord.DMChannel) {
 	chat(message);
-    } else if (message.content.startsWith('!')) {
+    } else if (message.content.startsWith(commandPrefix)) {
 	process(message);
     } else {
 	alpaca(message); // for Ags
