@@ -1,20 +1,12 @@
-**Healer** *Templar* Defensive - Gossamer/Winter
-**MagDPS** *Warden* Harmony VD/CA/Bal/Malacath
-**MagDPS** *Necro* Harmony VD/CA/Bal/Malacath
-**Support** *MagSorc* (Offensive) Curse/Merit
-**Healer** *Templar* Defensive - Hiti/Transmutation
-**MagDPS** *DK* Harmony VD/CA/Grot/Malacath
-**StamDPS** *Necro/Warden* CA/Malacath
-**Support** *MagSorc* (Defensive) Curse/Merit
-**Healer** *Necro* Offensive - SPC/Winters (backup Templar: Olo/Winters)
-**MagDPS** *Necro* Harmony VD/CA/Bal/Malacath
-**MagDPS** *Warden/NB* Harmony VD/CA/Bal/Malacath
-**StamSupport** *Sorc/Warden* Rapids
-**Healer** *Necro/Templar* Defensive - Transmutation/Hiti
-**MagDPS** *DK/Warden/NB* Harmony VD/CA/Grot/Malacath
-**Support** *Sorc* (Offensive Stam/Mag) Fast Negate
-**StamDPS** *Necro/Warden* (WIP) DB-Hulk/Barrier
-**Healer** *Templar/Necro* Offensive - Olo/Winters - Olo/Jorvulds
-**MagDP** *DK* Harmony VD/CA/Grot/Malacath
-**MagDPS** *DK/Warden/NB* Harmony VD/CA/Grot/Malacath
-**MagSupport** Sorc (Offensive) Curse/Merit Negate/Purger/Orbs
+**MagDPS** *DK*
+**MagDPS** *Necro*
+**MagDPS** *Necro*
+**MagDPS** *Warden*
+**MagDPS** *Flex*
+**StamDPS** *Necro/Warden*
+**Support** *MagSorc*
+**Support** *MagSorc*
+**StamSupport** *Sorc/Warden*
+**Healer** *Templar* Defensive
+**Healer** *Templar* Offensive
+**Healer** *Flex* Offensive
