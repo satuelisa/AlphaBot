@@ -721,11 +721,11 @@ function signupForSlot(nick, day, slot, clear) {
 			} else {
 			    rewrite = true;
 			    taken[i] = '';
-			    prev = i;
+			    prev = parseInt(fields[0]) - 1;        
 			}
 		    }
 		}
-		mapping[fields[0]] = fields[1];
+		mapping[parseInt(fields[0]) - 1] = (fields.slice(1, fields.length)).join(' ');       
 		let pos = parseInt(fields[0]) - 1;
 		if (pos > high) {
 		    high = pos;
@@ -932,3 +932,4 @@ client.on("message", (message) => {
 });
 var ID = fs.readFileSync('token.txt').toString().trim();
 client.login(ID);
+//console.log(signupForSlot('', 6, 0, ''));

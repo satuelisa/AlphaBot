@@ -22,6 +22,14 @@ for (let i = 0; i < availSlots.length; i++) {
     slotlist += (i + 1) + '. ' + availSlots[i] + '\n';
 }
 
+
+const sBasic = '\n\n' + fs.readFileSync('CH/basics_small.txt').toString().trim();
+const sAvailSlots = fs.readFileSync('CH/small.txt').toString().trim().split('\n').filter(Boolean);
+var sSlotlist = 'The **CH SF Core B small-scale** slots are:\n\n';
+for (let i = 0; i < sAvailSlots.length; i++) {
+    sSlotlist += (i + 1) + '. ' + sAvailSlots[i] + '\n';
+}
+
 async function thankYouNote(message, info) {
     var tag = message.author.tag;
     if (tag.includes('AlphaBot')) { // it me, Mario
@@ -32,13 +40,13 @@ async function thankYouNote(message, info) {
 
 const separator = ' # ';
 const roleInfo ='\nThe commands *' + prefixsymbol + 'signup* and *' + prefixsymbol + 'maybe* can be accompanied by role info: **d**amage, **s**upport/**u**tility, **h**eals, or **f**lexible (meaning you could take one of 2+ roles if needed). Also class (templar, DK, etc.) and primary resource (magicka or stamina) can be specified. You can also write a custom specification indicating any sets, skills, or ultimates you would like to mention by enclosing them in parenthesis.\n\nYou can set a default role for Core A with the *' + prefixsymbol + 'default* command using the same role specifiers; once a default has been set, future sign-ups employ that role unless you specify another one.\n\nIf your are signing up for **Core B**, please include the slot number (DM me for more info) and the string *b* in the signup command. Similarly, to specify **Core A**, just include *a*.\n';
-const dateInfo = '\nBy default, you will be responding to the next raid; you can use *Mon Tue Wed Thu Fri Sat Sun* to specify a date, whereas using *all* or *week* refers to the next round of raids for Core A (Friday and Saturday) and the next two for Core B (Wednesday and Friday).\n';
+const dateInfo = '\nBy default, you will be responding to the next raid; you can use *Mon Tue Wed Thu Fri Sat Sun* to specify a date, whereas using *all* or *week* refers to the next round of raids for Core A (Tuesday) and the next two for Core B (Wednesday and Friday).\n';
 const earlyLate = '\nYou can also include the words *late* or *early* to indicate if you will be joining late or leaving early (or even both).\n';
 const feedback = '\nIf anything seems broken or unpleasant, just tag *satuelisa* and express your concerns. <:Agswarrior:552592567875928064>'; 
 const options = roleInfo + earlyLate + dateInfo + '\nUse __' + prefixsymbol + '**h**elp__ to see this help text and __' + prefixsymbol + '**r**aid__ to just view the sign-ups.';
 const help = '**Available commands:**\n__' + prefixsymbol + '**s**ignup__ if you will attend the next raid\n' + prefixsymbol + '__**m**aybe__ if you might be able to attend\n' + prefixsymbol + '__**d**ecline__ if you will not make it\n' + options;
 const helpCoreB = '\nTo **sign up** for *Core B*, use *&signup slot <number> b* on the **#sf-signup** channel in ChapterHouse discord. If you need to **clear** an existing sign-up, just add the word *clear* in that message.';
-const helpSchedule = '\n**Open** groups are for *all guild members*; contact @iTwiitchy#8180 for more information and note that *Core A* members are encouraged to use their core toons or toons they are preparing for the core.\n\n**Core A** groups are *exclusively* for Core A members; send information on your available toons to @satuelisa#0666 for more information.\n\n**Core B** groups are slot-based and exclusively for Core B members; message *slots* to me to see the slots and send your build matching a slot to @Bubbles#8411.\n\nJoining a Core A/B raid also requires you to have **signed up** for it on the **#sf-signup** channel on CH Discord; you gain access to the channel after a Core leader has approved your build.';
+const helpSchedule = '\n**Open** groups are for *all guild members*; contact @iTwiitchy#8180 for more information and note that *Core A* members are encouraged to use their core toons or toons they are preparing for the core.\n\n**Core A** groups are *exclusively* for Core A members; send information on your available toons to @satuelisa#0666 for more information.\n\n**Core B** groups are slot-based and exclusively for Core B members; message *slots* to me to see the slots (*small* for the small-scale slots) and send your build matching a slot to @Bubbles#8411.\n\nJoining a Core A/B raid also requires you to have **signed up** for it on the **#sf-signup** channel on CH Discord; you gain access to the channel after a Core leader has approved your build.';
 
 const symbols = {0: ':confused:', // unspecified
 		 1: '<:sfdps:744307873181466674>', // dps
@@ -519,6 +527,7 @@ function listing(channel, day) {
     var firstMaybe = {'A': false, 'B': false};
     var firstNo = {'A': false, 'B': false};
     var seq = {'A': 0, 'B': 0};
+    var attendance = {'A': 0, 'B': 0};
     for (r in resp) {
 	var userData = resp[r].split(separator);
 	var status = parseInt(userData[indices['status']]);
@@ -547,6 +556,7 @@ function listing(channel, day) {
 		cores[core] += '__Attending:__\n';
 		firstYes = false;
 	    }
+	    attendance[core] += 1;
 	    nickname = '**' + nickname + '**'; // boldface	    
 	    seq[core] += 1;
 	    prefix = seq[core] + '. ';
@@ -595,7 +605,10 @@ function listing(channel, day) {
 	    } else { // this should not even be necessary
 		r += '*Core A does not run on ' + dayNames[day] + '*';	    
 	    }
-	}
+	} else if (attendance[core] < 7) {
+	    r += '\n\nWhen there are not at *least six sign-ups by noon* of the day of the raid, the raid is **cancelled**.';
+	}	
+
     }
     if (coreOn('B', day)) {
 	r += signupForSlot(undefined, day, -1, false); // just the listing
@@ -752,18 +765,20 @@ async function chat(message) {
     console.log(tag);
     var usuario =  tag.split('#')[0];
     var text = message.content.toLowerCase();
-    if (!text.includes('slot') && !text.includes('sch')) {
+    if (!text.includes('slot') && !text.includes('sch') && !text.includes('small')) {
 	message.author.send('I only talk about the *schedule* and the slot builds by DM. DM me *slots* to see the Core B listing and then *slot <number>* to see the details for a specific slot.').catch(error => { console.log(tag + ' cannot receive bot DM') });
 	return;
     }
     const m = guild.member(message.author);
-//    if (!m.roles.cache.find(role => role.name.includes('Special Forces'))) {
-//	message.author.send('Sorry, I am only allowed to respond to SF members.').catch(error => { console.log(tag + ' cannot receive bot DM') });
+    //    if (!m.roles.cache.find(role => role.name.includes('Special Forces'))) {
+    //	message.author.send('Sorry, I am only allowed to respond to SF members.').catch(error => { console.log(tag + ' cannot receive bot DM') });
     //   } else {
     if (text.includes('sch')) {
 	message.author.send(schedule + helpSchedule);
     } else if (text.includes('slots')) {
 	message.author.send(slotlist + helpCoreB);
+    } else if (text.includes('small')) {
+	message.author.send(sSlotlist + sBasic);
     } else {
 	const start = text.indexOf('slot') + 4;
 	const slot = parseInt(text.substring(start));
