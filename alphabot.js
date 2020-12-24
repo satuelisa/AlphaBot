@@ -707,49 +707,37 @@ function signupForSlot(nick, day, slot, clear) {
     // data = [status, curr['role'], curr['rss'], curr['class'], timing, name, nickname, url]; // RESPONSE FILE SYNTAX
     var taken = fs.readFileSync('slots_' + day + '.log').toString().trim().split('\n').filter(Boolean);
     var mapping = {};
-    var high = 0;
     var rewrite = false;
     var resp = '';
     var prev = '';
     for (let i = 0; i < taken.length; i++) {
 	let fields = taken[i].split(" ");
 	if (fields.length > 1) {
-	    if (!(fields[0] in mapping)) {
+	    let index = parseInt(fields[0]) - 1;
+	    if (!(index in mapping)) {
 		if (fields[1] == nick) {
-		    if (slot != 0 || clear) {
+		    if (slot > 0 || clear) {
 			if (!clear) {
 			    return 'You are already signed up. Please use *!signup slot clear* to eliminate the existing sign-up first.';
 			} else {
 			    rewrite = true;
 			    taken[i] = '';
-			    prev = parseInt(fields[0]) - 1;        
+			    prev = index;        
 			}
 		    }
 		}
-		mapping[parseInt(fields[0]) - 1] = (fields.slice(1, fields.length)).join(' ');       
-		let pos = parseInt(fields[0]) - 1;
-		if (pos > high) {
-		    high = pos;
-		}
+		mapping[index] = (fields.slice(1, fields.length)).join(' ');       
 	    }
 	}
     }
+    console.log(available.length, ' slots', taken, mapping, slotlist);
     if (rewrite) {
 	fs.writeFileSync('slots_' + day + '.log', taken.join('\n') + '\n', (err) => { 
 	    if (err) throw err;
 	});
 	return 'Your sign-up for slot ' + (prev + 1) + ' has been cleared, ' + nick;
     }
-    var show = 12;
-    /* if (high < 8) {
-	show = 8;
-    } else if (high < 12) {
-	show = 12;
-    } else if (high < 16) {
-	show = 16;
-    } else {
-	show = available.length;
-    } */
+    var show = available.length;
     if (slot < 1) { // display slots
 	resp = 'The raid slots for ' + dayNames[day] + ' are:\n\n';
 	for (let i = 0; i < show; i++) {
@@ -763,14 +751,16 @@ function signupForSlot(nick, day, slot, clear) {
 	}
 	return resp;
     } else {
-	if (slot in available) {
+	console.log(slot, mapping);
+	let index = slot - 1;
+	if (index in mapping) {
+	    return 'That slot is already taken :cry:';
+	} else {
 	    fs.appendFileSync('slots_' + day + '.log', slot + ' ' + nick + '\n', (err) => {
 		if (err) throw err;
 	    });
 	    return 'You are now signed up for slot ' + slot + ', ' + nick + ' :slight_smile:';
-	} else {
-	    return 'That slot is already taken :cry:';
-	}
+	} 
     }
 }
 
