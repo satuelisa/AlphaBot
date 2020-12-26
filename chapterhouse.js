@@ -32,10 +32,15 @@ for (let i = 0; i < sAvailSlots.length; i++) {
 
 async function thankYouNote(message, info) {
     var tag = message.author.tag;
+    let suffix = '';
     if (tag.includes('AlphaBot')) { // it me, Mario
 	return;
+    } else if (tag.includes('satuelisa#0666')) {
+	suffix = '\n\nHi, mom! :heart:\n';
+    } else if (tag.includes('Frozzy#6969')) {
+	suffix = '\n\nMy mom asked me to remind you she loves you. :heart:';
     }
-    message.author.send(info + '\nThank you interacting with me.').catch(error => { console.log(tag + ' cannot receive bot DM') });
+    message.author.send(info + '\nThank you interacting with me.' + suffix).catch(error => { console.log(tag + ' cannot receive bot DM') });
 }
 
 const separator = ' # ';
@@ -761,7 +766,7 @@ async function chat(message) {
     const tag = message.author.tag;
     if (tag.includes('SpecialForce')) { // it me, Mario
 	return;
-    }
+    }	
     console.log(tag);
     var usuario =  tag.split('#')[0];
     var text = message.content.toLowerCase();
@@ -895,11 +900,11 @@ function process(message) {
 		}
 		var status = 0;
 		var timing = 0;
-		if (text.includes(' l') && text.includes(' e')) {
+		if (text.includes(' late') && text.includes(' early')) {
 		    timing = 1;
-		} else if (text.includes(' l')) {
+		} else if (text.includes(' late')) {
 		    timing = 2;
-		} else if (text.includes(' e')) {
+		} else if (text.includes(' early')) {
 		    timing = 3;
 		}
 		if (text[1] == 'm' || text.includes(' maybe')) { 
