@@ -136,12 +136,12 @@ const timeDescr = {0: '',
 		   2: ' <:time:668502892432457736> *[joining late]* ',
 		   3: ' <:time:668502892432457736>  *[leaving early]* '};
 const confirm = {1: 'confirmed', 2: 'possible', 3: 'unavailable'};
-const raidNights = [1, 5, 6]; // Mon Fri Sat 
-const nextRaid = {0: 1, 1: 5, 2: 5, 3: 5, 4: 5, 5: 6, 6: 1};
-const dayNames = {1: 'Monday', 5: 'Friday', 6: 'Saturday', 8: 'the next three raids'};
+const raidNights = [1, 3, 5]; // Mon Wed Fri 
+const nextRaid = {0: 1, 1: 3, 2: 3, 3: 5, 4: 5, 5: 1, 6: 1};
+const dayNames = {1: 'Monday', 3: 'Wednesday', 5: 'Friday', 8: 'the next three raids'};
 const ALL = 8;
 const stopWords = ["for", "as", "a", "an", "the", "of", "raid", "up", "tonight", "today", "yo", "me", "sign", "up", "gift", "gods", "to", "please"];
-const prefixList = ["mon", "fri", "sat", "all", "week"];
+const prefixList = ["mon", "wed", "fri", "all", "week"];
 const indices = {'status': 0, 'role': 1,
 		 'resource': 2, 'class': 3,
 		 'timing': 4, 'name': 5,
@@ -212,10 +212,10 @@ function reply(data, day) {
 function daySpec(text) {
     if (text.includes(' mon')) {
 	return 1;
+    } else if (text.includes(' wed')) {
+	return 3;
     } else if (text.includes(' fri')) {
 	return 5;
-    } else if (text.includes(' sat')) {
-	return 6;
     } else if (text.includes(' all') || text.includes(' week') ||
 	       (text.includes(' w') && !text.includes(' wa') && !text.includes(' wi')) || text.includes(' a')) {
 	return ALL;
